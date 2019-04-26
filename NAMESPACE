@@ -1,0 +1,32 @@
+importFrom("utils", "read.csv", "write.csv", "write.table", "capture.output")
+importFrom("stats", "na.omit")
+importFrom("methods", "is")
+
+export(
+    alteb,
+    agteb,
+    aeqb,
+    asNumeric,
+        curlyBrackets,
+        insideBrackets,
+        outsideBrackets,
+        roundBrackets,
+    checkMV,
+    combinations,
+    dashes,
+    isNegated,
+    possibleNumeric,
+    prettyTable,
+    splitstr,
+    recode,
+        hastilde,
+        notilde,
+        tildae,
+        tilde1st,
+    translate,
+    trimstr,
+    tryCatchWEM,
+    wholeNumeric
+)
+
+S3method(print, "translate")
