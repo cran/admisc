@@ -88,3 +88,292 @@
         return(y)
     }
 }
+`getBigList` <- function(expression, prod.split = "") {
+    expression <- gsub("[[:space:]]", "", expression)
+    big.list <- splitMainComponents(expression)
+    big.list <- splitBrackets(big.list)
+    big.list <- removeSingleStars(big.list)
+    big.list <- splitPluses(big.list)
+    big.list <- splitStars(big.list, prod.split)
+    big.list <- splitTildas(big.list)
+    big.list <- solveBrackets(big.list)
+    big.list <- simplifyList(big.list)
+    return(big.list)
+}
+`splitMainComponents` <- function(expression) {
+    expression <- gsub("[[:space:]]", "", expression)
+    ind.char <- unlist(strsplit(expression, split = ""))
+    if (grepl("\\(", expression)) {
+        open.brackets <- which(ind.char == "(")
+        closed.brackets <- which(ind.char == ")")
+        invalid <- ifelse(grepl("\\)", expression), length(open.brackets) != length(closed.brackets), TRUE)
+        if (invalid) {
+            cat("\n")
+            stop("Invalid expression, open bracket \"(\" not closed with \")\".\n\n", call. = FALSE)
+        }
+        all.brackets <- sort(c(open.brackets, closed.brackets))
+        if (length(all.brackets) > 2) {
+            for (i in seq(3, length(all.brackets))) {
+                if (all.brackets[i] - all.brackets[i - 1] == 1) {
+                    open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
+                    closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
+                }
+                if (all.brackets[i] - all.brackets[i - 1] == 2) {
+                    if (ind.char[all.brackets[i] - 1] != "+") {
+                        open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
+                        closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
+                    }
+                }
+            }
+        }
+        for (i in seq(length(open.brackets))) {
+            plus.signs <- which(ind.char == "+")
+            last.plus.sign <- plus.signs[plus.signs < open.brackets[i]]
+            if (length(last.plus.sign) > 0) {
+                open.brackets[i] <- max(last.plus.sign) + 1
+            }
+            else {
+                if (1 == 1) { 
+                    open.brackets[i] <- 1
+                }
+            }
+            next.plus.sign <- plus.signs[plus.signs > closed.brackets[i]]
+            if(length(next.plus.sign) > 0) {
+                closed.brackets[i] <- min(next.plus.sign) - 1
+            }
+            else {
+                closed.brackets[i] <- length(ind.char)
+            }
+        }
+        big.list <- vector(mode="list", length = length(open.brackets) + 2)
+        if (length(open.brackets) == 1) {
+            if (open.brackets > 1) {
+                big.list[[1]] <- paste(ind.char[seq(1, open.brackets - 2)], collapse = "")
+            }
+            nep <- min(which(unlist(lapply(big.list, is.null))))
+            big.list[[nep]] <- paste(ind.char[seq(open.brackets, closed.brackets)], collapse = "")
+            if (closed.brackets < length(ind.char)) {
+                nep <- min(which(unlist(lapply(big.list, is.null))))
+                big.list[[nep]] <- paste(ind.char[seq(closed.brackets + 2, length(ind.char))], collapse = "")
+            }
+        }
+        else {
+            for (i in seq(length(open.brackets))) {
+                if (i == 1) {
+                    if (open.brackets[1] > 1) {
+                        big.list[[1]] <- paste(ind.char[seq(1, open.brackets[1] - 2)], collapse = "")
+                    }
+                    nep <- min(which(unlist(lapply(big.list, is.null))))
+                    big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
+                }
+                else {
+                    nep <- min(which(unlist(lapply(big.list, is.null))))
+                    big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
+                    if (i == length(closed.brackets)) {
+                        if (closed.brackets[i] < length(ind.char)) {
+                            nep <- min(which(unlist(lapply(big.list, is.null))))
+                            big.list[[nep]] <- paste(ind.char[seq(closed.brackets[i] + 2, length(ind.char))], collapse = "")
+                        }
+                    }
+                }
+            }
+        }
+        nulls <- unlist(lapply(big.list, is.null))
+        if (any(nulls)) {
+            big.list <- big.list[-which(nulls)]
+        }
+    }
+    else {
+        big.list <- list(expression)
+    }
+    return(big.list)
+}
+`splitBrackets` <- function(big.list) {
+    return(lapply(big.list, function(x) {
+        as.list(unlist(strsplit(unlist(strsplit(x, split="\\(")), split="\\)")))
+    }))
+}
+`removeSingleStars` <- function(big.list) {
+    return(lapply(big.list, function(x) {
+        single.stars <- unlist(lapply(x, function(y) {
+            return(y == "*")
+        }))
+        return(x[!single.stars])
+    }))
+}
+`splitPluses` <- function(big.list) {
+    return(lapply(big.list, function(x) {
+        lapply(x, function(y) {
+            plus.split <- unlist(strsplit(y, "\\+"))
+            return(as.list(plus.split[plus.split != ""]))
+        })
+    }))
+}
+`splitStars` <- function(big.list, prod.split) {
+    return(lapply(big.list, function(x) {
+        lapply(x, function(y) {
+            lapply(y, function(z) {
+                star.split <- unlist(strsplit(z, ifelse(prod.split == "", "", paste("\\", prod.split, sep=""))))
+                star.split <- star.split[star.split != ""]
+                if (prod.split == "") {
+                    tilda <- hastilde(star.split)
+                    if (any(tilda)) {
+                        tilda.pos <- which(tilda)
+                        if (max(tilda.pos) == length(star.split)) {
+                            cat("\n")
+                            stop(paste("Unusual expression \"", z, "\": terminated with a \"~\" sign?\n\n", sep=""), call. = FALSE)
+                        }
+                        star.split[tilda.pos + 1] <- paste("~", star.split[tilda.pos + 1], sep="")
+                        star.split <- star.split[-tilda.pos]
+                    }
+                }
+                return(as.list(star.split[star.split != ""]))
+            })
+        })
+    }))
+}
+`splitTildas` <- function (big.list) {
+    return(lapply(big.list, function(x) {
+        lapply(x, function(y) {
+            lapply(y, function(z) {
+                lapply(z, function(w) {
+                    if (hastilde(w)) {
+                        wsplit <- unlist(strsplit(w, split = ""))
+                        if (max(which(hastilde(wsplit))) > 1) {
+                            cat("\n")
+                            stop(paste("Unusual expression: ", w, ". Perhaps you meant \"*~\"?\n\n", sep=""), call. = FALSE)
+                        }
+                        else {
+                            return(c("~", notilde(w)))
+                        }
+                    }
+                    else {
+                        return(w)
+                    }
+                })
+            })
+        })
+    }))
+}
+`solveBrackets` <- function(big.list) {
+    bracket.comps <- which(unlist(lapply(big.list, length)) > 1)
+    if (length(bracket.comps) > 0) {
+        for (i in bracket.comps) {
+            lengths <- unlist(lapply(big.list[[i]], length))
+            indexes <- expand.grid(lapply(lengths - 1, seq, from = 0)) + 1
+            ncol.ind <- ncol(indexes)
+            i.list <- vector("list", length = nrow(indexes))
+            for (j in seq(length(i.list))) {
+                i.list[[j]] <- vector("list", length = prod(dim(indexes)))
+                start.position <- 1
+                for (k in seq(ncol.ind)) {
+                    for (l in seq(length(big.list[[i]][[k]][[indexes[j, k]]]))) {
+                        i.list[[j]][[start.position]] <- big.list[[i]][[k]][[indexes[j, k]]][[l]]
+                        start.position <- start.position + 1
+                    }
+                }
+                if (start.position <= length(i.list[[j]])) {
+                    i.list[[j]] <- i.list[[j]][- seq(start.position, length(i.list[[j]]))]
+                }
+            }
+            big.list[[i]] <- list(i.list)
+        }
+    }
+    return(big.list)
+}
+`simplifyList` <- function(big.list) {
+    lengths <- unlist(lapply(big.list, function(x) length(x[[1]])))
+    big.list.copy <- vector("list", length = sum(lengths))
+    start.position <- 1
+    for (i in seq(length(big.list))) {
+        for (j in seq(lengths[i])) {
+            big.list.copy[[start.position]] <- big.list[[i]][[1]][[j]]
+            start.position <- start.position + 1
+        }
+    }
+    return(big.list.copy)
+}
+`negateValues` <- function(big.list, tilda = TRUE, use.tilde = FALSE) {
+    lapply(big.list, function(x) {
+        lapply(x, function(y) {
+            if (tilda) {
+                if (length(y) > 1) {
+                    y <- toupper(y[2])
+                }
+                else {
+                    if (use.tilde) {
+                        y <- c("~", toupper(y))
+                    }
+                    else {
+                        y <- tolower(y)
+                    }
+                }
+            }
+            else {
+                if (y == toupper(y)) {
+                    if (use.tilde) {
+                        y <- c("~", toupper(y))
+                    }
+                    else {
+                        y <- tolower(y)
+                    }
+                }
+                else {
+                    y <- toupper(y)
+                }
+            }
+        })
+    })
+}
+`removeDuplicates` <- function(big.list) {
+    big.list <- lapply(big.list, function(x) {
+        values <- unlist(lapply(x, paste, collapse=""))
+        x <- x[!duplicated(values)]
+        ind.values <- unlist(x)
+        ind.values <- ind.values[!hastilde(ind.values)]
+        ind.values <- toupper(ind.values)
+        if (length(x) == 0 | any(table(ind.values) > 1)) {
+            return(NULL)
+        }
+        else {
+            return(x)
+        }
+    })
+    big.list <- big.list[!unlist((lapply(big.list, is.null)))]
+    blp <- lapply(big.list, function(x) {
+        unlist(lapply(x, paste, collapse=""))
+    })
+    redundants <- vector(length = length(big.list))
+    pairings <- combnk(length(big.list), 2)
+    for (i in seq(ncol(pairings))) {
+        blp1 <- blp[[pairings[1, i]]]
+        blp2 <- blp[[pairings[2, i]]]
+        if (length(blp1) == length(blp2)) {
+            if (all(sort(blp1) == sort(blp2))) {
+                redundants[pairings[2, i]] <- TRUE
+            }
+        }
+        else {
+            if (length(blp1) < length(blp2)) {
+                if (length(setdiff(blp1, blp2)) == 0) {
+                    redundants[pairings[2, i]] <- TRUE
+                }
+            }
+            else {
+                if (length(setdiff(blp2, blp1)) == 0) {
+                    redundants[pairings[1, i]] <- TRUE
+                }
+            }
+        }
+    }
+    return(big.list[!redundants])
+}
+`getNonChars` <- function(x) {
+    x <- gsub("^[[:space:]]+|[[:space:]]+$", "", unlist(strsplit(x, "\\+")))
+    z <- vector(mode="list", length=length(x))
+    for (i in seq(length(x))) {
+        z[[i]] <- strsplit(gsub("[[:alnum:]]", "", x[i]), "+")[[1]]
+    }
+    z <- notilde(unique(unlist(z)))
+    return(z[-which(z == "")])
+}

@@ -25,24 +25,26 @@
 
 `translate` <-
 function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
+    other.args <- list(...)
+    enter <- ifelse (is.element("enter", names(other.args)), "",  "\n") 
     if (identical(expression, "")) {
-        cat("\n")
-        stop(simpleError("Empty expression.\n\n"))
+        cat(enter)
+        stop(simpleError(paste0("Empty expression.", enter, enter)))
     }
     if (any(grepl("<=>", expression)) |
         any(grepl("=>", expression))  | 
         any(grepl("<=", expression))) {
-        cat("\n")
-        stop(simpleError("Incorrect expression.\n\n"))
+        cat(enter)
+        stop(simpleError(paste0("Incorrect expression.", enter, enter)))
     }
     if (!is.vector(snames)) {
-        cat("\n")
-        stop(simpleError("Set names should be a single string or a vector of names.\n\n"))
+        cat(enter)
+        stop(simpleError(paste0("Set names should be a single string or a vector of names.", enter, enter)))
     }
     if (!is.null(data)) {
         if (is.null(colnames(data))) {
-            cat("\n")
-            stop(simpleError("Data does not have column names.\n\n"))
+            cat(enter)
+            stop(simpleError(paste0("Data does not have column names.", enter, enter)))
         }
         else {
             snamesorig <- colnames(data)
@@ -50,10 +52,9 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
     }
     if (!requireNamespace("QCA", quietly = TRUE)) {
-        cat("\n")
+        cat(enter)
         stop("Package \"QCA\" is needed for this function to work. Please install it.", call. = FALSE)
     }
-    other.args <- list(...)
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
         syscalls <- parse(text = paste(unlist(lapply(sys.calls(), deparse)), collapse = "\n"))
         if (length(withdata <- grep("with\\(", syscalls)) > 0) {
@@ -71,8 +72,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         snames <- toupper(splitstr(snames))
         if (!is.null(data)) {
             if (length(setdiff(snames, colnames(data))) > 0) {
-                cat("\n")
-                stop(simpleError("Part(s) of the \"snames\" not in the column names from the data.\n\n"))
+                cat(enter)
+                stop(simpleError(paste0("Part(s) of the \"snames\" not in the column names from the data.", enter, enter)))
             }
         }
     }
@@ -104,7 +105,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     expression <- unlist(lapply(expression, function(x) {
         if (grepl("[(|)]", x)) {
-            x <- do.call(QCA::simplify, c(list(expression = x), arglist)) 
+            x <- do.call(expandBrackets, c(list(expression = x), arglist)) 
         }
         return(x)
     }))
@@ -143,7 +144,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                     beforemessage <- paste(beforemessage, "s", sep = "")
                     aftermessage <- gsub("does", "do", aftermessage)
                 }
-                cat("\n")
+                cat(enter)
                 stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
             }
         }
@@ -186,8 +187,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         names(retlist) <- pporig
         retlist <- retlist[!unlist(lapply(retlist, function(x) any(unlist(lapply(x, length)) == 0)))]
         if (length(retlist) == 0) {
-            cat("\n")
-            stop(simpleError("The result is an empty set.\n\n"))
+            cat(enter)
+            stop(simpleError(paste0("The result is an empty set.", enter, enter)))
         }
     }
     else {
@@ -195,8 +196,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         if (any(grepl("[*]", expression))) {
             conds <- unique(notilde(unlist(strsplit(pp, split="[*]"))))
             if (!all(is.element(conds, c(tolower(conds), toupper(conds))))) {
-                cat("\n")
-                stop(simpleError("Conditions' names cannot contain both lower and upper case letters.\n\n"))
+                cat(enter)
+                stop(simpleError(paste0("Conditions' names cannot contain both lower and upper case letters.", enter, enter)))
             }
             conds <- sort(unique(toupper(conds)))
             if (!identical(snames, "")) {
@@ -206,8 +207,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                         valid <- which(infodata$noflevels >= 2)
                         invalid <- !any(infodata$hastime[valid]) & any(infodata$noflevels[valid] > 2)
                         if (invalid) {
-                            cat("\n")
-                            stop(simpleError("Expression should be multi-value, since it refers to multi-value data.\n\n"))
+                            cat(enter)
+                            stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
                         }
                     }
                 }
@@ -220,7 +221,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                         beforemessage <- paste(beforemessage, "s", sep = "")
                         aftermessage <- gsub("does", "do", aftermessage)
                     }
-                    cat("\n")
+                    cat(enter)
                     stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
                 }
             }
@@ -257,8 +258,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             if (!is.null(data)) {
                 if (all(is.element(conds, snames)) & all(is.element(conds, toupper(colnames(data))))) {
                     if (any(QCA::getLevels(data[, conds]) > 2)) {
-                        cat("\n")
-                        stop(simpleError("Expression should be multi-value, since it refers to multi-value data.\n\n"))
+                        cat(enter)
+                        stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
                     }
                 }
             }
@@ -273,7 +274,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                             beforemessage <- paste(beforemessage, "s", sep = "")
                             aftermessage <- gsub("does", "do", aftermessage)
                         }
-                        cat("\n")
+                        cat(enter)
                         stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
                     }
                 }
@@ -296,8 +297,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                     conds <- snames
                 if (all(is.element(toupper(notilde(pp)), snames))) {
                     if (!all(is.element(notilde(pporig), c(tolower(conds), toupper(conds))))) {
-                        cat("\n")
-                        stop(simpleError("Conditions' names cannot contain both lower and upper case letters.\n\n"))
+                        cat(enter)
+                        stop(simpleError(paste0("Conditions' names cannot contain both lower and upper case letters.", enter, enter)))
                     }
                     retlist <- lapply(pp, function(x) {
                         inx <- as.numeric(identical(x, toupper(x)))
@@ -318,7 +319,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                             if (!all(is.element(tocheck <- toupper(x[!hastilde(x)]), toupper(conds)))) {
                                 for (i in seq(length(tocheck))) {
                                     if (!is.element(tocheck[i], conds)) {
-                                        cat("\n")
+                                        cat(enter)
                                         stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, tocheck[i], aftermessage)))
                                     }
                                 }
@@ -326,8 +327,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                             if (any(hastilde(x))) {
                                 y <- which(hastilde(x))
                                 if (max(y) == length(x)) {
-                                    cat("\n")
-                                    stop(simpleError("Incorrect expression, tilde not in place.\n\n"))
+                                    cat(enter)
+                                    stop(simpleError(paste0("Incorrect expression, tilde not in place.", enter, enter)))
                                 }
                                 x[y + 1] <- paste("~", x[y + 1], sep="")
                                 x <- x[-y]
@@ -373,12 +374,12 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                         }
                         snames <- snames[unlist(lapply(snames, grepl, toupper(expression)))]
                         if (length(snames) == 0) {
-                            cat("\n")
+                            cat(enter)
                             stop(simpleError(sprintf("Could not determine what '%s' is.\n\n", expression)))
                         }
                         if (length(snames) > 7) {
-                            cat("\n")
-                            stop(simpleError("Too many objects to search, try using the '*' sign to specify conjuctions.\n\n"))
+                            cat(enter)
+                            stop(simpleError(paste0("Too many objects to search, try using the '*' sign to specify conjuctions.", enter, enter)))
                         }
                         im <- QCA::createMatrix(rep(3, length(snames)))[-1, , drop = FALSE]
                         mns <- matrix(nrow = 0, ncol = ncol(im))
@@ -396,14 +397,14 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                         })
                         namespace <- unlist(lapply(mns, function(x) apply(x, 1, paste, collapse = "")))
                         if (any(duplicated(namespace))) {
-                            cat("\n")
-                            stop(simpleError("Impossible to translate: set names clash.\n\n"))
+                            cat(enter)
+                            stop(simpleError(paste0("Impossible to translate: set names clash.", enter, enter)))
                         }
                         names(namespace) <- unlist(lapply(seq(length(mns)), function(x) paste(x, seq(nrow(mns[[x]])), sep = "_")))
                         matched <- match(notilde(pp), namespace)
                         if (any(is.na(matched))) {
-                            cat("\n")
-                            stop(simpleError("Incorrect expression, unknown set names (try using * for products).\n\n"))
+                            cat(enter)
+                            stop(simpleError(paste0("Incorrect expression, unknown set names (try using * for products).", enter, enter)))
                         }
                         matched <- names(namespace)[matched]
                         retlist <- lapply(seq(length(matched)), function(x) {    
@@ -433,8 +434,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         return(x)
     }))
     if (length(retmat) == 0) {
-        cat("\n")
-        stop(simpleError("Impossible to translate an empty set.\n\n"))
+        cat(enter)
+        stop(simpleError(paste0("Impossible to translate an empty set.", enter, enter)))
     }
     if (is.element("retlist", names(other.args))) {
         attr(retmat, "retlist") <- retlist

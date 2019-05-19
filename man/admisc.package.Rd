@@ -12,7 +12,7 @@ Adrian Dusa's Miscellaneous
 
 \description{
 Contains functions used across packages 'QCA', 'DDIwR', and 'venn'.
-Interprets and translates DNF - Disjunctive Normal Form expressions, for both
+Interprets and translates SOP - sum of products expressions, for both
 binary and multi-value crisp sets, and extracts information (set names, set
 values) from those expressions. Other functions perform various other checks
 if possibly numeric (even if all numbers reside in a character vector) and
@@ -27,8 +27,8 @@ being listed in the Imports field (due to circular dependency issues).
     \tabular{ll}{
     Package: \tab admisc\cr
     Type:    \tab Package\cr
-    Version: \tab 0.1\cr
-    Date:    \tab 2019-04-25\cr
+    Version: \tab 0.2\cr
+    Date:    \tab 2019-05-19\cr
     License: \tab GPL (>= 2)\cr
     }
 }

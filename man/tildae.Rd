@@ -26,15 +26,15 @@ isNegated(x)
 \details{
 Boolean expressions can be negated in various ways. For binary crisp and fuzzy sets, one of
 the most straightforward ways to invert the set membership scores is to subtract them from 1.
-This is both possible using R vectors and also often used to signal a negation in DNF
-(Disjunctive Normal Form) expressions. 
+This is both possible using R vectors and also often used to signal a negation in SOP
+(sum of products) expressions. 
 
-Some other times, DNF expressions can signal a set negation (also known as the absence of a 
+Some other times, SOP expressions can signal a set negation (also known as the absence of a 
 causal condition) by using lower case letters, while upper case letters are used to signal
-the presence of a causal condition. DNF expressions also use a tilde to signal a set negation,
+the presence of a causal condition. SOP expressions also use a tilde to signal a set negation,
 immediately preceding the set name.
 
-This set of functions detect when and if a set present in a DNF expression contains a tilde
+This set of functions detect when and if a set present in a SOP expression contains a tilde
 (function \bold{\code{hastilde}}), whether the entire expression begins with a tilde (function
 \bold{\code{tilde1st}}), and also if a condition is negated (function \bold{\code{isNegated}}).
 }

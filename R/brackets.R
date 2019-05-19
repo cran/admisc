@@ -71,3 +71,113 @@
         return(gsub("\\(|\\)|\\*", "", res))
     }
 }
+`expandBrackets` <- function(expression, snames = "", noflevels = NULL, use.tilde = FALSE) {
+    snames <- splitstr(snames)
+    multivalue <- any(grepl("[{|}]", expression))
+    sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
+    getbl <- function(expression) {
+        bl <- splitMainComponents(gsub("[[:space:]]", "", expression))
+        bl <- splitBrackets(bl)
+        bl <- removeSingleStars(bl)
+        bl <- splitPluses(bl)
+        blu <- unlist(bl)
+        bl <- splitStars(bl, ifelse((sl | any(hastilde(blu) & !tilde1st(blu))) & !grepl("[*]", expression) & !multivalue, "", "*"))
+        bl <- solveBrackets(bl)
+        bl <- simplifyList(bl)
+        return(bl)
+    }
+    bl <- list()
+    if (any(hastilde(expression))) {
+        use.tilde <- TRUE
+    }
+    for (i in seq(length(expression))) {
+        bl <- c(bl, lapply(getbl(expression[i]), function(x) {
+            x <- unlist(x)
+            if (multivalue) {
+                outx <- toupper(curlyBrackets(x, outside = TRUE))
+                inx <- curlyBrackets(x)
+                x <- paste(outx, "{", inx, "}", sep = "")
+            }
+            x <- cx <- unique(unlist(x))
+            tx <- which(hastilde(x))
+            if (!multivalue) {
+                if (any(tx)) {
+                    x <- notilde(x)
+                    uptx <- is.element(x[tx], toupper(x))
+                    lotx <- is.element(x[tx], tolower(x))
+                    x[tx[uptx]] <- tolower(x[tx[uptx]])
+                    x[tx[lotx]] <- toupper(x[tx[lotx]])
+                }
+            }
+            cx <- cx[!duplicated(x)]
+            if (any(duplicated(toupper(notilde(cx))))) {
+                return(NULL)
+            }
+            else {
+                if (use.tilde) {
+                    tx <- hastilde(cx)
+                    x <- notilde(cx)
+                    lotx <- is.element(x, tolower(x))
+                    tx[lotx] <- !tx[lotx]
+                    x <- toupper(x)
+                    x[tx] <- paste("~", x[tx], sep = "")
+                    cx <- x
+                }
+                return(cx)
+            }
+        }))
+    }
+    bl <- unique(bl[!unlist(lapply(bl, is.null))])
+    if (length(bl) == 0) return("")
+    expressions <- translate(paste(unlist(lapply(bl, paste, collapse = "*")), collapse = " + "), snames = snames, noflevels = noflevels)
+    snames <- colnames(expressions)
+    redundant <- logical(nrow(expressions))
+    if (nrow(expressions) > 1) {
+        for (i in seq(nrow(expressions) - 1)) {
+            if (!redundant[i]) {
+                for (j in seq(i + 1, nrow(expressions))) {
+                    if (!redundant[j]) {
+                        subsetrow <- checkSubset(expressions[c(i, j), , drop = FALSE], implicants = FALSE)
+                        if (!is.null(subsetrow)) {
+                            redundant[c(i, j)[subsetrow]] <- TRUE
+                        }
+                    }
+                }
+            }
+        }
+        expressions <- expressions[!redundant, , drop = FALSE]
+        if (possibleNumeric(expressions)) {
+            mat <- matrix(asNumeric(expressions) + 1, nrow = nrow(expressions))
+            colnames(mat) <- colnames(expressions)
+            expressions <- sortExpressions(mat) - 1
+        }
+        else {
+            expressions <- expressions[order(apply(expressions, 1, function(x) sum(x < 0)), decreasing = TRUE), , drop = FALSE]
+        }
+    }
+    expressions <- unlist(apply(expressions, 1, function(x) {
+        result <- c()
+        for (i in seq(length(snames))) {
+            if (x[i] != -1) {
+                if (multivalue) {
+                    result <- c(result, paste(snames[i], "{", x[i], "}", sep = ""))
+                }
+                else {
+                    if (x[i] == 0) {
+                        if (use.tilde) {
+                            result <- c(result, paste("~", snames[i], sep = ""))
+                        }
+                        else {
+                            result <- c(result, tolower(snames[i]))
+                        }
+                    }
+                    else {
+                        result <- c(result, snames[i])
+                    }
+                }
+            }
+        }
+        return(paste(result, collapse = "*"))
+    }))
+    return(paste(expressions, collapse = " + "))
+}

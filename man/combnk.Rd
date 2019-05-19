@@ -1,6 +1,6 @@
-\name{combinations}
+\name{combnk}
 
-\alias{combinations}
+\alias{combnk}
 
 \title{Generate all combinations of n numbers, taken k at a time}
 
@@ -10,7 +10,7 @@ starting from the first k numbers or from a combination that contain a certain n
 }
 
 \usage{
-combinations(n, k, aloe = 0, zerobased = FALSE)
+combnk(n, k, aloe = 0, zerobased = FALSE)
 }
 
 \arguments{
@@ -39,9 +39,9 @@ Adrian Dusa
 }
 
 \examples{
-combinations(5, 2)
+combnk(5, 2)
 
-combinations(5, 2, aloe = 3)
+combnk(5, 2, aloe = 3)
 }
 
 \keyword{functions}

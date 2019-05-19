@@ -2,12 +2,12 @@
 
 \alias{translate}
 
-\title{Translate a DNF expression}
+\title{Translate a SOP/DNF expression}
 
 \description{
-This function interprets an expression written in a DNF (disjunctive normal form), also known
-as SOP (sum of products) form, in both crisp and multivalue sets notation. The expression is 
-translated into a standard (canonical) DNF matrix.
+This function interprets an expression written in a SOP - sum of products form (or in the
+canonical DNF - disjunctive normal form), in both crisp and multivalue sets notation. The
+expression is  translated into a standard SOP matrix.
 
 For crisp sets notation, upper case letters are considered the presence of a causal
 condition, and lower case letters are considered the absence of the respective causal
@@ -27,10 +27,12 @@ translate(expression = "", snames = "", noflevels = NULL, data = NULL, ...)
 }
 
 \details{
-A DNF - disjunctive normal form is also known as a SOP - sum of products, or in other
-words a "union of intersections", for example \bold{\code{A*D + B*c}}.
+An expression written in SOP - sum of products, is a "union of intersections", for example
+\bold{\code{A*B + B*c}}. The DNF - disjunctive normal form is also a sum of products, with
+the restriction that each product has to contain all literals. The equivalent expression is:
+\bold{\code{A*B*c + A*B*c + a*B*c}}.
 
-The same expression can be written in multivalue notation: \bold{\code{A{1}*D{1} + B{1}*C{0}}}.
+The same expression can be written in multivalue notation: \bold{\code{A{1}*B{1} + B{1}*C{0}}}.
 Both types of expressions are valid, and yield the same result matrix.
 
 For multivalue notation, causal conditions are expected and will be converted to upper case

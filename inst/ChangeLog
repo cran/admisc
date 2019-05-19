@@ -1,3 +1,6 @@
+Version 0.2
+    o function combinations() renamed to combnk()
+
 Version 0.1
     o start of the package
 
