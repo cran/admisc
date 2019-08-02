@@ -1,3 +1,7 @@
+Version 0.3
+    o function combinations() renamed to combnk()
+    o improved function possibleNumeric() to deal with labelled_spss
+
 Version 0.2
     o function combinations() renamed to combnk()
 
