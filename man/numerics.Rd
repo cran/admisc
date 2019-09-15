@@ -12,13 +12,12 @@ Coerces objects to class "numeric", and checks if an object is numeric.
 
 \usage{
 asNumeric(x)
-possibleNumeric(x, ...)
+possibleNumeric(x)
 wholeNumeric(x)
 }
 
 \arguments{
   \item{x}{A vector of values}
-  \item{...}{Other internal arguments.}
 }
 
 

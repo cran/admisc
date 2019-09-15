@@ -1,6 +1,12 @@
+Version 0.4
+    o fixed small printing bug in possibleNumeric()
+    o function translate() is now more robust against non-printable
+      characters
+
 Version 0.3
     o function combinations() renamed to combnk()
-    o improved function possibleNumeric() to deal with labelled_spss
+    o improved function possibleNumeric() to deal with objects of
+      class "haven_labelled"
 
 Version 0.2
     o function combinations() renamed to combnk()

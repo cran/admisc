@@ -1,20 +1,40 @@
+# Copyright (c) 2019, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 `insideBrackets` <- function(x, type = "{", invert = FALSE) {
     typematrix <- matrix(c("{", "[", "(", "}", "]", ")", "{}", "[]", "()"), nrow = 3)
-    
     tml <- which(typematrix == type, arr.ind = TRUE)[1]
-
     if (is.na(tml)) {
         tml <- 1
     }
     tml <- typematrix[tml, 1:2]
     result <- gsub(paste("\\", tml, sep = "", collapse = "|"), "",
         regmatches(x, gregexpr(paste("\\", tml, sep = "", collapse = "[[:alnum:]|,]*"), x), invert = invert)[[1]])
-    # return(trimstr(result[result != ""]))
     result <- gsub("\\*|\\+", "", unlist(strsplit(gsub("\\s+", " ", result), split = " ")))
     return(result[result != ""])
 }
-
-
 `outsideBrackets` <- function(x, type = "{") {
     typematrix <- matrix(c("{", "[", "(", "}", "]", ")", "{}", "[]", "()"), nrow = 3)
     tml <- which(typematrix == type, arr.ind = TRUE)[1]
@@ -26,12 +46,8 @@
     result <- gsub("\\*|\\+", "", unlist(strsplit(gsub("\\s+", " ", trimstr(gsub(pattern, " ", x))), split = " ")))
     return(result[result != ""])
 }
-
-
 `curlyBrackets` <- function(x, outside = FALSE) {
-    # just in case it was previously split
     x <- paste(x, collapse = "+")
-    
     regexp <- "\\{[[:alnum:]|,|;]+\\}"
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
@@ -43,8 +59,6 @@
         return(gsub("\\{|\\}|\\*", "", res))
     }
 }
-
-
 `roundBrackets` <- function(x, outside = FALSE) {
     regexp <- "\\(([^)]+)\\)"
     x <- gsub("[[:space:]]", "", x)
@@ -57,64 +71,45 @@
         return(gsub("\\(|\\)|\\*", "", res))
     }
 }
-
-
 `expandBrackets` <- function(expression, snames = "", noflevels = NULL, use.tilde = FALSE) {
-    
     snames <- splitstr(snames)
     multivalue <- any(grepl("[{|}]", expression))
     sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
-
     getbl <- function(expression) {
         bl <- splitMainComponents(gsub("[[:space:]]", "", expression))
         bl <- splitBrackets(bl)
         bl <- removeSingleStars(bl)
         bl <- splitPluses(bl)
         blu <- unlist(bl)
-        # to detect something like AC + B~C with no snames (it has a tilde, but not first)
         bl <- splitStars(bl, ifelse((sl | any(hastilde(blu) & !tilde1st(blu))) & !grepl("[*]", expression) & !multivalue, "", "*"))
         bl <- solveBrackets(bl)
         bl <- simplifyList(bl)
         return(bl)
     }
-
     bl <- list()
-    
     if (any(hastilde(expression))) {
         use.tilde <- TRUE
     }
-
     for (i in seq(length(expression))) {
         bl <- c(bl, lapply(getbl(expression[i]), function(x) {
-            
             x <- unlist(x)
-            
             if (multivalue) {
                 outx <- toupper(curlyBrackets(x, outside = TRUE))
                 inx <- curlyBrackets(x)
                 x <- paste(outx, "{", inx, "}", sep = "")
             }
-            
             x <- cx <- unique(unlist(x))
             tx <- which(hastilde(x))
-            
             if (!multivalue) {
                 if (any(tx)) {
                     x <- notilde(x)
                     uptx <- is.element(x[tx], toupper(x))
                     lotx <- is.element(x[tx], tolower(x))
-                    
                     x[tx[uptx]] <- tolower(x[tx[uptx]])
                     x[tx[lotx]] <- toupper(x[tx[lotx]])
                 }
             }
-            
-            # just in case ~a was transformed into A
             cx <- cx[!duplicated(x)]
-            
-            # if there are still duplicates, it means for sure
-            # something like A and ~A
-            
             if (any(duplicated(toupper(notilde(cx))))) {
                 return(NULL)
             }
@@ -132,16 +127,11 @@
             }
         }))
     }
-    
     bl <- unique(bl[!unlist(lapply(bl, is.null))])
-    
     if (length(bl) == 0) return("")
-
     expressions <- translate(paste(unlist(lapply(bl, paste, collapse = "*")), collapse = " + "), snames = snames, noflevels = noflevels)
     snames <- colnames(expressions)
-
     redundant <- logical(nrow(expressions))
-    
     if (nrow(expressions) > 1) {
         for (i in seq(nrow(expressions) - 1)) {
             if (!redundant[i]) {
@@ -155,24 +145,16 @@
                 }
             }
         }
-
         expressions <- expressions[!redundant, , drop = FALSE]
         if (possibleNumeric(expressions)) {
-            
             mat <- matrix(asNumeric(expressions) + 1, nrow = nrow(expressions))
             colnames(mat) <- colnames(expressions)
             expressions <- sortExpressions(mat) - 1
-            
         }
         else {
             expressions <- expressions[order(apply(expressions, 1, function(x) sum(x < 0)), decreasing = TRUE), , drop = FALSE]
         }
     }
-
-    
-    
-    # this is different from QCA::writePrimeimp() because the entry matrix
-    # is not necessarily numeric, it can contain "1,2" for instance
     expressions <- unlist(apply(expressions, 1, function(x) {
         result <- c()
         for (i in seq(length(snames))) {
@@ -197,7 +179,5 @@
         }
         return(paste(result, collapse = "*"))
     }))
-    
-
     return(paste(expressions, collapse = " + "))
 }

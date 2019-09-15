@@ -1,3 +1,28 @@
+# Copyright (c) 2019, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 `trimstr` <- function(x, what = " ", side = "both") {
     if (is.element(what, c("*", "+"))) what <- paste("\\", what, sep = "")
     what <- ifelse(what == " ", "[[:space:]]", what)
@@ -8,14 +33,9 @@
     )
     gsub(pattern, "", x)
 }
-
-
 `splitstr` <- function(x) {
-    
     if (identical(x, "")) return(x)
-    
     y <- gsub("\\n", "", unlist(strsplit(gsub("[[:space:]]", "", x), split = ",")))
-    
     if (any(grepl(",", x) & grepl("[{]", x))) {
         i <- 1
         while (i <= length(y)) {
@@ -26,15 +46,10 @@
             i <- i + 1
         }
     }
-    
     if (length(y) == 1) {
-        # try again, using a semicolon
         y <- gsub("\\n", "", unlist(strsplit(gsub("[[:space:]]", "", y), split = ";")))
     }
-    
     metacall <- match.call()$x
-    
-    # Provides functionality for package QCA
     if (metacall == "sort.by") {
         if (any(grepl("[=]", y))) {
             y <- t(as.data.frame(strsplit(y, split = "=")))
@@ -73,13 +88,8 @@
         return(y)
     }
 }
-
-
-
 `getBigList` <- function(expression, prod.split = "") {
-    
     expression <- gsub("[[:space:]]", "", expression)
-    
     big.list <- splitMainComponents(expression)
     big.list <- splitBrackets(big.list)
     big.list <- removeSingleStars(big.list)
@@ -88,40 +98,26 @@
     big.list <- splitTildas(big.list)
     big.list <- solveBrackets(big.list)
     big.list <- simplifyList(big.list)
-    
     return(big.list)
 }
-
-
-
 `splitMainComponents` <- function(expression) {
-    
     expression <- gsub("[[:space:]]", "", expression)
-    
     ind.char <- unlist(strsplit(expression, split = ""))
-    
     if (grepl("\\(", expression)) {
-        # split the string in individual characters
-    
         open.brackets <- which(ind.char == "(")
         closed.brackets <- which(ind.char == ")")
-        
         invalid <- ifelse(grepl("\\)", expression), length(open.brackets) != length(closed.brackets), TRUE)
-        
         if (invalid) {
             cat("\n")
             stop("Invalid expression, open bracket \"(\" not closed with \")\".\n\n", call. = FALSE)
         }
-        
         all.brackets <- sort(c(open.brackets, closed.brackets))
-        
         if (length(all.brackets) > 2) {
             for (i in seq(3, length(all.brackets))) {
                 if (all.brackets[i] - all.brackets[i - 1] == 1) {
                     open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
                     closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
                 }
-                
                 if (all.brackets[i] - all.brackets[i - 1] == 2) {
                     if (ind.char[all.brackets[i] - 1] != "+") {
                         open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
@@ -130,7 +126,6 @@
                 }
             }
         }
-        
         for (i in seq(length(open.brackets))) {
             plus.signs <- which(ind.char == "+")
             last.plus.sign <- plus.signs[plus.signs < open.brackets[i]]
@@ -138,7 +133,7 @@
                 open.brackets[i] <- max(last.plus.sign) + 1
             }
             else {
-                if (1 == 1) { # ????
+                if (1 == 1) { 
                     open.brackets[i] <- 1
                 }
             }
@@ -150,20 +145,14 @@
                 closed.brackets[i] <- length(ind.char)
             }
         }
-                    
-        # create an empty list with at least 3 times as many components as number of open brackets (just to make sure I have enough)
         big.list <- vector(mode="list", length = length(open.brackets) + 2)
-        
         if (length(open.brackets) == 1) {
-            # there is only one open bracket
             if (open.brackets > 1) {
-                # there's something before that open bracket
                 big.list[[1]] <- paste(ind.char[seq(1, open.brackets - 2)], collapse = "")
             }
             nep <- min(which(unlist(lapply(big.list, is.null))))
             big.list[[nep]] <- paste(ind.char[seq(open.brackets, closed.brackets)], collapse = "")
             if (closed.brackets < length(ind.char)) {
-                # there is something beyond the closed bracket
                 nep <- min(which(unlist(lapply(big.list, is.null))))
                 big.list[[nep]] <- paste(ind.char[seq(closed.brackets + 2, length(ind.char))], collapse = "")
             }
@@ -171,79 +160,39 @@
         else {
             for (i in seq(length(open.brackets))) {
                 if (i == 1) {
-                    # check if there's anything meaningful before the FIRST bracket
-                    # i.e. containing a "+" sign, like "A + B(C + D)"
-                    # before the first bracket is "A + B", but only B should be multiplied with "C + D"
-                    
                     if (open.brackets[1] > 1) {
-                        # there is something before the first bracket
                         big.list[[1]] <- paste(ind.char[seq(1, open.brackets[1] - 2)], collapse = "")
                     }
-                    
                     nep <- min(which(unlist(lapply(big.list, is.null))))
                     big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
-                    
                 }
                 else {
                     nep <- min(which(unlist(lapply(big.list, is.null))))
                     big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
-                    
                     if (i == length(closed.brackets)) {
                         if (closed.brackets[i] < length(ind.char)) {
-                            # there is something beyond the last closed bracket
                             nep <- min(which(unlist(lapply(big.list, is.null))))
-                    
                             big.list[[nep]] <- paste(ind.char[seq(closed.brackets[i] + 2, length(ind.char))], collapse = "")
-                            
                         }
                     }
-                    
                 }
             }
         }
-        
         nulls <- unlist(lapply(big.list, is.null))
-        
         if (any(nulls)) {
             big.list <- big.list[-which(nulls)]
         }
-        
-        
-        #### additional, to make a list containing a vector,
-        #### rather than separate list components
-        # big.list <- list(unlist(big.list))
-        
     }
     else {
         big.list <- list(expression)
     }
-    
-    # names(big.list) <- expression
-    
     return(big.list)
 }
-
-
-
-#####
-# split each main component by separating brackets components
 `splitBrackets` <- function(big.list) {
-    # big.list <- as.vector(unlist(big.list))
-    # result <- vector(mode="list", length = length(big.list))
-    # for (i in seq(length(big.list))) {
-    #     result[[i]] <- unlist(strsplit(unlist(strsplit(big.list[i], split="\\(")), split="\\)"))
-    # }
-    # names(result) <- big.list
-    # return(result)
     return(lapply(big.list, function(x) {
         as.list(unlist(strsplit(unlist(strsplit(x, split="\\(")), split="\\)")))
     }))
 }
-
-
-
-#####
-# remove individual components with single "*" signs 
 `removeSingleStars` <- function(big.list) {
     return(lapply(big.list, function(x) {
         single.stars <- unlist(lapply(x, function(y) {
@@ -252,11 +201,6 @@
         return(x[!single.stars])
     }))
 }
-
-
-
-#####
-# split by "+"
 `splitPluses` <- function(big.list) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -265,11 +209,6 @@
         })
     }))
 }
-
-
-
-#####
-# split by "*"
 `splitStars` <- function(big.list, prod.split) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -288,17 +227,11 @@
                         star.split <- star.split[-tilda.pos]
                     }
                 }
-                
                 return(as.list(star.split[star.split != ""]))
             })
         })
     }))
 }
-
-
-
-#####
-# split by "~"
 `splitTildas` <- function (big.list) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -322,57 +255,36 @@
         })
     }))
 }
-
-
-
-######
-# determine if and which main components have brackets, and SOLVE them
 `solveBrackets` <- function(big.list) {
-
-
     bracket.comps <- which(unlist(lapply(big.list, length)) > 1)
-    
     if (length(bracket.comps) > 0) {
         for (i in bracket.comps) {
             lengths <- unlist(lapply(big.list[[i]], length))
             indexes <- expand.grid(lapply(lengths - 1, seq, from = 0)) + 1
-            
             ncol.ind <- ncol(indexes)
             i.list <- vector("list", length = nrow(indexes))
-            
             for (j in seq(length(i.list))) {
                 i.list[[j]] <- vector("list", length = prod(dim(indexes)))
                 start.position <- 1
-                
                 for (k in seq(ncol.ind)) {
                     for (l in seq(length(big.list[[i]][[k]][[indexes[j, k]]]))) {
                         i.list[[j]][[start.position]] <- big.list[[i]][[k]][[indexes[j, k]]][[l]]
                         start.position <- start.position + 1
                     }
                 }
-                
                 if (start.position <= length(i.list[[j]])) {
                     i.list[[j]] <- i.list[[j]][- seq(start.position, length(i.list[[j]]))]
                 }
             }
-            
-            
             big.list[[i]] <- list(i.list)
         }
     }
-    
     return(big.list)
 }
-
-
-
 `simplifyList` <- function(big.list) {
     lengths <- unlist(lapply(big.list, function(x) length(x[[1]])))
-
     big.list.copy <- vector("list", length = sum(lengths))
-    
     start.position <- 1
-    
     for (i in seq(length(big.list))) {
         for (j in seq(lengths[i])) {
             big.list.copy[[start.position]] <- big.list[[i]][[1]][[j]]
@@ -381,9 +293,6 @@
     }
     return(big.list.copy)
 }
-
-
-
 `negateValues` <- function(big.list, tilda = TRUE, use.tilde = FALSE) {
     lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -416,23 +325,13 @@
         })
     })
 }
-
-
-
 `removeDuplicates` <- function(big.list) {
-    
     big.list <- lapply(big.list, function(x) {
-        
         values <- unlist(lapply(x, paste, collapse=""))
         x <- x[!duplicated(values)]
-
-        
-        # now trying to eliminate those which have both positive and negative
-        # like "~A" and "A", or "a" and "A"
         ind.values <- unlist(x)
         ind.values <- ind.values[!hastilde(ind.values)]
         ind.values <- toupper(ind.values)
-        
         if (length(x) == 0 | any(table(ind.values) > 1)) {
             return(NULL)
         }
@@ -440,19 +339,12 @@
             return(x)
         }
     })
-    
     big.list <- big.list[!unlist((lapply(big.list, is.null)))]
-    
-    
-    # big.list.pasted
     blp <- lapply(big.list, function(x) {
         unlist(lapply(x, paste, collapse=""))
     })
-    
     redundants <- vector(length = length(big.list))
-    
     pairings <- combnk(length(big.list), 2)
-    
     for (i in seq(ncol(pairings))) {
         blp1 <- blp[[pairings[1, i]]]
         blp2 <- blp[[pairings[2, i]]]
@@ -474,22 +366,14 @@
             }
         }
     }
-    
     return(big.list[!redundants])
-    
 }
-
-
-
 `getNonChars` <- function(x) {
-    # split by "+", incluging the trimming of the white space
     x <- gsub("^[[:space:]]+|[[:space:]]+$", "", unlist(strsplit(x, "\\+")))
     z <- vector(mode="list", length=length(x))
     for (i in seq(length(x))) {
         z[[i]] <- strsplit(gsub("[[:alnum:]]", "", x[i]), "+")[[1]]
     }
     z <- notilde(unique(unlist(z)))
-    
     return(z[-which(z == "")])
 }
-
