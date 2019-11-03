@@ -54,7 +54,9 @@
                 stop(simpleError("Cannot verify the number of levels without the set names.\n\n"))
             }
             snames <- splitstr(snames)
-            noflevels <- splitstr(noflevels)
+            if (is.character(noflevels)) {
+                noflevels <- splitstr(noflevels)
+            }
             if (length(snames) != length(noflevels)) {
                 cat("\n")
                 stop(simpleError("Length of the set names differs from the length of the number of levels.\n\n"))

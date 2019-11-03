@@ -35,7 +35,7 @@
 }
 `splitstr` <- function(x) {
     if (identical(x, "")) return(x)
-    y <- gsub("\\n", "", unlist(strsplit(gsub("[[:space:]]", "", x), split = ",")))
+    y <- trimstr(gsub("\\n", "", unlist(strsplit(x, split = ","))))
     if (any(grepl(",", x) & grepl("[{]", x))) {
         i <- 1
         while (i <= length(y)) {
@@ -52,7 +52,7 @@
     metacall <- match.call()$x
     if (metacall == "sort.by") {
         if (any(grepl("[=]", y))) {
-            y <- t(as.data.frame(strsplit(y, split = "=")))
+            y <- t(as.data.frame(strsplit(gsub("[[:space:]]", "", y), split = "=")))
             values <- y[, 2] == TRUE
             names(values) <- y[, 1]
         }
@@ -67,7 +67,7 @@
     }
     else if (metacall == "thresholds") {
         if (any(grepl("[=]", y))) {
-            y <- t(as.data.frame(strsplit(y, split = "=")))
+            y <- t(as.data.frame(strsplit(gsub("[[:space:]]", "", y), split = "=")))
             values <- y[, 2]
             if (possibleNumeric(values)) {
                 values <- asNumeric(values)

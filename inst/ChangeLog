@@ -1,3 +1,14 @@
+Version 0.5
+    o new functions compute(), factorize(), intersection(), negate()
+      and simplify(), moved here from package QCA
+    o new function replaceText()
+    o minor changes to internal functions getInfo() and getLevels()
+    o improved function translate() using replaceText(), now better
+      suited in dealing with set names of variable number of
+      characters, including space
+    o as a result, argument "snames" from function venn() can deal with
+      spaces in set names (thanks to Andre Gohr for the suggestion) 
+
 Version 0.4
     o fixed small printing bug in possibleNumeric()
     o function translate() is now more robust against non-printable

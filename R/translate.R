@@ -51,10 +51,6 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             colnames(data) <- toupper(colnames(data))
         }
     }
-    if (!requireNamespace("QCA", quietly = TRUE)) {
-        cat(enter)
-        stop("Package \"QCA\" is needed for this function to work, please install it.", call. = FALSE)
-    }
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
         syscalls <- parse(text = paste(unlist(lapply(sys.calls(), deparse)), collapse = "\n"))
         if (length(withdata <- grep("with\\(", syscalls)) > 0) {
@@ -68,8 +64,8 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             snames <- colnames(data)
         }
     }
-    else { 
-        snames <- toupper(splitstr(snames))
+    else {
+            snames <- toupper(splitstr(snames))
         if (!is.null(data)) {
             if (length(setdiff(snames, colnames(data))) > 0) {
                 cat(enter)
@@ -80,21 +76,45 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     if (is.null(noflevels)) {
         if (!is.null(data)) {
             if (identical(snames, "")) {
-                noflevels <- QCA::getInfo(data)$noflevels
+                noflevels <- getInfo(data)$noflevels
             }
             else {
-                noflevels <- QCA::getInfo(data[, snames, drop = FALSE])$noflevels
+                noflevels <- getInfo(data[, snames, drop = FALSE])$noflevels
             }
         }
     }
     else {
-        noflevels <- splitstr(noflevels)
+        if (is.character(noflevels)) {
+            noflevels <- splitstr(noflevels)
+        }
+    }
+    replaced <- FALSE
+    if (!identical(snames, "") & length(snames) > 0) {
+        if (any(nchar(snames) > 1)) {
+            snameso <- snames
+            snamesr <- paste("X", seq(length(snames)), sep = "")
+            for (i in seq(length(expression))) {
+                expression[i] <- replaceText(expression[i], snames, snamesr)
+            }
+            if (!is.null(data)) {
+                positions <- c()
+                for (i in seq(length(snames))) {
+                    colpos <- setdiff(which(colnames(data) == snames[i]), positions)
+                    if (length(colpos) > 0) {
+                        colnames(data)[colpos] <- snamesr[i]
+                        positions <- c(positions, colpos)
+                    }
+                }
+            }
+            snames <- snamesr
+            replaced <- TRUE
+        }
     }
     expression <- gsub("[[:space:]]|[^ -~]+", "", expression)
     if (identical("1-", substring(expression, 1, 2))) {
         explist <- list(expression = gsub("1-", "", expression), snames = snames)
         if (!is.null(noflevels)) explist$noflevels <- noflevels
-        expression <- do.call(QCA::negate, explist)
+        expression <- do.call(negate, explist)
     }
     if (any(grepl(",", gsub(",[0-9]", "", expression)))) {
         expression <- splitstr(expression)
@@ -150,7 +170,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
         if (any(hastilde(expression))) {
             if (is.null(noflevels)) {
-                noflevels <- QCA::getLevels(data[, conds, drop = FALSE])
+                noflevels <- getInfo(data[, conds, drop = FALSE])$noflevels
             }
         }
         retlist <- lapply(pp, function(x) {
@@ -161,7 +181,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             dupnot <- duplicated(remtilde)
             if (length(win <- which(hastilde(outx))) > 0) {
                 for (i in win) {
-                    inx[[i]] <- setdiff(seq(noflevels[which(conds %in% remtilde[i])]) - 1, inx[[i]])
+                    inx[[i]] <- setdiff(seq(noflevels[which(is.element(conds, remtilde[i]))]) - 1, inx[[i]])
                 }
             }
             empty <- FALSE
@@ -203,7 +223,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             if (!identical(snames, "")) {
                 if (!is.null(data)) {
                     if (all(is.element(conds, snames)) & all(is.element(conds, toupper(colnames(data))))) {
-                        infodata <- QCA::getInfo(data[, conds, drop = FALSE])
+                        infodata <- getInfo(data[, conds, drop = FALSE])
                         valid <- which(infodata$noflevels >= 2)
                         invalid <- !any(infodata$hastime[valid]) & any(infodata$noflevels[valid] > 2)
                         if (invalid) {
@@ -257,7 +277,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             conds <- sort(unique(toupper(notilde(pp))))
             if (!is.null(data)) {
                 if (all(is.element(conds, snames)) & all(is.element(conds, toupper(colnames(data))))) {
-                    condlevels <- QCA::getLevels(data[, conds, drop = FALSE])
+                    condlevels <- getInfo(data[, conds, drop = FALSE])$noflevels
                     if (!any(is.na(condlevels))) {
                         if (any(condlevels > 2)) {
                             cat(enter)
@@ -384,11 +404,13 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                             cat(enter)
                             stop(simpleError(paste0("Too many objects to search, try using the '*' sign to specify conjuctions.", enter, enter)))
                         }
-                        im <- QCA::createMatrix(rep(3, length(snames)))[-1, , drop = FALSE]
-                        mns <- matrix(nrow = 0, ncol = ncol(im))
                         noflevels <- rep(3, length(snames))
+                        mbase <- c(rev(cumprod(rev(noflevels))), 1)[-1]
+                        im <- getMatrix(noflevels)[-1, , drop = FALSE]
+                        mns <- matrix(nrow = 0, ncol = ncol(im))
+                        max.combs <- prod(noflevels)
                         mns <- lapply(seq(2, 3^length(snames)), function(sn) {
-                            sn <- QCA::getRow(sn, noflevels)
+                            sn <- t(sapply(sn, function(x) x %/% mbase) %% noflevels)
                             snames[sn == 1] <- tolower(snames[sn == 1])
                             snames <- snames[sn > 0]
                             if (length(snames) > 1) {
@@ -430,6 +452,12 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         } 
     } 
     retlist <- retlist[!unlist(lapply(retlist, function(x) all(unlist(x) < 0)))]
+    if (replaced) {
+        for (i in seq(length(retlist))) {
+            names(retlist)[i] <- replaceText(names(retlist)[i], snames, snameso)
+            names(retlist[[i]]) <- snameso
+        }
+    }
     retmat <- do.call(rbind, lapply(retlist, function(x) {
         xnames <- names(x)
         x <- unlist(lapply(x, paste, collapse = ","))

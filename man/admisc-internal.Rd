@@ -1,26 +1,37 @@
 \name{admisc-internal}
 \alias{checkMV}
 \alias{checkSubset}
-\alias{prettyTable}
 \alias{dashes}
-\alias{splitstr}
-\alias{tildae}
-\alias{trimstr}
+\alias{validateNames}
+\alias{verify}
 \alias{expandBrackets}
 \alias{getBigList}
-\alias{splitMainComponents}
-\alias{splitBrackets}
+\alias{getInfo}
+\alias{getLevels}
+\alias{getMatrix}
+\alias{getNonChars}
+\alias{getInfo}
+\alias{getLevels}
+\alias{negateLoop}
+\alias{negateValues}
+\alias{prettyString}
+\alias{prettyTable}
+\alias{print.deMorgan}
+\alias{print.factorize}
+\alias{removeDuplicates}
 \alias{removeSingleStars}
+\alias{splitMainComponents}
+\alias{splitstr}
+\alias{splitBrackets}
 \alias{splitPluses}
+\alias{splitProducts}
 \alias{splitStars}
 \alias{splitTildas}
 \alias{solveBrackets}
 \alias{sortExpressions}
 \alias{simplifyList}
-\alias{negateValues}
-\alias{removeDuplicates}
-\alias{getNonChars}
-\alias{splitProducts}
+\alias{tildae}
+\alias{trimstr}
 
 \title{Internal Functions}
 

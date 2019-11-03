@@ -15,20 +15,34 @@ export(
     checkMV,
     checkSubset,
     combnk,
+    compute,
     dashes,
+    factorize,
+    getInfo,
+    getLevels,
+    getMatrix,
+    intersection,
     isNegated,
     possibleNumeric,
+    prettyString,
     prettyTable,
+    deMorgan,
+    negate,
     recode,
         hastilde,
         notilde,
         tildae,
         tilde1st,
+    replaceText,
+    simplify,
+    sop,
     splitstr,
     sortExpressions,
     translate,
     trimstr,
     tryCatchWEM,
+    validateNames,
+    verify,
     wholeNumeric,
     
         splitMainComponents,
@@ -44,4 +58,9 @@ export(
         getNonChars
 )
 
+
+S3method(print, "factorize")
+S3method(print, "intersection")
 S3method(print, "translate")
+S3method(print, "deMorgan")
+S3method(print, "simplify")
