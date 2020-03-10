@@ -1,44 +1,44 @@
-\name{Interpret DNF/SOP expressions: compute, simplify, translate}
+\name{Interpret DNF/SOP expressions: compute, simplify, expand, translate}
 
 \alias{compute}
-\alias{simplify}
 \alias{sop}
+\alias{simplify}
+\alias{expand}
 \alias{translate}
 
-\title{Functions to interpret a SOP/DNF expression}
+\title{Functions to interpret and manupulate a SOP/DNF expression}
 
 \description{
-These functions interpret an expression written in a SOP - sum of products (or in canonical
-DNF - disjunctive normal form), for both crisp and multivalue notations. The function
+These functions interpret an expression written in sum of products (SOP) or in canonical
+disjunctive normal form (DNF), for both crisp and multivalue notations. The function
 \bold{\code{compute()}} calculates set membership scores based on a SOP expression applied
 to a calibrated data set (see function \bold{\code{\link[QCA]{calibrate}()}}
 from package \bold{\pkg{QCA}}), while the function \bold{\code{translate()}} translates a 
 SOP expression into a matrix form.
 
-For crisp sets notation, upper case letters are considered the presence of that causal
-condition, and lower case letters are considered the absence of the respective causal
-condition. Tilde is recognized as a negation, even in combination with upper/lower letters.
+A function similar to \bold{\code{compute()}} was initially written by Lewandowski (2015)
+but the actual code in these functions has been completely re-written and expanded with
+more extensive functionality (see details and examples below).
 
-Functions similar to \bold{\code{translate()}} and \bold{\code{compute()}} have initially
-been written by Lewandowski (2015) but the actual code in these functions has been
-completely re-written and expanded with more extensive functionality (see details and
-examples below).
-
-The function \bold{\code{simplify()}} transforms such a SOP expression (and even a POS -
-product of sums) into a simpler sum of products, minimizing it to the simplest equivalent
-logical expression. It also provides a software implementation of the intersection examples
-presented by Ragin (1987: 144-147), and extended to multi-value sets. It uses the function
+The function \bold{\code{simplify()}} transforms a SOP expression into a simpler equivalent,
+through a process of Boolean minimization. The package uses the function
 \bold{\code{\link[QCA]{minimize}()}} from package \bold{\pkg{QCA}}), so users are highly
 encouraged to install and load that package, despite not being present in the Imports field
 (due to circular dependency issues).
+
+Function \bold{\code{expand()}} performs a Quine expansion to the complete DNF, or a
+partial expansion to a SOP expression with equally complex terms.
 }
 
 \usage{
 compute(expression = "", data, separate = FALSE)
 
-simplify(expression = "", snames = "", noflevels, use.tilde = FALSE, ...)
+simplify(expression = "", snames = "", noflevels, ...)
 
 translate(expression = "", snames = "", noflevels, data, ...)
+
+expand(expression, snames = "", noflevels, partial = FALSE,
+      implicants = FALSE, ...)
 }
 
 \arguments{
@@ -47,55 +47,42 @@ translate(expression = "", snames = "", noflevels, data, ...)
   \item{separate}{Logical, perform computations on individual, separate paths.}
   \item{snames}{A string containing the sets' names, separated by commas.}
   \item{noflevels}{Numerical vector containing the number of levels for each set.}
-  \item{use.tilde}{Logical, use tilde to negate bivalent conditions.}
+  \item{partial}{Logical, perform a partial Quine expansion.}
+  \item{implicants}{Logical, return an expanded matrix in the implicants space.}
   \item{...}{Other arguments, mainly for backwards compatibility.}
 }
 
 \details{
-A DNF - disjunctive normal form is also known as a SOP - sum of products, or in other
-words a "union of intersections", for example \bold{\code{A*D + B*c}}.
+An expression written in sum of products (SOP), is a "union of intersections", for example
+\bold{\code{A*B + B*~C}}. The disjunctive normal form (DNF) is also a sum of products, with the
+restriction that each product has to contain all literals. The equivalent DNF expression is:
+\bold{\code{A*B*~C + A*B*C + ~A*B*~C}}
 
-The same expression can be written in multivalue notation: \bold{\code{A{1}*D{1} + B{1}*C{0}}}.
-Both types of expressions are valid, and yield the same result on the same dataset.
+The same expression can be written in multivalue notation: \bold{\code{A{1}*B{1} + B{1}*C{0}}}.
 
-For multivalue notation, causal conditions are expected as upper case letters, and they will be
-converted to upper case by default. Expressions can contain multiple values to translate, separated
-by a comma. If B was a multivalue causal condition, an expression could be:
-\bold{\code{A{1} + B{1,2}*C{0}}}.
+Expressions can contain multiple values for the same condition, separated by a comma. If B was
+a multivalue causal condition, an expression could be: \bold{\code{A{1} + B{1,2}*C{0}}}.
 
-In this example, all values in B equal to either 1 or 2 will be converted to 1, and the
-rest of the (multi)values will be converted to 0.
+Whether crisp or multivalue, expressions are treated as Boolean. In this last example, all values
+in B equal to either 1 or 2 will be converted to 1, and the rest of the (multi)values will be
+converted to 0.
 
-These functions automatically detects the use of tilde \dQuote{\code{~}} as a negation for a particular
-causal condition. \bold{\code{~A}} does two things: it identifies the presence of causal
-condition \bold{\code{A}} (because it was specified as upper case) and it recognizes that it
-must be negated, because of the  tilde. It works even combined with lower case names:
-\bold{\code{~a}}, which is interpreted as \bold{\code{A}}.
-
-To negate a multivalue condition using a tilde, the number of levels should be supplied
-(see examples below). Improvements in version 2.5 allow for intersections
-between multiple levels of the same condition. For a causal condition with 3 levels (0, 1 and 2)
-the following expression \bold{\code{~A{0,2}*A{1,2}}} is equivalent with \bold{\code{A{1}}}, while
-\bold{\code{A{0}*A{1}}} results in the empty set.
+Negating a multivalue condition requires a known number of levels (see examples below). Improvements
+from version 2.5 allow for intersections between multiple levels of the same condition. For a causal
+condition with 3 levels (0, 1 and 2) the following expression \bold{\code{~A{0,2}*A{1,2}}} is
+equivalent with \bold{\code{A{1}}}, while \bold{\code{A{0}*A{1}}} results in the empty set.
 
 The number of levels, as well as the set names can be automatically detected from a dataset via
-the argument \bold{\code{data}}. Arguments \bold{\code{snames}} and \bold{\code{noflevels}} have
-precedence over \bold{\code{data}}, when specified.
+the argument \bold{\code{data}}. When specified, arguments \bold{\code{snames}} and
+\bold{\code{noflevels}} have precedence over \bold{\code{data}}.
 
-The use of the product operator \bold{\code{*}} is redundant when the set names are single
-letters (for example \bold{\code{AD + Bc}}), and is also redundant for multivalue data, where 
-product terms can be separated by using the curly brackets notation.
+The product operator \bold{\code{*}} should always be used, but it can be omitted when the data
+is multivalue (where product terms are separated by curly brackets), and/or when the set names
+are single letters (for example \bold{\code{AD + B~C}}), and/or when the set names are provided
+via the argument \bold{\code{snames}}.
 
-When conditions are binary and their names have multiple letters (for example
-\bold{\code{AA + CC*bb}}), the use of the product operator \bold{\code{*}} is preferable but the
-function manages to translate an expression even without it (\bold{\code{AA + CCbb}}) by searching
-deep in the space of the conditions' names, at the cost of slowing down for a high number of causal
-conditions. For this reason, an arbitrary limit of 7 causal \bold{\code{snames}} is imposed, to
-write an expression.
-
-For the function \bold{\code{simplify()}}, if a tilde is present in the expression, the argument
-\bold{\code{use.tilde}} is automatically activated. For Boolean expressions, the simplest equivalent
-logical expression can result in the empty set, if the conditions cancel each other out.
+When expressions are simplified, their simplest equivalent can result in the empty set, if the
+conditions cancel each other out.
 }
 
 
@@ -114,6 +101,10 @@ rows and the set names on the columns, with the following codes:
 The matrix was also assigned a class "translate", to avoid printing the -1 codes when signaling
 a minimized condition. The mode of this matrix is character, to allow printing multiple levels
 in the same cell, such as "1,2".
+
+For function \bold{\code{expand()}}, a character expression or a matrix of implicants.
+
+For function \bold{\code{generate()}}, a data frame.
 }
 
 \author{
@@ -134,10 +125,10 @@ Lewandowski, J. (2015) QCAtools: Helper functions for QCA in R. R package versio
 # make sure the package QCA is loaded
 library(QCA)
 data(LF)
-compute("DEV*ind + URB*STB", data = LF)
+compute("DEV*~IND + URB*STB", data = LF)
 
 # calculating individual paths
-compute("DEV*ind + URB*STB", data = LF, separate = TRUE)
+compute("DEV*~IND + URB*STB", data = LF, separate = TRUE)
 }
 
 
@@ -152,15 +143,15 @@ simplify("(URB + LIT*~DEV)(~LIT + ~DEV)", snames = "DEV, URB, LIT")
 simplify("(A{1} + ~B{0})(B{1} + C{0})", snames = "A, B, C", noflevels = c(2, 3, 2))
 
 
-# in Ragin's (1987) book, the equation E = SG + LW is the result
+# Ragin's (1987) book presents the equation E = SG + LW as the result
 # of the Boolean minimization for the ethnic political mobilization.
 
-# intersecting the reactive ethnicity perspective (R = lw)
+# intersecting the reactive ethnicity perspective (R = ~L~W)
 # with the equation E (page 144)
 
-simplify("lw(SG + LW)", snames = "S, L, W, G")
+simplify("~L~W(SG + LW)", snames = "S, L, W, G")
 
-# [1] "SlwG"
+# [1] "S~L~WG"
 
 
 # resources for size and wealth (C = SW) with E (page 145)
@@ -176,9 +167,15 @@ factorize(simplify("SW(SG + LW)", snames = "S, L, W, G"))
 
 
 # developmental perspective (D = Lg) and E (page 146)
-simplify("Lg(SG + LW)", snames = "S, L, W, G", use.tilde = TRUE)
+simplify("L~G(SG + LW)", snames = "S, L, W, G")
 
 # [1] "LW~G"
+
+# subnations that exhibit ethnic political mobilization (E) but were
+# not hypothesized by any of the three theories (page 147)
+# ~H = ~(~L~W + SW + L~G) = GL~S + GL~W + G~SW + ~L~SW
+
+simplify("(GL~S + GL~W + G~SW + ~L~SW)(SG + LW)", snames = "S, L, W, G")
 
 
 # -----
@@ -188,14 +185,8 @@ translate("A + B*C")
 # same thing in multivalue notation
 translate("A{1} + B{1}*C{1}")
 
-# using upper/lower letters
-translate("A + b*C")
-
-# the negation with tilde is recognised
+# tilde as a standard negation (note the condition "b"!)
 translate("~A + b*C")
-
-# even in combination of upper/lower letters
-translate("~A + ~b*C")
 
 # and even for multivalue variables
 # in multivalue notation, the product sign * is redundant
@@ -212,26 +203,34 @@ translate("C{1} + ~T{1,2} + T{1}V{0} + C{0}", snames = "C, T, V", noflevels = c(
 
 # if the expression does not contain the product sign *
 # snames are required to complete the translation 
-translate("AB + cD", snames = "A, B, C, D")
-
-# otherwise snames are not required
-translate("PER*FECT + str*ing")
-
-# snames are required
-translate("PERFECT + string", snames = "PER, FECT, STR, ING")
-
-# it works even with overlapping columns
-# SU overlaps with SUB in SUBER, but the result is still correct
-translate("SUBER + subset", "SU, BER, SUB, SET")
-
-\dontrun{
-# error because combinations of condition names clash
-translate("SUPER + subset", "SUP, ER, SU, PER, SUB, SET")
-}
+translate("AaBb + ~CcDd", snames = "Aa, Bb, Cc, Dd")
 
 # to print _all_ codes from the standard output matrix
-(obj <- translate("A + b*C"))
+(obj <- translate("A + ~B*C"))
 print(obj, original = TRUE) # also prints the -1 code
+
+
+# -----
+# for expand()
+expand("~AB + B~C")
+
+# S1: ~AB~C + ~ABC + AB~C 
+
+expand("~AB + B~C", snames = "A,B,C,D")
+
+# S1: ~AB~C~D + ~AB~CD + ~ABC~D + ~ABCD + AB~C~D + AB~CD 
+
+# In implicants form:
+expand("~AB + B~C", snames = "A,B,C,D", implicants = TRUE)
+
+#      A B C D
+# [1,] 1 2 1 1    ~AB~C~D
+# [2,] 1 2 1 2    ~AB~CD
+# [3,] 1 2 2 1    ~ABC~D
+# [4,] 1 2 2 2    ~ABCD
+# [5,] 2 2 1 1    AB~C~D
+# [6,] 2 2 1 2    AB~CD
+
 }
 
 \keyword{functions}

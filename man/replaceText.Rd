@@ -10,7 +10,7 @@ Provides an improved method to replace strings, compared to function
 }
 
 \usage{
-replaceText(expression = "", target = "", replacement = "", boolean = TRUE, ...)
+replaceText(expression = "", target = "", replacement = "", boolean = FALSE, ...)
 }
 
 \arguments{
@@ -53,7 +53,7 @@ replaceText("J*JS R", "J, JS R", "A, B")
 
 # works even with Boolean expressions, where lower case
 # letters signal the absence of the causal condition
-replaceText("DEV + urb*LIT", "DEV, URB, LIT", "A, B, C")
+replaceText("DEV + urb*LIT", "DEV, URB, LIT", "A, B, C", boolean = TRUE)
 }
 
 \keyword{functions}

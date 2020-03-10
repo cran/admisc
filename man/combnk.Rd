@@ -6,18 +6,18 @@
 
 \description{
 A fast function to generate all possible combinations of n numbers, taken k at a time,
-starting from the first k numbers or from a combination that contain a certain number.
+starting from the first k numbers or starting from a combination that contain a
+certain number.
 }
 
 \usage{
-combnk(n, k, aloe = 0, zerobased = FALSE)
+combnk(n, k, ogte = 0, zerobased = FALSE)
 }
 
 \arguments{
-    \item{n}{A vector of mode numeric, character or factor.}
-    \item{k}{Character string or a vector of character strings
-                 for recoding specifications.}
-    \item{aloe}{At least one value equal to this number.}
+    \item{n}{Numeric scalar.}
+    \item{k}{Numeric scalar.}
+    \item{ogte}{At least one value greater than or equal to this number.}
     \item{zerobased}{Logical, zero or one based.}
 }
 
@@ -25,7 +25,7 @@ combnk(n, k, aloe = 0, zerobased = FALSE)
 This function differs from function \bold{\code{combn}} in package \bold{\code{utils}},
 covering only numerical vectors and therefore a lot faster.
 
-When the argument \bold{\code{aloe}} is specified, the combinations will sequentially
+When the argument \bold{\code{ogte}} is specified, the combinations will sequentially
 be incremented from those which contain that number.
 }
 
@@ -41,7 +41,7 @@ Adrian Dusa
 \examples{
 combnk(5, 2)
 
-combnk(5, 2, aloe = 3)
+combnk(5, 2, ogte = 3)
 }
 
 \keyword{functions}

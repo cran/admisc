@@ -23,18 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`negate` <- function(input, snames = "", noflevels = NULL, simplify = TRUE, ...) {
-    other.args <- list(...)
-    scollapse <- ifelse(is.element("scollapse", names(other.args)), other.args$scollapse, FALSE) 
+`invert` <- function(input, snames = "", noflevels = NULL) {
     if (!is.null(noflevels)) {
         noflevels <- splitstr(noflevels)
-        if (possibleNumeric(noflevels)) {
-            noflevels <- asNumeric(noflevels)
-        }
-        else {
-            cat("\n")
-            stop(simpleError("Invalid number of levels.\n\n"))
-        }
     }
     isol <- NULL
     minimized <- methods::is(input, "QCA_min")
@@ -76,11 +67,9 @@
     }
     mv <- any(grepl("[{|}]", input))
     if (mv) start <- FALSE
-    scollapse <- scollapse | any(nchar(snames) > 1) | mv | star
-    collapse <- ifelse(scollapse, "*", "")
-    negateit <- function(x, snames = "", noflevels = NULL, simplify = TRUE, collapse = "*") {
+    negateit <- function(x, snames = "", noflevels = NULL) {
         callist <- list(expression = x)
-        callist$snames <- snames
+        if (!identical(snames, "")) callist$snames <- snames
         if (!is.null(noflevels)) callist$noflevels <- noflevels
         trexp <- do.call(translate, callist)
         snames <- colnames(trexp)
@@ -88,7 +77,6 @@
             noflevels <- rep(2, ncol(trexp))
         }
         snoflevels <- lapply(noflevels, function(x) seq(x) - 1)
-        sr <- nrow(trexp) == 1 
         negated <- paste(apply(trexp, 1, function(x) {
             wx <- which(x != -1) 
             x <- x[wx]
@@ -100,20 +88,26 @@
                 return(paste("(", paste(nms, "{", x, "}", sep = "", collapse = " + "), ")", sep = ""))
             }
             else {
-                nms[x == 0] <- paste0("~", nms[x == 0])
-                return(paste(ifelse(sr, "", "("), paste(nms, collapse = " + ", sep = ""), ifelse(sr, "", ")"), sep = ""))
+                nms[x == 0] <- paste("~", nms[x == 0], sep = "")
+                result <- paste(nms, collapse = " + ", sep = "")
+                if (length(nms) > 1) {
+                    result <- paste("(", result, ")", sep = "")
+                }
+                return(result)
             }
-        }), collapse = "")
-        negated <- expandBrackets(negated, snames = snames, noflevels = noflevels, collapse = collapse)
-        callist$expression <- negated
-        callist$scollapse <- identical(collapse, "*")
-        callist$snames <- snames
-        if (simplify) {
-            return(unclass(do.call("simplify", callist)))
-        }
+        }), collapse = "*")
         return(negated)
     }
-    result <- lapply(input, negateit, snames = snames, noflevels = noflevels, simplify = simplify, collapse = collapse)
+    result <- lapply(input, function(x) {
+        if (grepl("\\(", x)) {
+            xexp <- expandBrackets(x, snames = snames, noflevels = noflevels)
+            if (!identical(xexp, gsub("\\(|\\)", "", x))) {
+                return(xexp)
+            }
+            x <- xexp
+        }
+        return(paste(unlist(lapply(x, negateit, snames = snames, noflevels = noflevels)), collapse = " + "))
+    })
     names(result) <- unname(input)
     if (!minimized) {
         attr(result, "expressions") <- input
@@ -125,9 +119,5 @@
         attr(result, "isol") <- isol
     }
     attr(result, "minimized") <- minimized
-    return(classify(result, "admisc_deMorgan"))
-}
-`deMorgan` <- function(...) {
-    .Deprecated(msg = "Function deMorgan() is deprecated. Use function negate() instead.\n")
-    negate(...)
+    return(classify(result, "deMorgan"))
 }

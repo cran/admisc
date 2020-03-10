@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,139 +23,44 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`simplify` <- function(expression, snames = "", noflevels = NULL, use.tilde = FALSE, ...) {
-    if (length(expression) > 1) {
-        expression <- expression[1]
-    }
+`simplify` <- function(expression, snames = "", noflevels = NULL, ...) {
     other.args <- list(...)
-    syscalls <- unlist(lapply(sys.calls(), deparse))
-    enter   <- ifelse (is.element("enter",   names(other.args)), "",  "\n") 
-    all.sol <- if     (is.element("explain", names(other.args))) other.args$explain else FALSE
-    if (!is.character(expression)) {
-        cat(enter)
-        stop(simpleError(paste0("The expression input should be character.", enter, enter)))
+    enter    <- ifelse(is.element("enter",   names(other.args)), "",  "\n") 
+    all.sol  <- ifelse(is.element("all.sol", names(other.args)), other.args$all.sol, FALSE)
+    scollapse <- ifelse(is.element("scollapse", names(other.args)), other.args$scollapse, FALSE) 
+    scollapse <- scollapse | grepl("[*]", expression)
+    if (identical(snames, "")) {
+        syscalls <- unlist(lapply(sys.calls(), deparse))
+        if (any(withdata <- grepl("with\\(", syscalls))) {
+            data <- get(unlist(strsplit(gsub("with\\(", "", syscalls), split = ","))[1], envir = length(syscalls) - which(withdata))
+            if (is.data.frame(data) | is.matrix(data)) {
+                snames <- colnames(data)
+            }
+        }
     }
-    if (any(withdata <- grepl("with\\(", syscalls))) {
-        snames <- get(unlist(strsplit(gsub("with\\(", "", syscalls), split = ","))[1], envir = length(syscalls) - which(withdata))
-    }
-    snames <- splitstr(snames)
     multivalue <- any(grepl("[{|}]", expression))
-    if (multivalue) {
-        expression <- toupper(gsub("[*]", "", expression))
-        checkMV(expression, snames = snames, noflevels = noflevels) 
+    implicants <- expand(expression, snames = snames, noflevels = noflevels,
+                        enter = enter, implicants = TRUE)
+    if (identical(unclass(implicants), "")) {
+        return(implicants)
     }
-    if (!grepl("[+]", expression) & grepl("[,]", expression)) {
-        if (multivalue) {
-            values <- curlyBrackets(expression)
-            atvalues <- paste("@", seq(length(values)), sep = "")
-            for (i in seq(length(values))) {
-                expression <- gsub(values[i], atvalues[i], expression)
-            }
-            expression <- gsub(",", "+", expression)
-            for (i in seq(length(values))) {
-                expression <- gsub(atvalues[i], values[i], expression)
-            }
-        }
-        else {
-            oldway <- unlist(strsplit(gsub("[-|;|,|[:space:]]", "", expression), split = ""))
-            if (!possibleNumeric(oldway) & length(oldway) > 0) {
-                expression <- gsub(",", "+", expression)
-            }
-        }
+    if (is.null(noflevels)) {
+        noflevels <- rep(2, ncol(implicants))
     }
-    `remred` <- function(x) {
-        if (nrow(x) > 1) {
-            redundant <- logical(nrow(x))
-            for (i in seq(nrow(x) - 1)) {
-                if (!redundant[i]) {
-                    for (j in seq(i + 1, nrow(x))) {
-                        if (!redundant[j]) {
-                            subsetrow <- checkSubset(x[c(i, j), , drop = FALSE])
-                            if (!is.null(subsetrow)) {
-                                redundant[c(i, j)[subsetrow]] <- TRUE
-                            }
-                        }
-                    }
-                }
-            }
-            x <- x[!redundant, , drop = FALSE]
-        }
-        return(x)
+    if (!requireNamespace("QCA", quietly = TRUE)) {
+        cat(enter)
+        stop("Package \"QCA\" is needed to make this work, please install it.", call. = FALSE)
     }
-    `dnf` <- function(x, noflevels = NULL) {
-        if (is.null(noflevels)) noflevels <- rep(2, length(x))
-        result <- matrix(nrow = 0, ncol = ncol(x))
-        for (i in seq(nrow(x))) {
-            xi <- x[i, ]
-            wxi <- which(xi == 0)
-            if (length(wxi) > 0) {
-                rest <- getMatrix(noflevels[wxi]) + 1
-                colnames(rest) <- wxi
-                basemat <- matrix(rep(xi[-wxi], nrow(rest)), nrow = nrow(rest), byrow = TRUE)
-                colnames(basemat) <- seq(ncol(result))[-wxi]
-                resmat <- cbind(basemat, rest)
-                resmat <- resmat[, order(colnames(resmat)), drop = FALSE]
-            }
-            else {
-                resmat <- matrix(xi, ncol = ncol(x))
-            }
-            result <- rbind(result, resmat)
-        }
-        colnames(result) <- colnames(x)
-        return(unique(result))
+    sols <- QCA::minimize(cbind(implicants - 1, 1), all.sol = all.sol, simplify = TRUE)
+    scollapse <- scollapse | any(nchar(colnames(implicants)) > 1) | any(grepl("[{]", unlist(sols$solution))) 
+    expression <- unlist(lapply(sols$solution, function(x) {
+        if (!scollapse) x <- gsub("\\*", "", x)
+        return(paste(x, collapse = " + "))  
+    }))
+    if (!identical(snames, "")) {
+        attr(expression, "snames") <- snames
     }
-    `classify` <- function(x) {
-        class(x) <- c("character", "simplify")
-        return(x)
-    }
-    if (any(grepl("[(|)]", expression))) {
-        bl <- expandBrackets(expression, snames = snames, noflevels = noflevels)
-    }
-    else {
-        bl <- expression
-    }
-    if (grepl("~", bl)) {
-        use.tilde <- TRUE
-    }
-    if (identical(bl, "")) {
-        return(classify(""))
-    }
-    tlist <- list(expression = bl, snames = snames)
-    if (!is.null(noflevels)) {
-        tlist$noflevels <- noflevels
-    }
-    tlist$noflevels <- noflevels
-    bl <- tryCatch(do.call(translate, tlist), error = function(e) e)
-    if (is.list(bl)) {
-        return(classify(""))
-    }
-    sl <-  all(nchar(colnames(bl)) == 1)
-    expressions <- matrix(nrow = 0, ncol = ncol(bl))
-    colnames(expressions) <- colnames(bl)
-    for (i in seq(nrow(bl))) {
-        expressions <- rbind(expressions, as.matrix(expand.grid(lapply(bl[i, ], function(x) {
-            asNumeric(splitstr(x)) + 1
-        }))))
-    }
-    expressions <- remred(expressions)
-    if (is.null(noflevels)) noflevels <- rep(2, ncol(expressions))
-    dnfexp <- dnf(expressions, noflevels = noflevels)
-    if (nrow(dnfexp) == prod(noflevels)) {
-        expressions <- ""
-    }
-    else {
-        if (!requireNamespace("QCA", quietly = TRUE)) {
-            cat(enter)
-            stop("Package \"QCA\" is needed to make this work, please install it.", call. = FALSE)
-        }
-        sols <- QCA::minimize(cbind(dnfexp - 1, OUTCOME_COLUMN = 1), simplify = TRUE,
-            outcome = "OUTCOME_COLUMN", use.tilde = use.tilde, all.sol = all.sol)
-        expressions <- unlist(lapply(sols$solution, paste, collapse = " + "))
-    }
-    if (sl) {
-        expressions <- gsub("[*]", "", expressions)
-    }
-    return(classify(expressions))
+    return(classify(expression, "admisc_simplify"))
 }
 `sop` <- function(...) {
     .Deprecated(msg = "Function sop() is deprecated, and has been renamed to simplify()\n")

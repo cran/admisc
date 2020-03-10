@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -71,13 +71,20 @@
         return(gsub("\\(|\\)|\\*", "", res))
     }
 }
-`expandBrackets` <- function(expression, snames = "", noflevels = NULL, use.tilde = FALSE) {
+`expandBrackets` <- function(expression, snames = "", noflevels = NULL, collapse = "*") {
     snames <- splitstr(snames)
     multivalue <- any(grepl("[{|}]", expression))
     sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
-    getbl <- function(expression) {
+    getbl <- function(expression, snames = "", noflevels = NULL) {
         bl <- splitMainComponents(gsub("[[:space:]]", "", expression))
         bl <- splitBrackets(bl)
+        bl <- lapply(bl, function(x) {
+            if (tilde1st(x[[1]]) & nchar(x[[1]]) == 1) {
+                x <- x[-1]
+                x[[1]] <- as.character(negate(x[[1]], snames = snames, noflevels = noflevels))
+            }
+            return(x)
+        })
         bl <- removeSingleStars(bl)
         bl <- splitPluses(bl)
         blu <- unlist(bl)
@@ -86,50 +93,9 @@
         bl <- simplifyList(bl)
         return(bl)
     }
-    bl <- list()
-    if (any(hastilde(expression))) {
-        use.tilde <- TRUE
-    }
-    for (i in seq(length(expression))) {
-        bl <- c(bl, lapply(getbl(expression[i]), function(x) {
-            x <- unlist(x)
-            if (multivalue) {
-                outx <- toupper(curlyBrackets(x, outside = TRUE))
-                inx <- curlyBrackets(x)
-                x <- paste(outx, "{", inx, "}", sep = "")
-            }
-            x <- cx <- unique(unlist(x))
-            tx <- which(hastilde(x))
-            if (!multivalue) {
-                if (any(tx)) {
-                    x <- notilde(x)
-                    uptx <- is.element(x[tx], toupper(x))
-                    lotx <- is.element(x[tx], tolower(x))
-                    x[tx[uptx]] <- tolower(x[tx[uptx]])
-                    x[tx[lotx]] <- toupper(x[tx[lotx]])
-                }
-            }
-            cx <- cx[!duplicated(x)]
-            if (any(duplicated(toupper(notilde(cx))))) {
-                return(NULL)
-            }
-            else {
-                if (use.tilde) {
-                    tx <- hastilde(cx)
-                    x <- notilde(cx)
-                    lotx <- is.element(x, tolower(x))
-                    tx[lotx] <- !tx[lotx]
-                    x <- toupper(x)
-                    x[tx] <- paste("~", x[tx], sep = "")
-                    cx <- x
-                }
-                return(cx)
-            }
-        }))
-    }
-    bl <- unique(bl[!unlist(lapply(bl, is.null))])
+    bl <- getbl(expression, snames = snames, noflevels = noflevels)
     if (length(bl) == 0) return("")
-    expressions <- translate(paste(unlist(lapply(bl, paste, collapse = "*")), collapse = " + "), snames = snames, noflevels = noflevels)
+    expressions <- translate(paste(unlist(lapply(bl, paste, collapse = collapse)), collapse = " + "), snames = snames, noflevels = noflevels)
     snames <- colnames(expressions)
     redundant <- logical(nrow(expressions))
     if (nrow(expressions) > 1) {
@@ -164,12 +130,7 @@
                 }
                 else {
                     if (x[i] == 0) {
-                        if (use.tilde) {
-                            result <- c(result, paste("~", snames[i], sep = ""))
-                        }
-                        else {
-                            result <- c(result, tolower(snames[i]))
-                        }
+                        result <- c(result, paste("~", snames[i], sep = ""))
                     }
                     else {
                         result <- c(result, snames[i])
@@ -177,7 +138,7 @@
                 }
             }
         }
-        return(paste(result, collapse = "*"))
+        return(paste(result, collapse = collapse))
     }))
     return(paste(expressions, collapse = " + "))
 }

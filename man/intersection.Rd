@@ -10,14 +10,13 @@ disjunctions) or even entire minimization objects, and finds their intersection.
 }
 
 \usage{
-intersection(..., snames = "", use.tilde = FALSE, noflevels = NULL)
+intersection(..., snames = "", noflevels)
 }
 
 \arguments{
   \item{...}{One or more expressions, combined with / or minimization objects
-  of class \code{"qca"}.}
+  of class \code{"QCA_min"}.}
   \item{snames}{A string containing the sets' names, separated by commas.}
-  \item{use.tilde}{Logical, use tilde to negate bivalent conditions.}
   \item{noflevels}{Numerical vector containing the number of levels for each set.}
   
 }
@@ -25,13 +24,14 @@ intersection(..., snames = "", use.tilde = FALSE, noflevels = NULL)
 \details{
 The initial aim of this function was to provide a software implementation of the
 intersection examples presented by Ragin (1987: 144-147). That type of example can also
-be performed with the function \bold{\code{\link{simplify}()}}, while this function is now
-mainly used in conjunction with the \bold{\code{\link[QCA]{modelFit}()}} function from
-package \bold{\pkg{QCA}}, to assess the intersection between theory and a QCA model.
+be performed with the function \bold{\code{simplify()}}, while this
+function is now mainly used in conjunction with the \bold{\code{\link[QCA]{modelFit}()}}
+function from package \bold{\pkg{QCA}}, to assess the intersection between theory and a
+QCA model.
 
-Irrespective of the input type (character expressions and / or minimiation objects), this
-function is now a wrapper to the main \bold{\code{\link{simplify}()}} function (which only
-accepts character expressions).
+Irrespective of the input type (character expressions and / or minimiation objects),
+this function is now a wrapper to the main \bold{\code{simplify()}}
+function (which only accepts character expressions).
 
 It can deal with any kind of expressions, but multivalent crisp conditions need additional
 information about their number of levels, via the argument \bold{\code{noflevels}}.
@@ -45,7 +45,7 @@ If the \bold{\code{snames}} argument is provided, the result is sorted according
 of the causal conditions (set names) in the original dataset, otherwise it sorts the causal
 conditions in alphabetical order.
 
-For minimzation objects of class \code{"qca"}, the number of levels, and the set names are
+For minimzation objects of class \code{"QCA_min"}, the number of levels, and the set names are
 automatically detected.
 }
 
@@ -84,7 +84,7 @@ intersection(negate(pLF), "DEV*STB")
 
 # intersecting the reactive ethnicity perspective (R = lw)
 # with the equation E (page 144)
-intersection("lw", "SG + LW", snames = "S, L, W, G")
+intersection("~L~W", "SG + LW", snames = "S, L, W, G")
 
 
 # resources for size and wealth (C = SW) with E (page 145)
@@ -95,14 +95,14 @@ intersection("SW", "SG + LW", snames = "S, L, W, G")
 factorize(intersection("SW", "SG + LW", snames = "S, L, W, G"))
 
 
-# developmental perspective (D = Lg) and E (page 146)
-intersection("Lg", "SG + LW", snames = "S, L, W, G")
+# developmental perspective (D = L~G) and E (page 146)
+intersection("L~G", "SG + LW", snames = "S, L, W, G")
 
 
 # subnations that exhibit ethic political mobilization (E) but were
 # not hypothesized by any of the three theories (page 147)
-# ~H = ~(lw + SW + Lg)
-intersection(negate("lw + SW + Lg"), "SG + LW", snames = "S, L, W, G")
+# ~H = ~(~L~W + SW + L~G)
+intersection(negate("~L~W + SW + L~G"), "SG + LW", snames = "S, L, W, G")
 }
 
 \keyword{functions}

@@ -1,5 +1,5 @@
-importFrom("utils", "read.csv", "write.csv", "write.table", "capture.output")
-importFrom("stats", "na.omit")
+importFrom("utils", "read.csv", "write.csv", "write.table", "capture.output", "installed.packages", "packageDescription", "remove.packages")
+importFrom("stats", "na.omit", "dist")
 importFrom("methods", "is")
 
 export(
@@ -14,15 +14,17 @@ export(
         expandBrackets,
     checkMV,
     checkSubset,
+    classify,
     combnk,
     compute,
     dashes,
+    expand,
     factorize,
     getInfo,
     getLevels,
     getMatrix,
     intersection,
-    isNegated,
+    invert,
     possibleNumeric,
     prettyString,
     prettyTable,
@@ -41,9 +43,12 @@ export(
     translate,
     trimstr,
     tryCatchWEM,
+    uninstall,
+    unload,
     validateNames,
     verify,
     wholeNumeric,
+    writePrimeimp,
     
         splitMainComponents,
         splitBrackets,
@@ -53,14 +58,12 @@ export(
         splitTildas,
         solveBrackets,
         simplifyList,
-        negateValues,
-        removeDuplicates,
         getNonChars
 )
 
 
-S3method(print, "factorize")
-S3method(print, "intersection")
-S3method(print, "translate")
-S3method(print, "deMorgan")
-S3method(print, "simplify")
+S3method(print, "admisc_factorize")
+S3method(print, "admisc_intersection")
+S3method(print, "admisc_translate")
+S3method(print, "admisc_deMorgan")
+S3method(print, "admisc_simplify")

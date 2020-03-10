@@ -14,7 +14,7 @@ in the Imports field (due to circular dependency issues).
 }
 
 \usage{
-factorize(input, snames = "", noflevels = NULL, pos = FALSE, use.tilde = FALSE, ...)
+factorize(input, snames = "", noflevels = NULL, pos = FALSE, ...)
 }
 
 \arguments{
@@ -23,7 +23,6 @@ factorize(input, snames = "", noflevels = NULL, pos = FALSE, use.tilde = FALSE, 
   \item{snames}{A string containing the sets' names, separated by commas.}
   \item{noflevels}{Numerical vector containing the number of levels for each set.}
   \item{pos}{Logical, if possible factorize using product(s) of sums.}
-  \item{use.tilde}{Logical, use a tilde to negate the sets.}
   \item{...}{Other arguments (mainly for backwards compatibility).}
 }
 
@@ -48,8 +47,6 @@ If \bold{\code{input}} is an object of class \code{"qca"} (the result of the
 function \bold{\code{\link[QCA]{minimize}()}} from package \bold{\pkg{QCA}}), a
 factorization is performed for each of the minimized solutions.
 
-The argument \bold{\code{use.tilde}} is automatically activated if the input contains
-a tilde to negate conditions.
 }
 
 \value{
@@ -75,20 +72,17 @@ and quantitative strategies}, Berkeley: University of California Press
 }
 
 # typical example with redundant conditions
-factorize("AbcD + AbCd + AbCD + ABCd")
+factorize("a~b~cd + a~bc~d + a~bcd + abc~d")
 
 # results presented in alphabetical order
-factorize("one*TWO*four + one*THREE + THREE*four")
+factorize("~one*two*~four + ~one*three + three*~four")
 
 # to preserve a certain order of the set names
-factorize("one*TWO*four + one*THREE + THREE*four",
-          snames = "ONE, TWO, THREE, FOUR")
-
-factorize("~ONE*TWO*~FOUR + ~ONE*THREE + THREE*~FOUR",
-          snames = "ONE, TWO, THREE, FOUR")
+factorize("~one*two*~four + ~one*three + three*~four",
+          snames = "one, two, three, four")
 
 # using pos - products of sums
-factorize("ac + aD + bc + bD", pos = TRUE)
+factorize("~a~c + ~ad + ~b~c + ~bd", pos = TRUE)
 
 \dontrun{
 # using an object of class "qca" produced with function minimize()

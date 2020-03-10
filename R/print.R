@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`print.deMorgan` <- function(x, ...) {
+`print.admisc_deMorgan` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pM <- paste("M", prettyNums, sep = "")
     if (!is.null(isol <- attr(x, "isol"))) {
@@ -67,7 +67,7 @@
         }
     }
 }
-`print.intersection` <- function(x, ...) {
+`print.admisc_intersection` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pI <- paste("E", prettyNums, sep="")
     pO <- paste("  I", prettyNums, sep="")
@@ -88,7 +88,7 @@
     }
     cat("\n")
 }
-`print.simplify` <- function(x, ...) {
+`print.admisc_simplify` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     cat("\n")
     if (all(x == "")) {
@@ -104,7 +104,7 @@
     }
     cat("\n")
 }
-`print.factorize` <- function(x, ...) {
+`print.admisc_factorize` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pM <- paste("M", prettyNums, sep = "")
     if (!is.null(isol <- attr(x, "isol"))) {
@@ -148,7 +148,7 @@
         }
     }
 }
-`print.translate` <- function(x, ...) {
+`print.admisc_translate` <- function(x, ...) {
     other.args <- list(...)
     cat("\n")
     original <- FALSE

@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -87,18 +87,6 @@
         }
         return(y)
     }
-}
-`getBigList` <- function(expression, prod.split = "") {
-    expression <- gsub("[[:space:]]", "", expression)
-    big.list <- splitMainComponents(expression)
-    big.list <- splitBrackets(big.list)
-    big.list <- removeSingleStars(big.list)
-    big.list <- splitPluses(big.list)
-    big.list <- splitStars(big.list, prod.split)
-    big.list <- splitTildas(big.list)
-    big.list <- solveBrackets(big.list)
-    big.list <- simplifyList(big.list)
-    return(big.list)
 }
 `splitMainComponents` <- function(expression) {
     expression <- gsub("[[:space:]]", "", expression)
@@ -216,7 +204,7 @@
                 star.split <- unlist(strsplit(z, ifelse(prod.split == "", "", paste("\\", prod.split, sep=""))))
                 star.split <- star.split[star.split != ""]
                 if (prod.split == "") {
-                    tilda <- hastilde(star.split)
+                    tilda <- hastilde(star.split) & length(star.split) > 1
                     if (any(tilda)) {
                         tilda.pos <- which(tilda)
                         if (max(tilda.pos) == length(star.split)) {
@@ -283,90 +271,27 @@
 }
 `simplifyList` <- function(big.list) {
     lengths <- unlist(lapply(big.list, function(x) length(x[[1]])))
-    big.list.copy <- vector("list", length = sum(lengths))
-    start.position <- 1
+    bl <- vector("list", length = sum(lengths))
+    pos <- 1
     for (i in seq(length(big.list))) {
         for (j in seq(lengths[i])) {
-            big.list.copy[[start.position]] <- big.list[[i]][[1]][[j]]
-            start.position <- start.position + 1
-        }
-    }
-    return(big.list.copy)
-}
-`negateValues` <- function(big.list, tilda = TRUE, use.tilde = FALSE) {
-    lapply(big.list, function(x) {
-        lapply(x, function(y) {
-            if (tilda) {
-                if (length(y) > 1) {
-                    y <- toupper(y[2])
-                }
-                else {
-                    if (use.tilde) {
-                        y <- c("~", toupper(y))
+            blj <- unlist(big.list[[i]][[1]][[j]])
+            if (hastilde(blj[1]) & nchar(blj[1]) == 1) {
+                blj <- blj[-1]
+                for (b in seq(length(blj))) {
+                    if (tilde1st(blj[b])) {
+                        blj[b] <- notilde(blj[b])
                     }
                     else {
-                        y <- tolower(y)
+                        blj[b] <- paste0("~", blj[b])
                     }
                 }
             }
-            else {
-                if (y == toupper(y)) {
-                    if (use.tilde) {
-                        y <- c("~", toupper(y))
-                    }
-                    else {
-                        y <- tolower(y)
-                    }
-                }
-                else {
-                    y <- toupper(y)
-                }
-            }
-        })
-    })
-}
-`removeDuplicates` <- function(big.list) {
-    big.list <- lapply(big.list, function(x) {
-        values <- unlist(lapply(x, paste, collapse=""))
-        x <- x[!duplicated(values)]
-        ind.values <- unlist(x)
-        ind.values <- ind.values[!hastilde(ind.values)]
-        ind.values <- toupper(ind.values)
-        if (length(x) == 0 | any(table(ind.values) > 1)) {
-            return(NULL)
-        }
-        else {
-            return(x)
-        }
-    })
-    big.list <- big.list[!unlist((lapply(big.list, is.null)))]
-    blp <- lapply(big.list, function(x) {
-        unlist(lapply(x, paste, collapse=""))
-    })
-    redundants <- vector(length = length(big.list))
-    pairings <- combnk(length(big.list), 2)
-    for (i in seq(ncol(pairings))) {
-        blp1 <- blp[[pairings[1, i]]]
-        blp2 <- blp[[pairings[2, i]]]
-        if (length(blp1) == length(blp2)) {
-            if (all(sort(blp1) == sort(blp2))) {
-                redundants[pairings[2, i]] <- TRUE
-            }
-        }
-        else {
-            if (length(blp1) < length(blp2)) {
-                if (length(setdiff(blp1, blp2)) == 0) {
-                    redundants[pairings[2, i]] <- TRUE
-                }
-            }
-            else {
-                if (length(setdiff(blp2, blp1)) == 0) {
-                    redundants[pairings[1, i]] <- TRUE
-                }
-            }
+            bl[[pos]] <- unique(blj)
+            pos <- pos + 1
         }
     }
-    return(big.list[!redundants])
+    return(unique(bl[!unlist(lapply(bl, function(x) any(duplicated(notilde(x)))))]))
 }
 `getNonChars` <- function(x) {
     x <- gsub("^[[:space:]]+|[[:space:]]+$", "", unlist(strsplit(x, "\\+")))

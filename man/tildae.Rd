@@ -3,7 +3,6 @@
 \alias{hastilde}
 \alias{notilde}
 \alias{tilde1st}
-\alias{isNegated}
 
 \title{Tildae operations}
 
@@ -15,7 +14,6 @@ Checks and changes expressions containing set negations using a tilde.
 hastilde(x)
 notilde(x)
 tilde1st(x)
-isNegated(x)
 }
 
 \arguments{
@@ -36,7 +34,7 @@ immediately preceding the set name.
 
 This set of functions detect when and if a set present in a SOP expression contains a tilde
 (function \bold{\code{hastilde}}), whether the entire expression begins with a tilde (function
-\bold{\code{tilde1st}}), and also if a condition is negated (function \bold{\code{isNegated}}).
+\bold{\code{tilde1st}}).
 }
 
 \author{

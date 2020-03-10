@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`combnk` <- function(n, k, aloe = 0, zerobased = FALSE) {
+`combnk` <- function(n, k, ogte = 0, zerobased = FALSE) {
     if (!is.numeric(k)) {
         cat("\n")
         stop(simpleError("Argument k should be numeric.\n\n"))
@@ -41,7 +41,7 @@
         stop(simpleError("Argument n should be greater than or equal to k.\n\n"))
     }
     if (requireNamespace("QCA", quietly = TRUE)) {
-        QCA::combint(n = n, k = k, aloe = aloe, zerobased = zerobased)
+        QCA::combint(n = n, k = k, ogte = ogte, zerobased = zerobased)
     }
     else {
         e <- 0L
@@ -58,9 +58,9 @@
                 h <- 1L
                 e <- comb[k] + zerobased 
                 comb[k] <- comb[k] + 1L
-                if (comb[k] < aloe) {
-                    comb[k] <- aloe
-                    e <- aloe - 1
+                if (comb[k] < ogte) {
+                    comb[k] <- ogte
+                    e <- ogte - 1
                 }
             }
             else {
@@ -68,12 +68,12 @@
                 h <- h + 1L
                 under <- logical(h)
                 for (j in seq(h)) {
-                    under[j] <- (e + j - zerobased < aloe) 
+                    under[j] <- (e + j - zerobased < ogte) 
                     comb[k - h + j] <- e + j - zerobased  
                 }
                 if (all(under)) {
-                    comb[k] <- aloe
-                    e <- aloe - 1
+                    comb[k] <- ogte
+                    e <- ogte - 1
                     h <- 1L
                 }
             }

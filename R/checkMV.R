@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -29,18 +29,18 @@
         stop(simpleError("Incorrect expression, opened and closed brackets don't match.\n\n"))
     }
     tempexpr <- gsub("[*|,|;|(|)]", "", expression)
-    pp <- unlist(strsplit(tempexpr, split = "[+]"))
+    pp <- trimstr(unlist(strsplit(tempexpr, split = "[+]")))
     insb <- curlyBrackets(gsub("[*|(|)]", "", expression))
     tempexpr <- curlyBrackets(tempexpr, outside = TRUE)
     if (length(insb) != length(tempexpr)) {
         cat("\n")
-        stop(simpleError("Incorrect expression, some snames don't have brackets.\n\n"))
+        stop(simpleError("Incorrect expression, some set names do not have brackets.\n\n"))
     }
     if (any(grepl("[a-zA-Z]", gsub("[,|;]", "", insb)))) {
         cat("\n")
         stop(simpleError("Invalid {multi}values, levels should be numeric.\n\n"))
     }
-    conds <- sort(unique(toupper(notilde(curlyBrackets(pp, outside = TRUE)))))
+    conds <- sort(unique(notilde(curlyBrackets(pp, outside = TRUE))))
     if (is.null(data)) {
         if (is.null(noflevels)) {
             if (any(hastilde(expression))) {
@@ -80,7 +80,7 @@
             }
     }
     if (!identical(snames, "")) {
-        if (length(setdiff(conds, toupper(splitstr(snames)))) > 0) {
+        if (length(setdiff(conds, splitstr(snames))) > 0) {
             cat("\n")
             stop(simpleError("Parts of the expression don't match the set names from \"snames\" argument.\n\n"))
         }

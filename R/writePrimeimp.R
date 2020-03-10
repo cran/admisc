@@ -23,17 +23,24 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`sortExpressions` <- function(x) {
-    if (is.matrix(x)) {
-        mat <- x
-    } else if (is.character(x)) {
+`writePrimeimp` <-
+function(mymat, mv = FALSE, collapse = "*", snames = "", ...) {
+    if (any(mymat > 2)) {
+        mv <- TRUE
     }
-    for (i in rev(seq(ncol(mat)))) {
-        mat <- mat[order(mat[, i], decreasing = TRUE), , drop = FALSE]
-        if (length(wx <- which(mat[, i] > 0)) > 0) {
-            rest <- if (max(wx) == nrow(mat)) NULL else seq(max(wx) + 1, nrow(mat))
-            mat <- mat[c(order(mat[wx, i]), rest), , drop = FALSE]
-        }
+    if (identical(snames, "")) {
+        snames <- colnames(mymat)
     }
-    return(mat[order(apply(mat, 1, function(x) sum(x > 0))), , drop = FALSE])
+    else {
+        mymat <- t(mymat)
+    }
+    chars <- snames[col(mymat)]
+    if (mv) {
+        chars <- matrix(paste(chars, "{", mymat - 1, "}", sep = ""), nrow = nrow(mymat))
+    }
+    else {
+        chars <- ifelse(mymat == 1L, paste0("~", chars), chars)
+    }
+    keep <- mymat > 0L
+    as.vector(unlist(lapply(split(chars[keep], row(chars)[keep]), paste, collapse = collapse)))
 }

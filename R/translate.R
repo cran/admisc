@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     if (!is.null(data)) {
         if (is.null(colnames(data))) {
             cat(enter)
-            stop(simpleError(paste0("Data does not have column names.", enter, enter)))
-        }
-        else {
-            snamesorig <- colnames(data)
-            colnames(data) <- toupper(colnames(data))
+            stop(simpleError(paste0("Data should have column names.", enter, enter)))
         }
     }
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
@@ -58,14 +54,16 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             data <- get(unlist(strsplit(gsub("with\\(", "", syscalls[withdata]), split = ","))[1], envir = length(syscalls) - withdata)
         }
     }
+    if (!is.element("data.frame", class(data))) {
+        data <- NULL
+    }
     if (identical(snames, "")) {
-        snamesorig <- snames
         if (!is.null(data)) {
             snames <- colnames(data)
         }
     }
     else {
-            snames <- toupper(splitstr(snames))
+        snames <- splitstr(snames)
         if (!is.null(data)) {
             if (length(setdiff(snames, colnames(data))) > 0) {
                 cat(enter)
@@ -90,9 +88,14 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     replaced <- FALSE
     if (!identical(snames, "") & length(snames) > 0) {
-        if (any(nchar(snames) > 1)) {
+        if (any(nchar(snames) > 1) & !is.element("validate", names(other.args))) {
             snameso <- snames
-            snamesr <- paste("X", seq(length(snames)), sep = "")
+            if (length(snames) < 27) {
+                snamesr <- LETTERS[seq(length(snames))]
+            }
+            else {
+                snamesr <- paste("X", seq(length(snames)), sep = "")
+            }
             for (i in seq(length(expression))) {
                 expression[i] <- replaceText(expression[i], snames, snamesr)
             }
@@ -112,7 +115,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     expression <- gsub("[[:space:]]|[^ -~]+", "", expression)
     if (identical("1-", substring(expression, 1, 2))) {
-        explist <- list(expression = gsub("1-", "", expression), snames = snames)
+        explist <- list(input = gsub("1-", "", expression), snames = snames)
         if (!is.null(noflevels)) explist$noflevels <- noflevels
         expression <- do.call(negate, explist)
     }
@@ -145,21 +148,20 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     if (multivalue) {
         expression <- gsub("[*]", "", expression)
-        expression <- toupper(expression)
         checkMV(expression, snames = snames, noflevels = noflevels, data = data)
         pp <- unlist(strsplit(expression, split="[+]"))
-        conds <- sort(unique(toupper(notilde(curlyBrackets(pp, outside=TRUE)))))
+        conds <- sort(unique(notilde(curlyBrackets(pp, outside=TRUE))))
         if (identical(snames, "")) {
             if (!is.null(data)) {
-                    conds <- intersect(colnames(data), conds)
+                conds <- intersect(colnames(data), conds)
             }
         }
         else {
-            if (all(is.element(toupper(conds), snames))) {
+            if (all(is.element(conds, snames))) {
                 conds <- snames
             }
             else {
-                conds <- setdiff(toupper(conds), snames)
+                conds <- setdiff(conds, snames)
                 if (length(conds) > 1) {
                     beforemessage <- paste(beforemessage, "s", sep = "")
                     aftermessage <- gsub("does", "do", aftermessage)
@@ -174,10 +176,9 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             }
         }
         retlist <- lapply(pp, function(x) {
-            outx <- toupper(curlyBrackets(x, outside=TRUE))
+            outx <- curlyBrackets(x, outside = TRUE)
             inx <- lapply(curlyBrackets(x), splitstr)
             remtilde <- notilde(outx)
-            tbl <- table(remtilde)
             dupnot <- duplicated(remtilde)
             if (length(win <- which(hastilde(outx))) > 0) {
                 for (i in win) {
@@ -212,244 +213,57 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
     }
     else {
+        sl <- ifelse(replaced | identical(snames, ""), TRUE, all(nchar(snames) == 1))
         pp <- unlist(strsplit(expression, split = "[+]"))
-        if (any(grepl("[*]", expression))) {
-            conds <- unique(notilde(unlist(strsplit(pp, split="[*]"))))
-            if (!all(is.element(conds, c(tolower(conds), toupper(conds))))) {
-                cat(enter)
-                stop(simpleError(paste0("Conditions' names cannot contain both lower and upper case letters.", enter, enter)))
-            }
-            conds <- sort(unique(toupper(conds)))
-            if (!identical(snames, "")) {
-                if (!is.null(data)) {
-                    if (all(is.element(conds, snames)) & all(is.element(conds, toupper(colnames(data))))) {
-                        infodata <- getInfo(data[, conds, drop = FALSE])
-                        valid <- which(infodata$noflevels >= 2)
-                        invalid <- !any(infodata$hastime[valid]) & any(infodata$noflevels[valid] > 2)
-                        if (invalid) {
-                            cat(enter)
-                            stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
-                        }
-                    }
-                }
-                if (all(is.element(toupper(conds), snames))) {
-                    conds <- snames
-                }
-                else {
-                    conds <- setdiff(toupper(conds), snames)
-                    if (length(conds) > 1) {
-                        beforemessage <- paste(beforemessage, "s", sep = "")
-                        aftermessage <- gsub("does", "do", aftermessage)
-                    }
-                    cat(enter)
-                    stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
-                }
-            }
-            retlist <- lapply(pp, function(x) {
-                x <- unlist(strsplit(x, split="[*]"))
-                inx <- lapply(x, function(x) as.numeric(identical(x, toupper(x))))
-                remtilde <- toupper(notilde(x))
-                tbl <- table(remtilde)
-                dupnot <- duplicated(remtilde)
-                if (length(win <- which(hastilde(x))) > 0) {
-                    for (i in win) {
-                        inx[[i]] <- 1 - inx[[i]]
-                    }
-                }
-                empty <- FALSE
-                for (i in seq(length(conds))) {
-                    if (is.element(conds[i], remtilde[dupnot])) { 
-                        if (length(unique(unlist(inx[which(remtilde == conds[i])]))) > 1) {
-                            empty <- TRUE
-                        }
-                    }
-                }
-                ret <- as.list(rep(-1, length(conds)))
-                names(ret) <- conds
-                if (!empty) {
-                    ret[toupper(notilde(x[!dupnot]))] <- inx[!dupnot]
-                }
-                return(ret)
-            })
-            names(retlist) <- pporig
+        if (replaced) {
+            pp <- gsub("[*]", "", pp)
         }
-        else {
-            conds <- sort(unique(toupper(notilde(pp))))
+        splitchar <- ifelse(any(grepl("[*]", pp)) | !sl, "[*]", "")
+        conds <- setdiff(sort(unique(notilde(unlist(strsplit(pp, split = splitchar))))), "")
+        if (!identical(snames, "")) {
             if (!is.null(data)) {
-                if (all(is.element(conds, snames)) & all(is.element(conds, toupper(colnames(data))))) {
-                    condlevels <- getInfo(data[, conds, drop = FALSE])$noflevels
-                    if (!any(is.na(condlevels))) {
-                        if (any(condlevels > 2)) {
-                            cat(enter)
-                            stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
-                        }
+                if (all(is.element(conds, snames)) & all(is.element(conds, colnames(data)))) {
+                    infodata <- getInfo(data[, conds, drop = FALSE])
+                    valid <- which(infodata$noflevels >= 2)
+                    invalid <- !any(infodata$hastime[valid]) & any(infodata$noflevels[valid] > 2)
+                    if (invalid) {
+                        cat(enter)
+                        stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
                     }
                 }
             }
-            if (all(nchar(conds) == 1)) {
-                if (!identical(snames, "")) {
-                    if (all(is.element(toupper(conds), snames))) {
-                        conds <- snames
-                    }
-                    else {
-                        conds <- setdiff(toupper(conds), snames)
-                        if (length(conds) > 1) {
-                            beforemessage <- paste(beforemessage, "s", sep = "")
-                            aftermessage <- gsub("does", "do", aftermessage)
-                        }
-                        cat(enter)
-                        stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
-                    }
-                }
-                retlist <- lapply(pp, function(x) {
-                    inx <- as.numeric(identical(x, toupper(x)))
-                    if (hastilde(x)) {
-                        inx <- 0
-                    }
-                    ret <- as.list(rep(-1, length(conds)))
-                    names(ret) <- conds
-                    ret[[toupper(notilde(x))]] <- inx
-                    return(ret)
-                })
-                names(retlist) <- pporig
+            if (all(is.element(conds, snames))) {
+                conds <- snames
             }
             else {
-                if (identical(snames, "")) {
-                    snames <- sort(unique(toupper(unlist(strsplit(notilde(pp), split = "")))))
+                conds <- setdiff(conds, snames)
+                if (length(conds) > 1) {
+                    beforemessage <- paste(beforemessage, "s", sep = "")
+                    aftermessage <- gsub("does", "do", aftermessage)
                 }
-                    conds <- snames
-                if (all(is.element(toupper(notilde(pp)), snames))) {
-                    if (!all(is.element(notilde(pporig), c(tolower(conds), toupper(conds))))) {
-                        cat(enter)
-                        stop(simpleError(paste0("Conditions' names cannot contain both lower and upper case letters.", enter, enter)))
-                    }
-                    retlist <- lapply(pp, function(x) {
-                        inx <- as.numeric(identical(x, toupper(x)))
-                        if (hastilde(x)) {
-                            inx <- 1 - inx
-                        }
-                        ret <- as.list(rep(-1, length(conds)))
-                        names(ret) <- conds
-                        ret[[toupper(notilde(x))]] <- inx
-                        return(ret)
-                    })
-                    names(retlist) <- pporig
+                if (replaced) {
+                    conds <- replaceText(conds, snames, snameso)
                 }
-                else {
-                    if (all(nchar(snames) == 1)) {
-                        retlist <- lapply(pp, function(x) {
-                            x <- unlist(strsplit(x, split = ""))
-                            if (!all(is.element(tocheck <- toupper(x[!hastilde(x)]), toupper(conds)))) {
-                                for (i in seq(length(tocheck))) {
-                                    if (!is.element(tocheck[i], conds)) {
-                                        cat(enter)
-                                        stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, tocheck[i], aftermessage)))
-                                    }
-                                }
-                            }
-                            if (any(hastilde(x))) {
-                                y <- which(hastilde(x))
-                                if (max(y) == length(x)) {
-                                    cat(enter)
-                                    stop(simpleError(paste0("Incorrect expression, tilde not in place.", enter, enter)))
-                                }
-                                x[y + 1] <- paste("~", x[y + 1], sep="")
-                                x <- x[-y]
-                            }
-                            inx <- lapply(x, function(x) as.numeric(identical(x, toupper(x))))
-                            remtilde <- toupper(notilde(x))
-                            tbl <- table(remtilde)
-                            dupnot <- duplicated(remtilde)
-                            if (length(win <- which(hastilde(x))) > 0) {
-                                for (i in win) {
-                                    inx[[i]] <- 1 - inx[[i]]
-                                }
-                            }
-                            empty <- FALSE
-                            for (i in seq(length(conds))) {
-                                if (is.element(conds[i], remtilde[dupnot])) { 
-                                    if (length(unique(unlist(inx[which(remtilde == conds[i])]))) > 1) {
-                                        empty <- TRUE
-                                    }
-                                }
-                            }
-                            ret <- as.list(rep(-1, length(conds)))
-                            names(ret) <- conds
-                            if (!empty) {
-                                ret[toupper(notilde(x[!dupnot]))] <- inx[!dupnot]
-                            }
-                            return(ret)
-                        })
-                        names(retlist) <- pporig
-                    }
-                    else {
-                        perms <- function(x) {
-                            if (length(x) == 1) {
-                                return(x)
-                            }
-                            else {
-                                res <- matrix(nrow = 0, ncol = length(x))
-                                for(i in seq_along(x)) {
-                                    res <- rbind(res, cbind(x[i], Recall(x[-i])))
-                                }
-                                return(res)
-                            }
-                        }
-                        snames <- snames[unlist(lapply(snames, grepl, toupper(expression)))]
-                        if (length(snames) == 0) {
-                            cat(enter)
-                            stop(simpleError(sprintf("Could not determine what '%s' is.\n\n", expression)))
-                        }
-                        if (length(snames) > 7) {
-                            cat(enter)
-                            stop(simpleError(paste0("Too many objects to search, try using the '*' sign to specify conjuctions.", enter, enter)))
-                        }
-                        noflevels <- rep(3, length(snames))
-                        mbase <- c(rev(cumprod(rev(noflevels))), 1)[-1]
-                        im <- getMatrix(noflevels)[-1, , drop = FALSE]
-                        mns <- matrix(nrow = 0, ncol = ncol(im))
-                        max.combs <- prod(noflevels)
-                        mns <- lapply(seq(2, 3^length(snames)), function(sn) {
-                            sn <- t(sapply(sn, function(x) x %/% mbase) %% noflevels)
-                            snames[sn == 1] <- tolower(snames[sn == 1])
-                            snames <- snames[sn > 0]
-                            if (length(snames) > 1) {
-                                return(perms(snames))
-                            }
-                            else {
-                                return(matrix(snames, 1, 1))
-                            }
-                        })
-                        namespace <- unlist(lapply(mns, function(x) apply(x, 1, paste, collapse = "")))
-                        if (any(duplicated(namespace))) {
-                            cat(enter)
-                            stop(simpleError(paste0("Impossible to translate: set names clash.", enter, enter)))
-                        }
-                        names(namespace) <- unlist(lapply(seq(length(mns)), function(x) paste(x, seq(nrow(mns[[x]])), sep = "_")))
-                        matched <- match(notilde(pp), namespace)
-                        if (any(is.na(matched))) {
-                            cat(enter)
-                            stop(simpleError(paste0("Incorrect expression, unknown set names (try using * for products).", enter, enter)))
-                        }
-                        matched <- names(namespace)[matched]
-                        retlist <- lapply(seq(length(matched)), function(x) {    
-                            ret <- as.list(rep(-1, length(conds)))
-                            names(ret) <- conds
-                            mx <- as.numeric(unlist(strsplit(matched[x], split="_")))
-                            mx <- mns[[mx[1]]][mx[2], ]
-                            inx <- lapply(mx, function(y) {
-                                neg <- grepl(paste0("~", y), pp[x])
-                                y <- as.numeric(identical(y, toupper(y)))
-                                return(ifelse(neg, 1 - y, y))
-                            })
-                            ret[toupper(mx)] <- inx
-                            return(ret)
-                        })
-                        names(retlist) <- pporig
-                    } 
-                } 
-            } 
-        } 
+                cat(enter)
+                stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
+            }
+        }
+        retlist <- lapply(pp, function(x) {
+            x <- unlist(strsplit(x, split = splitchar))
+            if (length(wx <- which(x == "~")) > 0) {
+                x[wx + 1] <- paste0("~", x[wx + 1])
+                x <- x[-wx]
+            }
+            x <- unique(x)
+            remtilde <- notilde(x)
+            dup <- remtilde[duplicated(remtilde)]
+            x <- x[!is.element(remtilde, dup)]
+            ret <- as.list(rep(-1, length(conds)))
+            names(ret) <- conds
+            ret[notilde(x)] <- 1 - hastilde(x)
+            return(ret)
+        })
+        names(retlist) <- pporig
     } 
     retlist <- retlist[!unlist(lapply(retlist, function(x) all(unlist(x) < 0)))]
     if (replaced) {
@@ -471,6 +285,6 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     if (is.element("retlist", names(other.args))) {
         attr(retmat, "retlist") <- retlist
     }
-    class(retmat) <- c("matrix", "translate")
+    class(retmat) <- c("matrix", "admisc_translate")
     return(retmat)
 }

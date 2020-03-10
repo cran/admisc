@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`intersection` <- function(..., snames = "", use.tilde = FALSE, noflevels = NULL) {
+`intersection` <- function(..., snames = "", noflevels = NULL) {
     allargs <- list(...)
     if (length(allargs) == 0) {
         cat("\n")
@@ -34,14 +34,13 @@
     isol <- NULL
     for (i in seq(length(allargs))) {
         x <- allargs[[i]]
-        if (methods::is(allargs[[i]], "qca")) {
+        if (methods::is(allargs[[i]], "QCA_min")) {
             if (identical(snames, "")) {
                 snames <- allargs[[i]]$tt$options$conditions
                 if (allargs[[i]]$options$use.letters) {
                     snames <- LETTERS[seq(length(snames))]
                 }
             }
-            use.tilde <- allargs[[i]]$options$use.tilde
             if (is.element("i.sol", names(x))) {
                 elengths <- unlist(lapply(allargs[[i]]$i.sol, function(x) length(x$solution)))
                 isol <- paste(rep(names(allargs[[i]]$i.sol), each = elengths), unlist(lapply(elengths, seq)), sep = "-")
@@ -53,7 +52,7 @@
                 allargs[[i]] <- as.vector(unlist(lapply(allargs[[i]]$solution, paste, collapse = " + ")))
             }
         }
-        else if (methods::is(allargs[[i]], "deMorgan")) {
+        else if (methods::is(allargs[[i]], "admisc_deMorgan")) {
             isol <- attr(x, "isol")
             allargs[[i]] <- unlist(x)
             if (!is.null(attr(x, "snames"))) {
@@ -69,7 +68,7 @@
             stop(simpleError("Unrecognised input.\n\n"))
         }
     }
-    arglist <- list(snames = snames, use.tilde = use.tilde)
+    arglist <- list(snames = snames)
     if (!is.null(noflevels)) {
         arglist$noflevels <- noflevels
     }
@@ -115,6 +114,6 @@
     if (!is.null(isol)) {
         attr(result, "isol") <- isol
     }
-    class(result) <- c("character", "intersection")
+    class(result) <- c("character", "admisc_intersection")
     return(result)
 }

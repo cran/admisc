@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,25 +24,25 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `prettyTable` <-
-function(mytable) {
-    if (methods::is(mytable, "pic")) {
-        class(mytable) <- "matrix" 
+function(input) {
+    if (methods::is(input, "QCA_pic")) {
+        class(input) <- "matrix" 
     }
     else {
-        mytable <- as.matrix(mytable) 
+        input <- as.matrix(input) 
     }
-    if (is.logical(mytable)) {
-        mytable2 <- mytable
-        mytable[mytable2]  <- "x"
-        mytable[!mytable2] <- "-"
+    if (is.logical(input)) {
+        input2 <- input
+        input[input2]  <- "x"
+        input[!input2] <- "-"
     }
-    if(is.null(colnames(mytable))) colnames(mytable) <- rep(" ", ncol(mytable))
-    nchars <- nchar(colnames(mytable))
-    colnames(mytable)[nchars == 1] <- format(colnames(mytable)[nchars == 1], width = 2, justify = "centre")
+    if(is.null(colnames(input))) colnames(input) <- rep(" ", ncol(input))
+    nchars <- nchar(colnames(input))
+    colnames(input)[nchars == 1] <- format(colnames(input)[nchars == 1], width = 2, justify = "centre")
     nchars[nchars == 1] <- 2
-    for (i in seq((ncol(mytable) - any(colnames(mytable) == "lines")))) {
-        mytable[, i] <- format(format(mytable[, i]), width = nchars[i], justify = "centre")
+    for (i in seq((ncol(input) - any(colnames(input) == "lines")))) {
+        input[, i] <- format(format(input[, i]), width = nchars[i], justify = "centre")
     }
-    rownames(mytable) <- paste(rownames(mytable), "")
-    return(noquote(mytable))
+    rownames(input) <- paste(rownames(input), "")
+    return(noquote(input))
 }

@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,24 +23,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`isNegated` <- function(x) {
-    notna <- !is.na(x)
-    negated <- rep(NA, length(x))
-    y <- x[notna]
-    if (length(y) == 0) {
-        return(NA)
+`unload` <- function(package) {
+    package <- gsub("\\\"", "", deparse(substitute(package)))
+    if (is.element(package, .packages())) { 
+        detach(paste("package", package, sep = ":"), character.only = TRUE, unload = TRUE)
+        unloadNamespace(package)
     }
-    if (any(y != tolower(y) & y != toupper(y))) {
-        cat("\n")
-        stop(simpleError("Conditions should not be specified using both upper and lower case letters.\n\n"))
+    if (is.element(package, unlist(lapply(library.dynam(), "[[", 1)))) {
+        library.dynam.unload(package, libpath = sub("/Meta.*", '', attr(packageDescription(package), "file")))
     }
-    y <- gsub("[[:space:]]", "", y)
-    negy <- hastilde(y)
-    oneminus <- grepl("1-", y)
-    negy[oneminus] <- !negy[oneminus]
-    y <- gsub("1-", "", notilde(y))
-    lowercase <- y == tolower(y) & y != toupper(y)
-    negy[lowercase] <- !negy[lowercase]
-    negated[notna] <- negy
-    return(negated)
 }

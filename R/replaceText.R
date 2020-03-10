@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-    replaceText <- function(expression, target = "", replacement = "", boolean = TRUE, ...) {
+    replaceText <- function(expression, target = "", replacement = "", boolean = FALSE, ...) {
         other.args <- list(...)
         enter <- ifelse (is.element("enter", names(other.args)), "",  "\n")
         if (!is.character(target)) {
@@ -43,6 +43,9 @@
         torder <- order(nchar(target), decreasing = TRUE)
         tuplow <- target[torder]
         ruplow <- replacement[torder]
+        if (all(target == toupper(target)) & expression != toupper(expression) & !grepl("~", expression)) {
+            boolean <- TRUE
+        }
         if (boolean) {
             tuplow <- rep(toupper(tuplow), each = 2)
             ruplow <- rep(toupper(ruplow), each = 2)

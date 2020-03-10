@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Adrian Dusa
+# Copyright (c) 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getMatrix` <- function(noflevels) {
+`getMatrix` <- function(noflevels, depth = 0) {
     nofconds <- length(noflevels)
     pwr <- unique(noflevels)
     if (length(pwr) == 1) {
@@ -40,7 +40,10 @@
         })
     }
     if (is.vector(retmat)) {
-        retmat <- matrix(retmat, nrow=1)
+        retmat <- matrix(retmat, nrow = 1)
+    }
+    if (depth > 0) {
+        retmat <- retmat[apply(retmat, 1, function(x) sum(x > 0) <= depth ), , drop = FALSE]
     }
     return(retmat)
 }

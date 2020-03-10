@@ -1,26 +1,29 @@
-\name{negate}
+\name{Negate DNF/SOP expressions}
 
 \alias{negate}
+\alias{invert}
 \alias{deMorgan}
 
 \title{Negate Boolean expressions}
 
 \description{
-Function to negate a SOP expression.
+Functions to negate a DNF/SOP expression, or to invert SOP to POS or POS to SOP.
 }
 
 \usage{
-negate(input, snames = "", noflevels = NULL, use.tilde = FALSE, simplify = TRUE)
+negate(input, snames = "", noflevels, simplify = TRUE, ...)
+
+invert(input, snames = "", noflevels)
 }
 
 \arguments{
   \item{input}{A string representing a SOP expression, or a minimization
-        object of class \code{"qca"}.}
+        object of class \code{"QCA_min"}.}
   \item{snames}{A string containing the sets' names, separated by commas.}
   \item{noflevels}{Numerical vector containing the number of levels for each set.}
-  \item{use.tilde}{Logical, use a tilde to negate the sets.}
   \item{simplify}{Logical, allow users to choose between the raw negation or
         its simplest form.}
+  \item{...}{Other arguments (mainly for backwards compatibility).}
 }
 
 \details{
@@ -53,6 +56,9 @@ To negate multilevel expressions, the argument \bold{\code{noflevels}} is requir
 
 It is entirely possible to obtain multiple negations of a single expression, since the
 result of the negation is passed to function \bold{\code{\link{simplify}()}}.
+
+Function \bold{\code{invert}()} simply transforms an expression from a sum of products
+(SOP) to a product of sums (POS), and the other way round.
 }
 
 \value{
@@ -81,6 +87,9 @@ negate("AC + B~C")
 
 # with different intersection operators
 negate("AB*EF + ~CD*EF")
+
+# invert to POS
+invert("a*b + ~c*d")
 
 \dontrun{
 # using an object of class "qca" produced with minimize()
