@@ -1,3 +1,7 @@
+Version 0.7
+    o Minor modification in function simplify(), to avoid the check error
+      from the CRAN servers for the OS X platform
+
 Version 0.6
     o Major modification (and *not* backwards compatible!) relative to
       denoting negations. Using upper and lower case letters for presence and

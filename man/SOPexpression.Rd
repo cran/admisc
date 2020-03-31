@@ -31,13 +31,13 @@ partial expansion to a SOP expression with equally complex terms.
 }
 
 \usage{
-compute(expression = "", data, separate = FALSE)
+compute(expression = "", data = NULL, separate = FALSE)
 
-simplify(expression = "", snames = "", noflevels, ...)
+simplify(expression = "", snames = "", noflevels = NULL, ...)
 
-translate(expression = "", snames = "", noflevels, data, ...)
+translate(expression = "", snames = "", noflevels = NULL, data = NULL, ...)
 
-expand(expression, snames = "", noflevels, partial = FALSE,
+expand(expression, snames = "", noflevels = NULL, partial = FALSE,
       implicants = FALSE, ...)
 }
 

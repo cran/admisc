@@ -51,7 +51,10 @@
         cat(enter)
         stop("Package \"QCA\" is needed to make this work, please install it.", call. = FALSE)
     }
-    sols <- QCA::minimize(cbind(implicants - 1, 1), all.sol = all.sol, simplify = TRUE)
+    dataset <- cbind(implicants - 1, 1)
+    outcome <- paste(sample(LETTERS, 10), collapse = "")
+    colnames(dataset)[ncol(dataset)] <- outcome
+    sols <- QCA::minimize(dataset, outcome = outcome, all.sol = all.sol, simplify = TRUE)
     scollapse <- scollapse | any(nchar(colnames(implicants)) > 1) | any(grepl("[{]", unlist(sols$solution))) 
     expression <- unlist(lapply(sols$solution, function(x) {
         if (!scollapse) x <- gsub("\\*", "", x)

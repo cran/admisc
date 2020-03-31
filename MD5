@@ -1,4 +1,4 @@
-ff6933f58c28644db6aed7e87e07d363 *DESCRIPTION
+a9d1de38465f164e95a315b5cbaf51e8 *DESCRIPTION
 e11e1ed9d7bf6689fcf84f0bec10380d *NAMESPACE
 772059c9744759f6a072cd27c63026d8 *R/asNumeric.R
 e1ba9dda528c854343143232687d4297 *R/brackets.R
@@ -23,7 +23,7 @@ cd7c97b9df6d030c3ed437796274c189 *R/prettyTable.R
 faa1608b66708767e222c15267fb18b0 *R/print.R
 3700cd615683e20e4b8d117ce2ccce79 *R/recode.R
 f64917b318927d13d3c0b8e65ca0743e *R/replaceText.R
-974557db47f18e8381f1d65f310316a2 *R/simplify.R
+b145b8248c862fda754b7c6efdf9457f *R/simplify.R
 36b5cb411df52ae31e57ca78ea9889d0 *R/sortExpressions.R
 490c5a9679a17ff155f55ebbb3838e2f *R/string.R
 a4d67ae7b18db41e95ee5cf4a952bee2 *R/tildae.R
@@ -35,10 +35,10 @@ afed0d2c9cb4a40f355ba41a47aa6c50 *R/unload.R
 f875af4955598f4ed1b224cfde91a200 *R/verify.R
 8a55474ccee4fe7f4a80df08ddab6d60 *R/wholeNumeric.R
 0a20c597ad6884bc312eed39ad284dce *R/writePrimeimp.R
-2bfcbfadd717ede1f6b35bc3cf7f401a *inst/ChangeLog
-182689ca16e36c3d1045b5b737fe8aa3 *man/SOPexpression.Rd
+3eb12b409e8815991996edb5601cdeb5 *inst/ChangeLog
+fcb4827e2ab44e9fe33b0fbe230fa826 *man/SOPexpression.Rd
 97e0c7e1935b25997beacec429422a1e *man/admisc-internal.Rd
-78b3266597fa9d46dcca72784eaf379f *man/admisc.package.Rd
+f6fecdb976553254ef858555e06a28d4 *man/admisc.package.Rd
 da8d2aa835aceb490d818746b4848813 *man/brackets.Rd
 98872ca288918efe85b81ef405601519 *man/combnk.Rd
 4f8465c6f92f065ca2f56dbd692473c8 *man/equality.Rd
