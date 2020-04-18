@@ -23,12 +23,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`simplify` <- function(expression, snames = "", noflevels = NULL, ...) {
-    other.args <- list(...)
-    enter    <- ifelse(is.element("enter",   names(other.args)), "",  "\n") 
-    all.sol  <- ifelse(is.element("all.sol", names(other.args)), other.args$all.sol, FALSE)
-    scollapse <- ifelse(is.element("scollapse", names(other.args)), other.args$scollapse, FALSE) 
-    scollapse <- scollapse | grepl("[*]", expression)
+`simplify` <- function(expression = "", snames = "", noflevels = NULL, ...) {
+    expression <- recreate(substitute(expression))
+    snames <- recreate(substitute(snames))
+    dots <- list(...)
+    mvregexp <- "\\[|\\]|\\{|\\}"
+    enter     <- if (is.element("enter",     names(dots))) ""                   else "\n" 
+    all.sol   <- if (is.element("all.sol",   names(dots))) dots$all.sol   else FALSE
+    scollapse <- if (is.element("scollapse", names(dots))) dots$scollapse else FALSE 
     if (identical(snames, "")) {
         syscalls <- unlist(lapply(sys.calls(), deparse))
         if (any(withdata <- grepl("with\\(", syscalls))) {
@@ -38,7 +40,9 @@
             }
         }
     }
-    multivalue <- any(grepl("[{|}]", expression))
+    scollapse <- scollapse | grepl("[*]", expression)
+    multivalue <- any(grepl(mvregexp, expression))
+    curly <- grepl("[{]", expression)
     implicants <- expand(expression, snames = snames, noflevels = noflevels,
                         enter = enter, implicants = TRUE)
     if (identical(unclass(implicants), "")) {
@@ -47,19 +51,35 @@
     if (is.null(noflevels)) {
         noflevels <- rep(2, ncol(implicants))
     }
-    if (!requireNamespace("QCA", quietly = TRUE)) {
-        cat(enter)
-        stop("Package \"QCA\" is needed to make this work, please install it.", call. = FALSE)
+    version <- NULL
+    if (requireNamespace("QCA", quietly = TRUE)) {
+        version <- substring(packageDescription("QCA")$Version, 1, 3)
+        version <- unlist(strsplit(version, split = "\\."))
+        if (version[1] < 3 | (version[1] >= 3 & version[2] < 7)) {
+            version <- NULL
+        }
+    }
+    if (is.null(version)) {
+        message(paste(enter, "Error: Package QCA (>= 3.7) is needed to make this work, please install it.", enter, sep = ""))
+        return(invisible(character(0)))
     }
     dataset <- cbind(implicants - 1, 1)
     outcome <- paste(sample(LETTERS, 10), collapse = "")
     colnames(dataset)[ncol(dataset)] <- outcome
     sols <- QCA::minimize(dataset, outcome = outcome, all.sol = all.sol, simplify = TRUE)
-    scollapse <- scollapse | any(nchar(colnames(implicants)) > 1) | any(grepl("[{]", unlist(sols$solution))) 
+    scollapse <- scollapse | any(nchar(colnames(implicants)) > 1) | any(grepl(mvregexp, unlist(sols$solution))) 
     expression <- unlist(lapply(sols$solution, function(x) {
         if (!scollapse) x <- gsub("\\*", "", x)
         return(paste(x, collapse = " + "))  
     }))
+    if (curly) {
+        expression <- gsub("\\[", "\\{", expression)
+        expression <- gsub("\\]", "\\}", expression)
+    }
+    else {
+        expression <- gsub("\\{", "\\[", expression)
+        expression <- gsub("\\}", "\\]", expression)
+    }
     if (!identical(snames, "")) {
         attr(expression, "snames") <- snames
     }

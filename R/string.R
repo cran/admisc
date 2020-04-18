@@ -133,7 +133,7 @@
                 closed.brackets[i] <- length(ind.char)
             }
         }
-        big.list <- vector(mode="list", length = length(open.brackets) + 2)
+        big.list <- vector(mode = "list", length = length(open.brackets) + 2)
         if (length(open.brackets) == 1) {
             if (open.brackets > 1) {
                 big.list[[1]] <- paste(ind.char[seq(1, open.brackets - 2)], collapse = "")

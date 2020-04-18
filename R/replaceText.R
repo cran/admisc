@@ -24,8 +24,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     replaceText <- function(expression, target = "", replacement = "", boolean = FALSE, ...) {
-        other.args <- list(...)
-        enter <- ifelse (is.element("enter", names(other.args)), "",  "\n")
+        dots <- list(...)
+        enter <- ifelse (is.element("enter", names(dots)), "",  "\n")
         if (!is.character(target)) {
             cat("\n")
             stop(simpleError("The \"target\" argument should be character.\n\n"))
@@ -43,7 +43,7 @@
         torder <- order(nchar(target), decreasing = TRUE)
         tuplow <- target[torder]
         ruplow <- replacement[torder]
-        if (all(target == toupper(target)) & expression != toupper(expression) & !grepl("~", expression)) {
+        if (all(target == toupper(target)) & all(expression != toupper(expression)) & !any(grepl("~", expression))) {
             boolean <- TRUE
         }
         if (boolean) {

@@ -28,6 +28,8 @@
         noflevels <- splitstr(noflevels)
     }
     isol <- NULL
+    input <- recreate(substitute(input))
+    snames <- recreate(substitute(snames))
     minimized <- methods::is(input, "QCA_min")
     if (minimized) {
         snames <- input$tt$options$conditions
@@ -65,7 +67,7 @@
             star <- TRUE
         }
     }
-    mv <- any(grepl("[{|}]", input))
+    mv <- any(grepl("\\{|\\}|\\[|\\]", input))
     if (mv) start <- FALSE
     negateit <- function(x, snames = "", noflevels = NULL) {
         callist <- list(expression = x)
@@ -119,5 +121,5 @@
         attr(result, "isol") <- isol
     }
     attr(result, "minimized") <- minimized
-    return(classify(result, "deMorgan"))
+    return(classify(result, "admisc_deMorgan"))
 }

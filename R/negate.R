@@ -24,8 +24,10 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `negate` <- function(input, snames = "", noflevels = NULL, simplify = TRUE, ...) {
-    other.args <- list(...)
-    scollapse <- ifelse(is.element("scollapse", names(other.args)), other.args$scollapse, FALSE) 
+    input <- recreate(substitute(input))
+    snames <- recreate(substitute(snames))
+    dots <- list(...)
+    scollapse <- ifelse(is.element("scollapse", names(dots)), dots$scollapse, FALSE) 
     if (!is.null(noflevels)) {
         noflevels <- splitstr(noflevels)
         if (possibleNumeric(noflevels)) {
@@ -74,7 +76,7 @@
             star <- TRUE
         }
     }
-    mv <- any(grepl("[{|}]", input))
+    mv <- any(grepl("\\[|\\]", input))
     if (mv) start <- FALSE
     scollapse <- scollapse | any(nchar(snames) > 1) | mv | star
     collapse <- ifelse(scollapse, "*", "")
@@ -97,7 +99,7 @@
                 paste(setdiff(snoflevels[wx][[i]], splitstr(x[i])), collapse = ",")
             })
             if (mv) {
-                return(paste("(", paste(nms, "{", x, "}", sep = "", collapse = " + "), ")", sep = ""))
+                return(paste("(", paste(nms, "[", x, "]", sep = "", collapse = " + "), ")", sep = ""))
             }
             else {
                 nms[x == 0] <- paste0("~", nms[x == 0])
@@ -114,6 +116,9 @@
         return(negated)
     }
     result <- lapply(input, negateit, snames = snames, noflevels = noflevels, simplify = simplify, collapse = collapse)
+    if (any(unlist(lapply(result, length)) == 0)) {
+        return(invisible(character(0)))
+    }
     names(result) <- unname(input)
     if (!minimized) {
         attr(result, "expressions") <- input

@@ -23,12 +23,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`expand` <- function(expression, snames = "", noflevels = NULL,
+`expand` <- function(expression = "", snames = "", noflevels = NULL,
     partial = FALSE, implicants = FALSE, ...) {
-    other.args <- list(...)
-    enter <- ifelse(is.element("enter", names(other.args)), "",  "\n") 
+    expression <- recreate(substitute(expression))
+    snames <- recreate(substitute(snames))
+    dots <- list(...)
+    enter <- ifelse(is.element("enter", names(dots)), "",  "\n") 
     multivalue <- FALSE
-    scollapse <- ifelse(is.element("scollapse", names(other.args)), other.args$scollapse, FALSE) 
+    scollapse <- ifelse(is.element("scollapse", names(dots)), dots$scollapse, FALSE) 
     scollapse <- scollapse | grepl("[*]", expression)
     if (!is.null(noflevels)) {
         if (is.character(noflevels) & length(noflevels) == 1) {
@@ -114,14 +116,14 @@
             }
         }
         snames <- splitstr(snames)
-        multivalue <- any(grepl("[{|}]", expression))
+        multivalue <- any(grepl("\\[|\\]|\\{|\\}", expression))
         if (multivalue) {
             expression <- gsub("[*]", "", expression)
             checkMV(expression, snames = snames, noflevels = noflevels) 
         }
         if (!grepl("[+]", expression) & grepl("[,]", expression)) {
             if (multivalue) {
-                values <- curlyBrackets(expression)
+                values <- squareBrackets(expression)
                 atvalues <- paste("@", seq(length(values)), sep = "")
                 for (i in seq(length(values))) {
                     expression <- gsub(values[i], atvalues[i], expression)

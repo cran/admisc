@@ -70,11 +70,11 @@ pLF <- minimize(ttLF, include = "?")
 
 # for example the intersection between the parsimonious model and
 # a theoretical expectation
-intersection(pLF, "DEV*STB")
+intersection(pLF, DEV*STB)
 
 
 # negating the model
-intersection(negate(pLF), "DEV*STB")
+intersection(negate(pLF), DEV*STB)
 }
 
 
@@ -84,25 +84,25 @@ intersection(negate(pLF), "DEV*STB")
 
 # intersecting the reactive ethnicity perspective (R = lw)
 # with the equation E (page 144)
-intersection("~L~W", "SG + LW", snames = "S, L, W, G")
+intersection(~L~W, SG + LW, snames = c(S, L, W, G))
 
 
 # resources for size and wealth (C = SW) with E (page 145)
-intersection("SW", "SG + LW", snames = "S, L, W, G")
+intersection(SW, SG + LW, snames = c(S, L, W, G))
 
 
 # and factorized
-factorize(intersection("SW", "SG + LW", snames = "S, L, W, G"))
+factorize(intersection(SW, SG + LW, snames = c(S, L, W, G)))
 
 
 # developmental perspective (D = L~G) and E (page 146)
-intersection("L~G", "SG + LW", snames = "S, L, W, G")
+intersection(L~G, SG + LW, snames = c(S, L, W, G))
 
 
 # subnations that exhibit ethic political mobilization (E) but were
 # not hypothesized by any of the three theories (page 147)
 # ~H = ~(~L~W + SW + L~G)
-intersection(negate("~L~W + SW + L~G"), "SG + LW", snames = "S, L, W, G")
+intersection(negate(~L~W + SW + L~G), SG + LW, snames = c(S, L, W, G))
 }
 
 \keyword{functions}

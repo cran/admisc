@@ -28,6 +28,7 @@ function(mymat, mv = FALSE, collapse = "*", snames = "", ...) {
     if (any(mymat > 2)) {
         mv <- TRUE
     }
+    dots <- list(...)
     if (identical(snames, "")) {
         snames <- colnames(mymat)
     }
@@ -35,8 +36,10 @@ function(mymat, mv = FALSE, collapse = "*", snames = "", ...) {
         mymat <- t(mymat)
     }
     chars <- snames[col(mymat)]
+    curly <- dots$curly
+    if (is.null(curly)) curly <- FALSE
     if (mv) {
-        chars <- matrix(paste(chars, "{", mymat - 1, "}", sep = ""), nrow = nrow(mymat))
+        chars <- matrix(paste(chars, ifelse(curly, "{", "["), mymat - 1, ifelse(curly, "}", "]"), sep = ""), nrow = nrow(mymat))
     }
     else {
         chars <- ifelse(mymat == 1L, paste0("~", chars), chars)

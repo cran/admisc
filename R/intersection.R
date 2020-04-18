@@ -24,46 +24,56 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `intersection` <- function(..., snames = "", noflevels = NULL) {
-    allargs <- list(...)
-    if (length(allargs) == 0) {
+    dots <- substitute(list(...))
+    if (length(dots) > 1) {
+        for (i in seq(2, length(dots))) {
+            dots[[i]] <- recreate(dots[[i]])
+        }
+    }
+    dots <- eval(dots)
+    snames <- recreate(substitute(snames))
+    if (length(dots) == 0) {
         cat("\n")
         stop(simpleError("Nothing to intersect.\n\n"))
+    }
+    if (length(dots[[1]]) == 0) {
+        return(invisible(character(0)))
     }
     snames <- splitstr(snames)
     sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
     isol <- NULL
-    for (i in seq(length(allargs))) {
-        x <- allargs[[i]]
-        if (methods::is(allargs[[i]], "QCA_min")) {
+    for (i in seq(length(dots))) {
+        x <- dots[[i]]
+        if (methods::is(dots[[i]], "QCA_min")) {
             if (identical(snames, "")) {
-                snames <- allargs[[i]]$tt$options$conditions
-                if (allargs[[i]]$options$use.letters) {
+                snames <- dots[[i]]$tt$options$conditions
+                if (dots[[i]]$options$use.letters) {
                     snames <- LETTERS[seq(length(snames))]
                 }
             }
             if (is.element("i.sol", names(x))) {
-                elengths <- unlist(lapply(allargs[[i]]$i.sol, function(x) length(x$solution)))
-                isol <- paste(rep(names(allargs[[i]]$i.sol), each = elengths), unlist(lapply(elengths, seq)), sep = "-")
-                allargs[[i]] <- as.vector(unlist(lapply(allargs[[i]]$i.sol, function(x) {
+                elengths <- unlist(lapply(dots[[i]]$i.sol, function(x) length(x$solution)))
+                isol <- paste(rep(names(dots[[i]]$i.sol), each = elengths), unlist(lapply(elengths, seq)), sep = "-")
+                dots[[i]] <- as.vector(unlist(lapply(dots[[i]]$i.sol, function(x) {
                     lapply(x$solution, paste, collapse = " + ")
                 })))
             }
             else {
-                allargs[[i]] <- as.vector(unlist(lapply(allargs[[i]]$solution, paste, collapse = " + ")))
+                dots[[i]] <- as.vector(unlist(lapply(dots[[i]]$solution, paste, collapse = " + ")))
             }
         }
-        else if (methods::is(allargs[[i]], "admisc_deMorgan")) {
+        else if (methods::is(dots[[i]], "admisc_deMorgan")) {
             isol <- attr(x, "isol")
-            allargs[[i]] <- unlist(x)
+            dots[[i]] <- unlist(x)
             if (!is.null(attr(x, "snames"))) {
-                attr(allargs[[i]], "snames") <- attr(x, "snames")
+                attr(dots[[i]], "snames") <- attr(x, "snames")
             }
             if (!is.null(attr(x, "isol"))) {
-                attr(allargs[[i]], "isol") <- attr(x, "isol")
+                attr(dots[[i]], "isol") <- attr(x, "isol")
             }
-            attr(allargs[[i]], "minimized") <- attr(x, "minimized")
+            attr(dots[[i]], "minimized") <- attr(x, "minimized")
         }
-        if (!is.character(allargs[[i]])) {
+        if (!is.character(dots[[i]])) {
             cat("\n")
             stop(simpleError("Unrecognised input.\n\n"))
         }
@@ -73,9 +83,9 @@
         arglist$noflevels <- noflevels
     }
     if (requireNamespace("QCA", quietly = TRUE)) {
-        combs <- QCA::createMatrix(unlist(lapply(allargs, length)))
+        combs <- QCA::createMatrix(unlist(lapply(dots, length)))
     } else {
-        combs <- getMatrix(unlist(lapply(allargs, length)))
+        combs <- getMatrix(unlist(lapply(dots, length)))
     }
     expressions <- result <- character(nrow(combs))
     conj <- ifelse(sl, "", "*")
@@ -83,7 +93,7 @@
         x <- combs[i, ] + 1
         expression <- c()
         for (j in seq(length(x))) {
-            expression <- c(expression, allargs[[j]][x[j]])
+            expression <- c(expression, dots[[j]][x[j]])
         }
         disj <- grepl("[+]", expression)
         if (any(disj)) {

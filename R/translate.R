@@ -25,15 +25,15 @@
 
 `translate` <-
 function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
-    other.args <- list(...)
-    enter <- ifelse (is.element("enter", names(other.args)), "",  "\n") 
+    expression <- recreate(substitute(expression))
+    snames <- recreate(substitute(snames))
+    dots <- list(...)
+    enter <- ifelse (is.element("enter", names(dots)), "",  "\n") 
     if (identical(expression, "")) {
         cat(enter)
         stop(simpleError(paste0("Empty expression.", enter, enter)))
     }
-    if (any(grepl("<=>", expression)) |
-        any(grepl("=>", expression))  | 
-        any(grepl("<=", expression))) {
+    if (any(grepl("<=>|<->|=>|->|<=|<-", expression))) {
         cat(enter)
         stop(simpleError(paste0("Incorrect expression.", enter, enter)))
     }
@@ -88,7 +88,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     replaced <- FALSE
     if (!identical(snames, "") & length(snames) > 0) {
-        if (any(nchar(snames) > 1) & !is.element("validate", names(other.args))) {
+        if (any(nchar(snames) > 1) & !is.element("validate", names(dots))) {
             snameso <- snames
             if (length(snames) < 27) {
                 snamesr <- LETTERS[seq(length(snames))]
@@ -133,11 +133,11 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         return(x)
     }))
     pporig <- trimstr(unlist(strsplit(expression, split="[+]")))
-    multivalue <- any(grepl("[{|}]", expression))
+    multivalue <- any(grepl("\\[|\\]|\\{|\\}", expression))
     expression <- gsub("[[:space:]]", "", expression)
     beforemessage <- "Condition"
     aftermessage <- "does not match the set names from \"snames\" argument"
-    if (is.element("validate", names(other.args))) {
+    if (is.element("validate", names(dots))) {
         if (is.null(data)) {
             beforemessage <- "Object"
             aftermessage <- "not found"
@@ -147,10 +147,16 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
     }
     if (multivalue) {
+        curly <- any(grepl("[{]", expression))
         expression <- gsub("[*]", "", expression)
         checkMV(expression, snames = snames, noflevels = noflevels, data = data)
-        pp <- unlist(strsplit(expression, split="[+]"))
-        conds <- sort(unique(notilde(curlyBrackets(pp, outside=TRUE))))
+        pp <- unlist(strsplit(expression, split = "[+]"))
+        if (curly) {
+            conds <- sort(unique(notilde(curlyBrackets(pp, outside=TRUE))))
+        }
+        else {
+            conds <- sort(unique(notilde(squareBrackets(pp, outside=TRUE))))
+        }
         if (identical(snames, "")) {
             if (!is.null(data)) {
                 conds <- intersect(colnames(data), conds)
@@ -176,8 +182,14 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
             }
         }
         retlist <- lapply(pp, function(x) {
-            outx <- curlyBrackets(x, outside = TRUE)
-            inx <- lapply(curlyBrackets(x), splitstr)
+            if (curly) {
+                outx <- curlyBrackets(x, outside = TRUE)
+                inx <- lapply(curlyBrackets(x), splitstr)
+            }
+            else {
+                outx <- squareBrackets(x, outside = TRUE)
+                inx <- lapply(squareBrackets(x), splitstr)
+            }
             remtilde <- notilde(outx)
             dupnot <- duplicated(remtilde)
             if (length(win <- which(hastilde(outx))) > 0) {
@@ -282,7 +294,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         cat(enter)
         stop(simpleError(paste0("Impossible to translate an empty set.", enter, enter)))
     }
-    if (is.element("retlist", names(other.args))) {
+    if (is.element("retlist", names(dots))) {
         attr(retmat, "retlist") <- retlist
     }
     class(retmat) <- c("matrix", "admisc_translate")

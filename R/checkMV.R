@@ -24,14 +24,21 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `checkMV` <- function(expression, snames = "", noflevels = NULL, data = NULL) {
-    if (length(unlist(gregexpr("[{]+", expression))) != length(unlist(gregexpr("[}]+", expression)))) {
+    curly <- any(grepl("[{]", expression))
+    if (length(unlist(gregexpr(ifelse(curly, "[{]+", "\\[+"), expression))) != length(unlist(gregexpr(ifelse(curly, "[}]+", "\\]+"), expression)))) {
         cat("\n")
         stop(simpleError("Incorrect expression, opened and closed brackets don't match.\n\n"))
     }
     tempexpr <- gsub("[*|,|;|(|)]", "", expression)
     pp <- trimstr(unlist(strsplit(tempexpr, split = "[+]")))
-    insb <- curlyBrackets(gsub("[*|(|)]", "", expression))
-    tempexpr <- curlyBrackets(tempexpr, outside = TRUE)
+    if (curly) {
+        insb <- curlyBrackets(gsub("[*|(|)]", "", expression))
+        tempexpr <- curlyBrackets(tempexpr, outside = TRUE)
+    }
+    else {
+        insb <- squareBrackets(gsub("[*|(|)]", "", expression))
+        tempexpr <- squareBrackets(tempexpr, outside = TRUE)
+    }
     if (length(insb) != length(tempexpr)) {
         cat("\n")
         stop(simpleError("Incorrect expression, some set names do not have brackets.\n\n"))
@@ -40,7 +47,12 @@
         cat("\n")
         stop(simpleError("Invalid {multi}values, levels should be numeric.\n\n"))
     }
-    conds <- sort(unique(notilde(curlyBrackets(pp, outside = TRUE))))
+    if (curly) {
+        conds <- sort(unique(notilde(curlyBrackets(pp, outside = TRUE))))
+    }
+    else {
+        conds <- sort(unique(notilde(squareBrackets(pp, outside = TRUE))))
+    }
     if (is.null(data)) {
         if (is.null(noflevels)) {
             if (any(hastilde(expression))) {

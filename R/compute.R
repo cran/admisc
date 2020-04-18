@@ -25,7 +25,7 @@
 
 `compute` <-
 function(expression = "", data = NULL, separate = FALSE) { 
-    expression <- gsub("[[:space:]]", "", expression)
+    expression <- recreate(substitute(expression))
     enchar <- nchar(expression)
     if (identical(substring(expression, 1, 2), "~(") & identical(substring(expression, enchar, enchar), ")")) {
         expression <- paste("1-", substring(expression, 3, enchar - 1), sep = "")
