@@ -1,5 +1,5 @@
-f95a2c72f466c24b86b66dedf919f796 *DESCRIPTION
-8313eddbdbab3bdd37e4f7a902ea6fee *NAMESPACE
+5e47086636b59adaa500018645e62115 *DESCRIPTION
+7e0da4aa419c414635dc09ae83d91395 *NAMESPACE
 772059c9744759f6a072cd27c63026d8 *R/asNumeric.R
 704fdfd43a521c9e4e39b2a18309acb5 *R/brackets.R
 33e8bffc0f76774987b84ae2f66a9918 *R/checkMV.R
@@ -10,7 +10,8 @@ e0d7f650ff6301992bb39bf7a116f433 *R/compute.R
 46245a064bb371f9a4d53ed67237c7ee *R/dashes.R
 6a9e5abe022fdb46d4dc158528437e6f *R/equality.R
 9ec2c1a0052f83fb1ec8844825b9fcaa *R/expand.R
-6b3dd1a6e28ebd55bc10408b43ef5dde *R/factorize.R
+ee9a791f6ca5b17a746cfd1c11442101 *R/export.R
+32ae0fd7dad3155ac0cff25627cb6948 *R/factorize.R
 44aed32ea668e99597e89cad124ac289 *R/getInfo.R
 3e29d6676d172fed26f95cc584957439 *R/getLevels.R
 8b80df76000c978f802fe1f9414b7a71 *R/getMatrix.R
@@ -28,7 +29,7 @@ e0d5020955dd2047ca82bcf63dfc6979 *R/replaceText.R
 36b5cb411df52ae31e57ca78ea9889d0 *R/sortExpressions.R
 d4a61ca0bb5a3ad3acd3d634a0c714e5 *R/string.R
 a4d67ae7b18db41e95ee5cf4a952bee2 *R/tildae.R
-0d0c4881f92b87ff847d408e593c9339 *R/translate.R
+f82484e981df2c93786950278746eced *R/translate.R
 597c91ed5f67464820d8eba77ebe818e *R/tryCatchWEM.R
 01e8980883990b4032c955d15991f377 *R/uninstall.R
 afed0d2c9cb4a40f355ba41a47aa6c50 *R/unload.R
@@ -36,13 +37,14 @@ afed0d2c9cb4a40f355ba41a47aa6c50 *R/unload.R
 f875af4955598f4ed1b224cfde91a200 *R/verify.R
 8a55474ccee4fe7f4a80df08ddab6d60 *R/wholeNumeric.R
 53e4b2863b2ede723e590e116dcbfa99 *R/writePrimeimp.R
-a9e95b1c98cee3f8427a1647b2fc5695 *inst/ChangeLog
+852191606fad904369315244ea6d9ee4 *inst/ChangeLog
 0ecae15da1b2a4ab84f3eed726162e05 *man/SOPexpression.Rd
 97e0c7e1935b25997beacec429422a1e *man/admisc-internal.Rd
-5797edeacf285c965f52df1b534e7e76 *man/admisc.package.Rd
+3bd2edca8ed682f18efdac2191f47666 *man/admisc.package.Rd
 f6f380be8942c4f369d3239971458c16 *man/brackets.Rd
 98872ca288918efe85b81ef405601519 *man/combnk.Rd
 4f8465c6f92f065ca2f56dbd692473c8 *man/equality.Rd
+598be67ba886af5af778a761f56f54d9 *man/export.Rd
 ce7c60f22d61be26bc70a295aed76a75 *man/factorize.Rd
 a518151e751acbb73712e0c6f3b397e8 *man/intersection.Rd
 052edb17e851843f9c4a64e9e47c1be8 *man/negate.Rd

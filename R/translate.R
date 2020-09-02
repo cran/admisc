@@ -35,7 +35,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     }
     if (any(grepl("<=>|<->|=>|->|<=|<-", expression))) {
         cat(enter)
-        stop(simpleError(paste0("Incorrect expression.", enter, enter)))
+        stop(simpleError(paste0("Incorrect expression, contains outcome and relation.", enter, enter)))
     }
     if (!is.vector(snames)) {
         cat(enter)
@@ -225,7 +225,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
     }
     else {
-        sl <- ifelse(replaced | identical(snames, ""), TRUE, all(nchar(snames) == 1))
+        sl <- ifelse((replaced & length(snames) < 27) | identical(snames, ""), TRUE, all(nchar(snames) == 1))
         pp <- unlist(strsplit(expression, split = "[+]"))
         if (replaced) {
             pp <- gsub("[*]", "", pp)
