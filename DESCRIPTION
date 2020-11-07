@@ -1,12 +1,12 @@
 Package: admisc
-Version: 0.10
-Date: 2020-09-20
+Version: 0.11
+Date: 2020-11-07
 Title: Adrian Dusa's Miscellaneous
-Authors@R: person(given = "Adrian", family = "Dusa",
+Authors@R: c(person(given = "Adrian", family = "Dusa",
                   role = c("aut", "cre", "cph"),
                   email = "dusa.adrian@unibuc.ro",
-                  comment = c(ORCID = "0000-0002-3525-9253"))
-Depends: R (>= 3.5.0)
+                  comment = c(ORCID = "0000-0002-3525-9253")))
+Depends: R (>= 3.6.0)
 Imports: methods
 Suggests: QCA (>= 3.7)
 Description: Contains functions used across packages 'QCA', 'DDIwR', and 'venn'.
@@ -18,8 +18,8 @@ Description: Contains functions used across packages 'QCA', 'DDIwR', and 'venn'.
     many others, a highly flexible recoding routine.
 License: GPL (>= 3)
 NeedsCompilation: no
-Packaged: 2020-09-20 18:26:27 UTC; dusadrian
+Packaged: 2020-11-07 08:23:03 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2020-09-20 18:50:02 UTC
+Date/Publication: 2020-11-07 08:50:02 UTC

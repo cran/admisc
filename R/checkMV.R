@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Adrian Dusa
+# Copyright (c) 2019 - 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
     }
     if (any(grepl("[a-zA-Z]", gsub("[,|;]", "", insb)))) {
         cat("\n")
-        stop(simpleError("Invalid {multi}values, levels should be numeric.\n\n"))
+        stop(simpleError("Invalid [multi]values, levels should be numeric.\n\n"))
     }
     if (curly) {
         conds <- sort(unique(notilde(curlyBrackets(pp, outside = TRUE))))

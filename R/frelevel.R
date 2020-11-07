@@ -23,17 +23,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`sortExpressions` <- function(x) {
-    if (is.matrix(x)) {
-        mat <- x
-    } else if (is.character(x)) {
+`frelevel` <- function(variable, levels) {
+    if (!is.factor(variable)) {
+        cat("\n")
+        stop("The input variable is not a factor.\n\n", call. = FALSE)
     }
-    for (i in rev(seq(ncol(mat)))) {
-        mat <- mat[order(mat[, i], decreasing = TRUE), , drop = FALSE]
-        if (length(wx <- which(mat[, i] > 0)) > 0) {
-            rest <- if (max(wx) == nrow(mat)) NULL else seq(max(wx) + 1, nrow(mat))
-            mat <- mat[c(order(mat[wx, i]), rest), , drop = FALSE]
-        }
+    if (any(!(levels %in% levels(variable)))) {
+        cat("\n")
+        stop("One or more levels do not exist in the input variable.\n\n", call. = FALSE)
     }
-    return(mat[order(apply(mat, 1, function(x) sum(x > 0))), , drop = FALSE])
+    for (i in seq_len(length(levels))) {
+        variable <- relevel(variable, ref = rev(levels)[i])
+    }
+    return(variable)
 }

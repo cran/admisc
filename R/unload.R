@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Adrian Dusa
+# Copyright (c) 2019 - 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,9 +24,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `unload` <- function(package) {
-    package <- gsub("\\\"", "", deparse(substitute(package)))
+    package <- recreate(substitute(package))
     if (is.element(package, .packages())) { 
-        detach(paste("package", package, sep = ":"), character.only = TRUE, unload = TRUE)
+        detach(paste("package", package, sep = ":"), character.only = TRUE, unload = TRUE, force = TRUE)
         unloadNamespace(package)
     }
     if (is.element(package, unlist(lapply(library.dynam(), "[[", 1)))) {

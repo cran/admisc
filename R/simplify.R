@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Adrian Dusa
+# Copyright (c) 2019 - 2020, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,12 @@
     scollapse <- scollapse | grepl("[*]", expression)
     multivalue <- any(grepl(mvregexp, expression))
     curly <- grepl("[{]", expression)
+    if (multivalue) {
+        if (is.null(noflevels) | identical(snames, "")) {
+            cat("\n")
+            stop(simpleError("Set names and their number of levels are required to simplify multivalue expressions.\n\n"))
+        }
+    }
     implicants <- expand(expression, snames = snames, noflevels = noflevels,
                         enter = enter, implicants = TRUE)
     if (identical(unclass(implicants), "")) {

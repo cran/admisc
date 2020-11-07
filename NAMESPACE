@@ -1,5 +1,5 @@
 importFrom("utils", "read.csv", "write.csv", "write.table", "capture.output", "installed.packages", "packageDescription", "remove.packages")
-importFrom("stats", "na.omit", "dist")
+importFrom("stats", "na.omit", "dist", "relevel")
 importFrom("methods", "is")
 
 export(
@@ -22,11 +22,14 @@ export(
     expand,
     export,
     factorize,
+    finvert,
+    frelevel,
     getInfo,
     getLevels,
     getMatrix,
     intersection,
     invert,
+    permutations,
     possibleNumeric,
     prettyString,
     prettyTable,
@@ -38,6 +41,7 @@ export(
         tildae,
         tilde1st,
     recreate,
+    reload,
     replaceText,
     simplify,
     sop,
