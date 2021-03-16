@@ -1,3 +1,11 @@
+Version 0.12
+    o Solved bug in function translate() when called from plumber or
+      callr (thanks to Trevor Strobel for the report)
+    o Solved bug in dealing with expressions containing brackets with
+      single letter conditions and no star signs to indicate conjunctions
+    o New functions list.rda() and names.rda()
+    o Small improvement of the recode() function
+      
 Version 0.11
     o New function finvert(), to invert a factor's values (and optional
       its levels)
@@ -67,4 +75,3 @@ Version 0.2
 
 Version 0.1
     o Start of the package
-

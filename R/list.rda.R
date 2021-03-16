@@ -23,12 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`asNumeric` <- function(x) {
-    if (is.numeric(x)) {
-        return(x)
-    }
-    if (is.factor(x)) {
-        return(suppressWarnings(as.numeric(levels(x)))[x])
-    }
-    return(suppressWarnings(as.numeric(as.character(x))))
+`list.rda` <- function(.filename) {
+    load(.filename)
+    return(as.list(environment()))
 }

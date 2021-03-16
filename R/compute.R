@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2020, Adrian Dusa
+# Copyright (c) 2019 - 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ function(expression = "", data = NULL, separate = FALSE) {
     negated <- identical(unname(substring(expression, 1, 2)), "1-")
     expression <- gsub("1-", "", expression)
     if (is.null(data)) {
-        syscalls <- parse(text = paste(unlist(lapply(sys.calls(), deparse)), collapse = "\n"))
+        syscalls <- as.character(sys.calls())
         if (any(withdata <- grepl("with\\(", syscalls))) {
             withdata <- which(withdata)
             withdata <- withdata[length(withdata)]

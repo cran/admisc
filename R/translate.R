@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2020, Adrian Dusa
+# Copyright (c) 2019 - 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         }
     }
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
-        syscalls <- parse(text = paste(unlist(lapply(sys.calls(), deparse)), collapse = "\n"))
+        syscalls <- as.character(sys.calls())
         if (length(withdata <- grep("with\\(", syscalls)) > 0) {
             withdata <- withdata[length(withdata)]
             data <- get(unlist(strsplit(gsub("with\\(", "", syscalls[withdata]), split = ","))[1], envir = length(syscalls) - withdata)

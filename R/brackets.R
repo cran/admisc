@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2020, Adrian Dusa
+# Copyright (c) 2019 - 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -89,10 +89,12 @@
         return(gsub("\\(|\\)|\\*", "", res))
     }
 }
-`expandBrackets` <- function(expression, snames = "", noflevels = NULL, collapse = "*") {
+`expandBrackets` <- function(expression, snames = "", noflevels = NULL) {
     expression <- recreate(substitute(expression))
     snames <- splitstr(snames)
+    star <- any(grepl("[*]", expression))
     multivalue <- any(grepl("\\[|\\]|\\{|\\}", expression))
+    collapse <- ifelse(any(nchar(snames) > 1) | multivalue | star, "*", "")
     curly <- grepl("[{]", expression)
     sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
     getbl <- function(expression, snames = "", noflevels = NULL) {

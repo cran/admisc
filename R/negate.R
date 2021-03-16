@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2020, Adrian Dusa
+# Copyright (c) 2019 - 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@
                 return(paste(ifelse(sr, "", "("), paste(nms, collapse = " + ", sep = ""), ifelse(sr, "", ")"), sep = ""))
             }
         }), collapse = "")
-        negated <- expandBrackets(negated, snames = snames, noflevels = noflevels, collapse = collapse)
+        negated <- expandBrackets(negated, snames = snames, noflevels = noflevels)
         callist$expression <- negated
         callist$scollapse <- identical(collapse, "*")
         callist$snames <- snames

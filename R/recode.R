@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2020, Adrian Dusa
+# Copyright (c) 2019 - 2021, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,13 @@ function(x, rules, cuts, values, ...) {
     as.numeric.result <- if (is.element("as.numeric.result", names(dots))) dots$as.numeric.result else TRUE
     factor.ordered    <- if (is.element("ordered",           names(dots))) dots$ordered           else FALSE
     factor.ordered    <- if (is.element("ordered_result",    names(dots))) dots$ordered_result    else FALSE
-    factor.levels     <- if (is.element("levels",            names(dots))) dots$levels            else c()
-    factor.labels     <- if (is.element("labels",            names(dots))) dots$labels            else c()
+    factor.levels     <- if (is.element("levels",            names(dots))) splitstr(dots$levels)  else c()
+    factor.labels     <- if (is.element("labels",            names(dots))) splitstr(dots$labels)  else c()
     if (is.logical(factor.labels)) {
         factor.labels <- c()
+    }
+    if (!identical(factor.levels, c()) || !identical(factor.labels, c())) {
+        as.factor.result  <- TRUE
     }
     getFromRange <- function(a, b) {
         copya <- a
@@ -217,6 +220,9 @@ function(x, rules, cuts, values, ...) {
                 temp[x > cuts[i]] = values[i + 1]
             }
         }
+        if (identical(factor.labels, c()) & is.numeric(cuts)) {
+            factor.labels <- values
+        }
     }
     if (as.factor.result) {
         if (identical(factor.levels, c())) {
@@ -225,7 +231,7 @@ function(x, rules, cuts, values, ...) {
         if (identical(factor.labels, c())) {
             factor.labels <- factor.levels
         }
-        temp <- factor(temp, levels=factor.levels, labels=factor.labels, ordered=factor.ordered)
+        temp <- factor(temp, levels = factor.levels, labels = factor.labels, ordered = factor.ordered)
     }
     else if (as.numeric.result) {
         if (possibleNumeric(temp)) {
