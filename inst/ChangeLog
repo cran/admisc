@@ -1,3 +1,10 @@
+Version 0.15
+    o possibleNumeric() and asNumeric() are now more robust in situations
+      with invalid multibyte strings
+    o Argument "cuts" renamed to "cut" in function recode()
+    o Fixed bug in function recode() that prevented creating ordered
+      factors
+      
 Version 0.12
     o Solved bug in function translate() when called from plumber or
       callr (thanks to Trevor Strobel for the report)
@@ -5,7 +12,7 @@ Version 0.12
       single letter conditions and no star signs to indicate conjunctions
     o New functions list.rda() and names.rda()
     o Small improvement of the recode() function
-      
+
 Version 0.11
     o New function finvert(), to invert a factor's values (and optional
       its levels)

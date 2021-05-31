@@ -29,9 +29,12 @@
 \alias{trimstr}
 \alias{uninstall}
 \alias{unload}
+\alias{unlockEnvironment}
 \alias{validateNames}
 \alias{verify}
 \alias{writePrimeimp}
+\alias{unlockEnvironment}
+
 
 \title{Internal Functions}
 

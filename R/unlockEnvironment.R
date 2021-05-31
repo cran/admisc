@@ -23,15 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`asNumeric` <- function(x) {
-    if (is.numeric(x)) {
-        return(x)
-    }
-    if (is.factor(x)) {
-        return(suppressWarnings(as.numeric(levels(x)))[x])
-    }
-    result <- rep(NA, length(x))
-    multibyte <- grepl("[^!-~]", x)
-    result[!multibyte] <- suppressWarnings(as.numeric(x[!multibyte]))
-    return(result)
-}
+`unlockEnvironment` <- function(env) {
+     .Call("_unlockEnvironment", env, PACKAGE = "admisc")
+ }

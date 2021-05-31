@@ -87,7 +87,23 @@
                 }
             }
         }
-        if (pos > 0) {
+        covered <- logical(length(positions))
+        pos2 <- positions
+        if (pos > 1) {
+            for (i in seq(length(pos2) - 1)) {
+                if (!covered[i]) {
+                    for (j in seq(i + 1, length(pos2))) {
+                        if (!covered[j]) {
+                            if (all(is.element(seq(pos2[[j]][1], pos2[[j]][length(pos2[[j]])]), seq(pos2[[i]][1], pos2[[i]][length(pos2[[i]])])))) {
+                                covered[j] <- TRUE
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        positions <- positions[!covered]
+        if (length(positions) > 0) {
             first <- unlist(lapply(positions, "[[", 1))
             positions <- positions[order(first, decreasing = TRUE)]
             expression <- unlist(strsplit(expression, split = ""))

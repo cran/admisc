@@ -24,7 +24,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `recode` <-
-function(x, rules, cuts, values, ...) {
+function(x, rules, cut, values, ...) {
+    mixed <- inherits(x, "mixed_labelled")
+    if (mixed) {
+        x <- unclass(x)
+    }
     if (missing(x)) {
         cat("\n")
         stop(simpleError("Argument \"x\" is missing.\n\n"))
@@ -40,17 +44,25 @@ function(x, rules, cuts, values, ...) {
     dots <- recreate(list(...))
     as.factor.result  <- if (is.element("as.factor.result",  names(dots))) dots$as.factor.result  else FALSE
     as.numeric.result <- if (is.element("as.numeric.result", names(dots))) dots$as.numeric.result else TRUE
-    factor.ordered    <- if (is.element("ordered",           names(dots))) dots$ordered           else FALSE
-    factor.ordered    <- if (is.element("ordered_result",    names(dots))) dots$ordered_result    else FALSE
     factor.levels     <- if (is.element("levels",            names(dots))) splitstr(dots$levels)  else c()
     factor.labels     <- if (is.element("labels",            names(dots))) splitstr(dots$labels)  else c()
+    factor.ordered    <- FALSE
+    if (is.element("ordered", names(dots))) {
+        factor.ordered <- dots$ordered
+    }
+    else if (is.element("ordered_result", names(dots))) {
+        factor.ordered <- dots$ordered_result
+    }
+    if (is.element("cuts", names(dots)) & missing(cut)) {
+        cut <- dots[["cuts"]]
+    }
     if (is.logical(factor.labels)) {
         factor.labels <- c()
     }
     if (!identical(factor.levels, c()) || !identical(factor.labels, c())) {
         as.factor.result  <- TRUE
     }
-    getFromRange <- function(a, b) {
+    `getFromRange` <- function(a, b, uniques, xisnumeric) {
         copya <- a
         copyb <- b
         a <- ifelse(a == "lo", uniques[1], a)
@@ -72,7 +84,7 @@ function(x, rules, cuts, values, ...) {
         if (length(c(seqfrom, seqto)) < 2) return(NULL)
         return(seq(seqfrom, seqto))
     }
-    if (missing(cuts)) {
+    if (missing(cut)) {
         rules <- gsub("\n|\t", "", gsub("'", "", gsub(")", "", gsub("c(", "", rules, fixed = TRUE))))
         if (length(rules) == 1) {
              rules <- unlist(strsplit(rules, split=";"))
@@ -117,11 +129,11 @@ function(x, rules, cuts, values, ...) {
         xisnumeric <- possibleNumeric(uniques)
         if (xisnumeric) {
             x <- asNumeric(x) 
-            uniques <- sort(unique(x[!is.na(x)]))
+            uniques <- asNumeric(uniques)
         }
         for (i in seq(length(from))) {
             if (!is.na(to[i])) { 
-                torecode <- getFromRange(from[i], to[i])
+                torecode <- getFromRange(from[i], to[i], uniques, xisnumeric)
                 if (!is.null(torecode)) {
                     vals <- uniques[torecode]
                     temp[x %in% vals] <- newval[i]
@@ -132,7 +144,7 @@ function(x, rules, cuts, values, ...) {
                 if (from[i] == "else") {
                     temp[!is.element(x, recoded)] <- newval[i]
                 }
-                else if (from[i] == "missing") {
+                else if (from[i] == "missing" | from[i] == "NA") {
                     temp[is.na(x)] <- newval[i]
                 }
                 else {
@@ -143,22 +155,22 @@ function(x, rules, cuts, values, ...) {
         }
     }
     else {
-        if (length(cuts) == 1 & is.character(cuts)) {
-            cuts <- gsub("\n|\t", "", gsub("'", "", gsub(")", "", gsub("c(", "", cuts, fixed = TRUE))))
-            cuts <- trimstr(unlist(strsplit(cuts, split = ",")))
-            if (length(cuts) == 1) {
-                cuts <- trimstr(unlist(strsplit(cuts, split = ";")))
+        if (length(cut) == 1 & is.character(cut)) {
+            cut <- gsub("\n|\t", "", gsub("'", "", gsub(")", "", gsub("c(", "", cut, fixed = TRUE))))
+            cut <- trimstr(unlist(strsplit(cut, split = ",")))
+            if (length(cut) == 1) {
+                cut <- trimstr(unlist(strsplit(cut, split = ";")))
             }
         }
-        if (possibleNumeric(cuts)) {
-            cuts <- asNumeric(cuts)
+        if (possibleNumeric(cut)) {
+            cut <- asNumeric(cut)
         }
-        if (any(duplicated(cuts))) {
+        if (any(duplicated(cut))) {
             cat("\n")
             stop(simpleError("Cut values should be unique.\n\n"))
         }
         if (missing(values)) {
-            values <- seq(length(cuts) + 1)
+            values <- seq(length(cut) + 1)
         }
         else {
             if (length(values) == 1 & is.character(values)) {
@@ -168,59 +180,63 @@ function(x, rules, cuts, values, ...) {
                     values <- trimstr(unlist(strsplit(values, split = ";")))
                 }
             }
-            if (length(values) == length(cuts) + 1) {
+            if (length(values) == length(cut) + 1) {
                 as.numeric.result <- possibleNumeric(values)
             }
             else {
                 cat("\n")
-                stop(simpleError(paste("There should be", length(cuts) + 1, "values for", length(cuts), ifelse(length(cuts) == 1, "cut.", "cuts."), "\n\n")))
+                stop(simpleError(paste0("There should be ", length(cut) + 1, " values for ", length(cut), " cut value", ifelse(length(cut) == 1, "", "s"), ".\n\n")))
             }
         }
         if (is.factor(x)) {
             lx <- levels(x)
             minx <- lx[1]
             maxx <- lx[length(lx)]
-            if (is.numeric(cuts)) {
+            if (is.numeric(cut)) {
                 insidex <- FALSE
             }
             else {
-                insidex <- all(is.element(cuts, lx))
+                insidex <- all(is.element(cut, lx))
             }
         }
         else {
             sx <- sort(x)
             minx <- sx[1]
             maxx <- sx[length(x)]
-            if (is.character(x) & is.numeric(cuts)) {
+            if (is.character(x) & is.numeric(cut)) {
                 insidex <- FALSE
             }
             else {
-                insidex <- logical(length(cuts))
-                for (i in seq(length(cuts))) {
-                    insidex[i] <- cuts[i] >= minx & cuts[i] <= maxx
+                insidex <- logical(length(cut))
+                for (i in seq(length(cut))) {
+                    insidex[i] <- cut[i] >= minx & cut[i] <= maxx
                 }
             }
         }
         if (!all(insidex)) {
+            message <- "Cut value(s) outside the input vector."
+            if (mixed) {
+                message <- paste(message, "Consider using unmix() before recoding.")
+            }
             cat("\n")
-            stop(simpleError("Cut value(s) outside the input vector.\n\n"))
+            stop(simpleError(paste0(message, "\n\n")))
         }
         if (is.factor(x)) {
             nx <- as.numeric(x)
             nlx <- seq(length(lx))
-            nc <- match(cuts, lx)
+            nc <- match(cut, lx)
             temp <- rep(values[1], length(x))
-            for (i in seq(length(cuts))) {
+            for (i in seq(length(cut))) {
                 temp[nx > nc[i]] = values[i + 1]
             }
         }
         else {
             temp <- rep(values[1], length(x))
-            for (i in seq(length(cuts))) {
-                temp[x > cuts[i]] = values[i + 1]
+            for (i in seq(length(cut))) {
+                temp[x > cut[i]] = values[i + 1]
             }
         }
-        if (identical(factor.labels, c()) & is.numeric(cuts)) {
+        if (identical(factor.labels, c()) & is.numeric(cut)) {
             factor.labels <- values
         }
     }
