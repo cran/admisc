@@ -23,12 +23,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+`agtb` <- function(a, b) {
+    tol <- getOption("admisc.tol")
+    (a - tol) > b
+}
+`altb` <- function(a, b) {
+    tol <- getOption("admisc.tol")
+    a < (b - tol)
+}
 `agteb` <- function(a, b) {
-    a > b | abs(a - b) <= .Machine$double.eps^0.5
+    tol <- getOption("admisc.tol")
+    (a + tol) > b
 }
 `alteb` <- function(a, b) {
-    a < b | abs(a - b) <= .Machine$double.eps^0.5
+    tol <- getOption("admisc.tol")
+    a < (b + tol)
 }
 `aeqb` <- function(a, b) {
-    abs(a - b) <= .Machine$double.eps^0.5
+    tol <- getOption("admisc.tol")
+    abs(a - b) < tol
+}
+`aneqb` <- function(a, b) {
+    tol <- getOption("admisc.tol")
+    abs(a - b) > tol
 }

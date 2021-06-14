@@ -23,10 +23,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`recode` <-
-function(x, rules, cut, values, ...) {
-    mixed <- inherits(x, "mixed_labelled")
-    if (mixed) {
+`recode` <- function(x, rules, cut, values, ...) {
+    UseMethod("recode")
+}
+`recode.declared` <- function(x, rules, cut, values, ...) {
+    na_index <- attr(x, "na_index")
+    if (!is.null(na_index)) {
+        nms <- names(na_index)
+        if (possibleNumeric(nms) || all(is.na(nms))) {
+            nms <- asNumeric(nms)
+            if (wholeNumeric(nms)) {
+                nms <- as.integer(nms)
+            }
+        }
+        x <- unclass(x)
+        x[na_index] <- nms
+    }
+    recode(unclass(x), rules, cut, values, ...)
+}
+`recode.default` <- function(x, rules, cut, values, ...) {
+    declared <- inherits(x, "declared")
+    if (declared) {
         x <- unclass(x)
     }
     if (missing(x)) {
@@ -215,8 +232,8 @@ function(x, rules, cut, values, ...) {
         }
         if (!all(insidex)) {
             message <- "Cut value(s) outside the input vector."
-            if (mixed) {
-                message <- paste(message, "Consider using unmix() before recoding.")
+            if (declared) {
+                message <- paste(message, "Consider using undeclare() before recoding.")
             }
             cat("\n")
             stop(simpleError(paste0(message, "\n\n")))

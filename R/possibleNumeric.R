@@ -27,7 +27,7 @@
     if (all(is.na(x))) {
         return(FALSE)
     }
-    if (inherits(x, "haven_labelled")) {
+    if (inherits(x, "haven_labelled") || inherits(x, "declared")) {
         return(Recall(unclass(x)) && !any(is.na(suppressWarnings(as.numeric(names(attr(x, "labels")))))))
     }
     if (is.numeric(x)) {
@@ -36,7 +36,7 @@
     if (is.factor(x)) {
         return(!any(is.na(suppressWarnings(as.numeric(levels(x))))))
     }
-    if (any(grepl("[^!-~]", x))) {
+    if (any(grepl("[^!-~ ]", x))) {
         return(FALSE)
     }
     return(!any(is.na(suppressWarnings(as.numeric(na.omit(x))))))

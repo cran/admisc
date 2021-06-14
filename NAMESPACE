@@ -28,6 +28,7 @@ export(
     getInfo,
     getLevels,
     getMatrix,
+    getName,
     intersection,
     invert,
     list.rda,
@@ -78,3 +79,6 @@ S3method(print, "admisc_intersection")
 S3method(print, "admisc_translate")
 S3method(print, "admisc_deMorgan")
 S3method(print, "admisc_simplify")
+
+S3method(recode, default)
+S3method(recode, declared)
