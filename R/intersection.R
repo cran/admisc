@@ -33,8 +33,7 @@
     dots <- eval(dots)
     snames <- recreate(substitute(snames))
     if (length(dots) == 0) {
-        cat("\n")
-        stop(simpleError("Nothing to intersect.\n\n"))
+        stopError("Nothing to intersect.")
     }
     if (length(dots[[1]]) == 0) {
         return(invisible(character(0)))
@@ -74,8 +73,7 @@
             attr(dots[[i]], "minimized") <- attr(x, "minimized")
         }
         if (!is.character(dots[[i]])) {
-            cat("\n")
-            stop(simpleError("Unrecognised input.\n\n"))
+            stopError("Unrecognised input.")
         }
     }
     arglist <- list(snames = snames)

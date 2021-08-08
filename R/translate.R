@@ -30,21 +30,17 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
     dots <- list(...)
     enter <- ifelse (is.element("enter", names(dots)), "",  "\n") 
     if (identical(expression, "")) {
-        cat(enter)
-        stop(simpleError(paste0("Empty expression.", enter, enter)))
+        stopError("Empty expression.")
     }
     if (any(grepl("<=>|<->|=>|->|<=|<-", expression))) {
-        cat(enter)
-        stop(simpleError(paste0("Incorrect expression, contains outcome and relation.", enter, enter)))
+        stopError("Incorrect expression, contains outcome and relation.")
     }
     if (!is.vector(snames)) {
-        cat(enter)
-        stop(simpleError(paste0("Set names should be a single string or a vector of names.", enter, enter)))
+        stopError("Set names should be a single string or a vector of names.")
     }
     if (!is.null(data)) {
         if (is.null(colnames(data))) {
-            cat(enter)
-            stop(simpleError(paste0("Data should have column names.", enter, enter)))
+            stopError("Data should have column names.")
         }
     }
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
@@ -66,8 +62,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         snames <- splitstr(snames)
         if (!is.null(data)) {
             if (length(setdiff(snames, colnames(data))) > 0) {
-                cat(enter)
-                stop(simpleError(paste0("Part(s) of the \"snames\" not in the column names from the data.", enter, enter)))
+                stopError("Part(s) of the \"snames\" not in the column names from the data.")
             }
         }
     }
@@ -172,8 +167,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                     beforemessage <- paste(beforemessage, "s", sep = "")
                     aftermessage <- gsub("does", "do", aftermessage)
                 }
-                cat(enter)
-                stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
+                stopError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage))
             }
         }
         if (any(hastilde(expression))) {
@@ -220,8 +214,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         names(retlist) <- pporig
         retlist <- retlist[!unlist(lapply(retlist, function(x) any(unlist(lapply(x, length)) == 0)))]
         if (length(retlist) == 0) {
-            cat(enter)
-            stop(simpleError(paste0("The result is an empty set.", enter, enter)))
+            stopError("The result is an empty set.")
         }
     }
     else {
@@ -239,8 +232,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                     valid <- which(infodata$noflevels >= 2)
                     invalid <- !any(infodata$hastime[valid]) & any(infodata$noflevels[valid] > 2)
                     if (invalid) {
-                        cat(enter)
-                        stop(simpleError(paste0("Expression should be multi-value, since it refers to multi-value data.", enter, enter)))
+                        stopError("Expression should be multi-value, since it refers to multi-value data.")
                     }
                 }
             }
@@ -256,8 +248,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
                 if (replaced) {
                     conds <- replaceText(conds, snames, snameso)
                 }
-                cat(enter)
-                stop(simpleError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage)))
+                stopError(sprintf("%s '%s' %s.\n\n", beforemessage, paste(conds, collapse = ","), aftermessage))
             }
         }
         retlist <- lapply(pp, function(x) {
@@ -291,8 +282,7 @@ function(expression = "", snames = "", noflevels = NULL, data = NULL, ...) {
         return(x)
     }))
     if (length(retmat) == 0) {
-        cat(enter)
-        stop(simpleError(paste0("Impossible to translate an empty set.", enter, enter)))
+        stopError("Impossible to translate an empty set.")
     }
     if (is.element("retlist", names(dots))) {
         attr(retmat, "retlist") <- retlist

@@ -45,8 +45,7 @@
     curly <- grepl("[{]", expression)
     if (multivalue) {
         if (is.null(noflevels) | identical(snames, "")) {
-            cat("\n")
-            stop(simpleError("Set names and their number of levels are required to simplify multivalue expressions.\n\n"))
+            stopError("Set names and their number of levels are required to simplify multivalue expressions.")
         }
     }
     implicants <- expand(expression, snames = snames, noflevels = noflevels,
@@ -72,7 +71,14 @@
     dataset <- cbind(implicants - 1, 1)
     outcome <- paste(sample(LETTERS, 10), collapse = "")
     colnames(dataset)[ncol(dataset)] <- outcome
-    sols <- QCA::minimize(dataset, outcome = outcome, all.sol = all.sol, simplify = TRUE)
+    test <- tryCatchWEM(sols <- QCA::minimize(dataset, outcome = outcome, all.sol = all.sol, simplify = TRUE))
+    if (!is.null(test)) {
+        if (!is.null(test$error)) {
+            if (grepl("All truth table", test$error)) {
+                return("")
+            }
+        }
+    }
     scollapse <- scollapse | any(nchar(colnames(implicants)) > 1) | any(grepl(mvregexp, unlist(sols$solution))) 
     expression <- unlist(lapply(sols$solution, function(x) {
         if (!scollapse) x <- gsub("\\*", "", x)

@@ -57,8 +57,7 @@
         input <- unlist(input)
     }
     if (!is.character(input)) {
-        cat("\n")
-        stop(simpleError("The expression should be a character vector.\n\n"))
+        stopError("The expression should be a character vector.")
     }
     star <- any(grepl("[*]", input))
     if (!identical(snames, "")) {

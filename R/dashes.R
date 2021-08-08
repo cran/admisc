@@ -25,5 +25,9 @@
 
 `dashes` <- function() {
     irv <- c(45, 226, 128, 147)
-    paste(unlist(strsplit(rawToChar(as.raw(irv)), split = "")), collapse = "|")
+    chrs <- rawToChar(as.raw(irv))
+    if (any(grepl("[^!-~ ]", chrs))) {
+        return("-")
+    }
+    paste(unlist(strsplit(chrs, split = "")), collapse = "|")
 }

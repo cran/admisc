@@ -25,7 +25,11 @@
 
 `tildae` <- function() {
     irv <- c(126, 226, 136, 188, 194, 172, 226, 136, 189)
-    unlist(strsplit(rawToChar(as.raw(irv)), split = ""))
+    chrs <- rawToChar(as.raw(irv))
+    if (any(grepl("[^!-~ ]", chrs))) {
+        return("~")
+    }
+    unlist(strsplit(chrs, split = ""))
 }
 `tilde1st` <- function(x) {
     is.element(substring(gsub("[[:space:]]", "", x), 1, 1), tildae())

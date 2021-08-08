@@ -23,46 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getInfo` <- function(data) {
-    if (is.matrix(data)) {
-        data <- as.data.frame(data)
-    }
-    dc.code <- unique(unlist(lapply(data, function(x) {
-        if (is.numeric(x)) {
-            return(x[x < 0])
-        }
-        else {
-            return(as.character(x[is.element(x, c("-", "dc"))]))
-        }
-    })))
-    if (length(dc.code) > 1) {
-        stopError("Multiple \"don't care\" codes found.")
-    }
-    if (length(dc.code) > 0) {
-        colnms <- colnames(data)
-        data[] <- lapply(data, function(x) {
-            x <- as.character(x)
-            x[x == dc.code] <- -1
-            return(asNumeric(x))
-        })
-        colnames(data) <- colnms
-    }
-    fuzzy.cc <- logical(ncol(data))
-    hastime <- logical(ncol(data))
-    pN <- unlist(lapply(data, possibleNumeric))
-    for (i in seq(ncol(data))) {
-        if (pN[i]) {
-            fuzzy.cc[i] <- any(na.omit(data[, i]) %% 1 > 0)
-            if (!fuzzy.cc[i] & !any(is.na(data[, i]))) {
-                copy.cc <- data[, i]
-                if (any(na.omit(copy.cc) < 0)) {
-                    hastime[i] <- TRUE
-                    copy.cc[copy.cc < 0] <- max(copy.cc) + 1
-                    data[, i] <- copy.cc
-                }
-            }
-        }
-    }
-    noflevels <- getLevels(data)
-    return(list(data = data, fuzzy.cc = fuzzy.cc, hastime = hastime, dc.code = dc.code, noflevels = as.numeric(noflevels)))
+`stopError` <- function(message, enter = "\n") {
+    stop(simpleError(paste0(enter, message, enter, enter)))
 }
