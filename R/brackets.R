@@ -45,7 +45,20 @@
     }
     tml <- typematrix[tml, 1:2]
     pattern <- paste("\\", tml, sep = "", collapse = "[[:alnum:]|,]*")
-    result <- gsub("\\*|\\+", "", unlist(strsplit(gsub("\\s+", " ", trimstr(gsub(pattern, " ", x))), split = " ")))
+    result <- gsub(
+        "\\*|\\+",
+        "",
+        unlist(
+            strsplit(
+                gsub(
+                    "\\s+",
+                    " ",
+                    trimstr(gsub(pattern, " ", x))
+                ),
+                split = " "
+            )
+        )
+    )
     return(result[result != ""])
 }
 `curlyBrackets` <- function(x, outside = FALSE) {
@@ -55,7 +68,11 @@
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
     if (outside) {
-        res <- gsub("\\*", "", unlist(strsplit(res, split="\\+")))
+        res <- gsub(
+            "\\*",
+            "",
+            unlist(strsplit(res, split = "\\+"))
+        )
         return(res[res != ""])
     }
     else {
@@ -69,7 +86,11 @@
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
     if (outside) {
-        res <- gsub("\\*", "", unlist(strsplit(res, split="\\+")))
+        res <- gsub(
+            "\\*",
+            "",
+            unlist(strsplit(res, split = "\\+"))
+        )
         return(res[res != ""])
     }
     else {
@@ -89,14 +110,28 @@
         return(gsub("\\(|\\)|\\*", "", res))
     }
 }
-`expandBrackets` <- function(expression, snames = "", noflevels = NULL) {
+`expandBrackets` <- function(
+    expression, snames = "", noflevels = NULL, scollapse = FALSE
+) {
     expression <- recreate(substitute(expression))
     snames <- splitstr(snames)
     star <- any(grepl("[*]", expression))
     multivalue <- any(grepl("\\[|\\]|\\{|\\}", expression))
-    collapse <- ifelse(any(nchar(snames) > 1) | multivalue | star, "*", "")
+    collapse <- ifelse(
+        any(nchar(snames) > 1) | multivalue | star | scollapse,
+        "*",
+        ""
+    )
     curly <- grepl("[{]", expression)
-    sl <- ifelse(identical(snames, ""), FALSE, ifelse(all(nchar(snames) == 1), TRUE, FALSE))
+    sl <- ifelse( 
+        identical(snames, ""),
+        FALSE,
+        ifelse(
+            all(nchar(snames) == 1),
+            TRUE,
+            FALSE
+        )
+    )
     getbl <- function(expression, snames = "", noflevels = NULL) {
         bl <- splitMainComponents(gsub("[[:space:]]", "", expression))
         bl <- splitBrackets(bl)
@@ -110,14 +145,34 @@
         bl <- removeSingleStars(bl)
         bl <- splitPluses(bl)
         blu <- unlist(bl)
-        bl <- splitStars(bl, ifelse((sl | any(hastilde(blu) & !tilde1st(blu))) & !grepl("[*]", expression) & !multivalue, "", "*"))
+        bl <- splitStars(
+            bl,
+            ifelse(
+                (
+                    sl | any(
+                        hastilde(blu) & !tilde1st(blu)
+                    )
+                ) & !grepl("[*]", expression) & !multivalue,
+                "",
+                "*"
+            )
+        )
         bl <- solveBrackets(bl)
         bl <- simplifyList(bl)
         return(bl)
     }
     bl <- getbl(expression, snames = snames, noflevels = noflevels)
     if (length(bl) == 0) return("")
-    bl <- paste(unlist(lapply(bl, paste, collapse = collapse)), collapse = " + ")
+    bl <- paste(
+        unlist(
+            lapply(
+                bl,
+                paste,
+                collapse = collapse
+            )
+        ),
+        collapse = " + "
+    )
     expressions <- translate(bl, snames = snames, noflevels = noflevels)
     snames <- colnames(expressions)
     redundant <- logical(nrow(expressions))
@@ -126,7 +181,10 @@
             if (!redundant[i]) {
                 for (j in seq(i + 1, nrow(expressions))) {
                     if (!redundant[j]) {
-                        subsetrow <- checkSubset(expressions[c(i, j), , drop = FALSE], implicants = FALSE)
+                        subsetrow <- checkSubset(
+                            expressions[c(i, j), , drop = FALSE],
+                            implicants = FALSE
+                        )
                         if (!is.null(subsetrow)) {
                             redundant[c(i, j)[subsetrow]] <- TRUE
                         }
@@ -141,7 +199,15 @@
             expressions <- sortExpressions(mat) - 1
         }
         else {
-            expressions <- expressions[order(apply(expressions, 1, function(x) sum(x < 0)), decreasing = TRUE), , drop = FALSE]
+            eorder <- order(
+                apply(
+                    expressions,
+                    1,
+                    function(x) sum(x < 0)
+                ),
+                decreasing = TRUE
+            )
+            expressions <- expressions[eorder, , drop = FALSE]
         }
     }
     expressions <- unlist(apply(expressions, 1, function(x) {
@@ -149,7 +215,16 @@
         for (i in seq(length(snames))) {
             if (x[i] != -1) {
                 if (multivalue) {
-                    result <- c(result, paste(snames[i], ifelse(curly, "{", "["), x[i], ifelse(curly, "}", "]"), sep = ""))
+                    result <- c(
+                        result,
+                        paste(
+                            snames[i],
+                            ifelse(curly, "{", "["),
+                            x[i],
+                            ifelse(curly, "}", "]"),
+                            sep = ""
+                        )
+                    )
                 }
                 else {
                     if (x[i] == 0) {

@@ -91,13 +91,17 @@
 `splitMainComponents` <- function(expression) {
     expression <- gsub("[[:space:]]", "", expression)
     ind.char <- unlist(strsplit(expression, split = ""))
-    if (grepl("\\(", expression)) {
+    openclosed <- grepl("\\(", expression) | grepl("\\)", expression)
+    if (openclosed) {
         open.brackets <- which(ind.char == "(")
         closed.brackets <- which(ind.char == ")")
-        invalid <- ifelse(grepl("\\)", expression), length(open.brackets) != length(closed.brackets), TRUE)
+        invalid <- ifelse(
+            openclosed,
+            length(open.brackets) != length(closed.brackets),
+            TRUE
+        )
         if (invalid) {
-            cat("\n")
-            stop("Invalid expression, open bracket \"(\" not closed with \")\".\n\n", call. = FALSE)
+            stopError("Invalid expression, open bracket \"(\" not closed with \")\".")
         }
         all.brackets <- sort(c(open.brackets, closed.brackets))
         if (length(all.brackets) > 2) {
@@ -106,11 +110,12 @@
                     open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
                     closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
                 }
-                if (all.brackets[i] - all.brackets[i - 1] == 2) {
-                    if (ind.char[all.brackets[i] - 1] != "+") {
-                        open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
-                        closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
-                    }
+                if (
+                    all.brackets[i] - all.brackets[i - 1] == 2 &&
+                    ind.char[all.brackets[i] - 1] != "+"
+                ) {
+                    open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
+                    closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
                 }
             }
         }
@@ -136,31 +141,52 @@
         big.list <- vector(mode = "list", length = length(open.brackets) + 2)
         if (length(open.brackets) == 1) {
             if (open.brackets > 1) {
-                big.list[[1]] <- paste(ind.char[seq(1, open.brackets - 2)], collapse = "")
+                big.list[[1]] <- paste(
+                    ind.char[seq(1, open.brackets - 2)],
+                    collapse = ""
+                )
             }
             nep <- min(which(unlist(lapply(big.list, is.null))))
-            big.list[[nep]] <- paste(ind.char[seq(open.brackets, closed.brackets)], collapse = "")
+            big.list[[nep]] <- paste(
+                ind.char[seq(open.brackets, closed.brackets)],
+                collapse = ""
+            )
             if (closed.brackets < length(ind.char)) {
                 nep <- min(which(unlist(lapply(big.list, is.null))))
-                big.list[[nep]] <- paste(ind.char[seq(closed.brackets + 2, length(ind.char))], collapse = "")
+                big.list[[nep]] <- paste(
+                    ind.char[seq(closed.brackets + 2, length(ind.char))],
+                    collapse = ""
+                )
             }
         }
         else {
             for (i in seq(length(open.brackets))) {
                 if (i == 1) {
                     if (open.brackets[1] > 1) {
-                        big.list[[1]] <- paste(ind.char[seq(1, open.brackets[1] - 2)], collapse = "")
+                        big.list[[1]] <- paste(
+                            ind.char[seq(1, open.brackets[1] - 2)],
+                            collapse = ""
+                        )
                     }
                     nep <- min(which(unlist(lapply(big.list, is.null))))
-                    big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
+                    big.list[[nep]] <- paste(
+                        ind.char[seq(open.brackets[i], closed.brackets[i])],
+                        collapse = ""
+                    )
                 }
                 else {
                     nep <- min(which(unlist(lapply(big.list, is.null))))
-                    big.list[[nep]] <- paste(ind.char[seq(open.brackets[i], closed.brackets[i])], collapse = "")
+                    big.list[[nep]] <- paste(
+                        ind.char[seq(open.brackets[i], closed.brackets[i])],
+                        collapse = ""
+                    )
                     if (i == length(closed.brackets)) {
                         if (closed.brackets[i] < length(ind.char)) {
                             nep <- min(which(unlist(lapply(big.list, is.null))))
-                            big.list[[nep]] <- paste(ind.char[seq(closed.brackets[i] + 2, length(ind.char))], collapse = "")
+                            big.list[[nep]] <- paste(
+                                ind.char[seq(closed.brackets[i] + 2, length(ind.char))],
+                                collapse = ""
+                            )
                         }
                     }
                 }
@@ -208,8 +234,7 @@
                     if (any(tilda)) {
                         tilda.pos <- which(tilda)
                         if (max(tilda.pos) == length(star.split)) {
-                            cat("\n")
-                            stop(paste("Unusual expression \"", z, "\": terminated with a \"~\" sign?\n\n", sep=""), call. = FALSE)
+                            stopError(paste("Unusual expression \"", z, "\": terminated with a \"~\" sign?", sep = ""))
                         }
                         star.split[tilda.pos + 1] <- paste("~", star.split[tilda.pos + 1], sep="")
                         star.split <- star.split[-tilda.pos]
@@ -228,8 +253,7 @@
                     if (hastilde(w)) {
                         wsplit <- unlist(strsplit(w, split = ""))
                         if (max(which(hastilde(wsplit))) > 1) {
-                            cat("\n")
-                            stop(paste("Unusual expression: ", w, ". Perhaps you meant \"*~\"?\n\n", sep=""), call. = FALSE)
+                            stopError(paste("Unusual expression: ", w, ". Perhaps you meant \"*~\"?", sep = ""))
                         }
                         else {
                             return(c("~", notilde(w)))

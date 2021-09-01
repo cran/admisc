@@ -27,7 +27,11 @@
     input <- recreate(substitute(input))
     snames <- recreate(substitute(snames))
     dots <- list(...)
-    scollapse <- ifelse(is.element("scollapse", names(dots)), dots$scollapse, FALSE) 
+    scollapse <- ifelse(
+        is.element("scollapse", names(dots)),
+        dots$scollapse,
+        FALSE
+    ) 
     if (!is.null(noflevels)) {
         if (is.character(noflevels)) {
             noflevels <- splitstr(noflevels)
@@ -80,12 +84,19 @@
     if (multivalue) {
         start <- FALSE
         if (is.null(noflevels) | identical(snames, "")) {
-            stopError("Set names and their number of levels are required to negate multivalue expressions.")
+            stopError(
+                paste(
+                    "Set names and their number of levels are required",
+                    "to negate multivalue expressions."
+                )
+            )
         }
     }
     scollapse <- scollapse | any(nchar(snames) > 1) | multivalue | star
     collapse <- ifelse(scollapse, "*", "")
-    negateit <- function(x, snames = "", noflevels = NULL, simplify = TRUE, collapse = "*") {
+    negateit <- function(
+        x, snames = "", noflevels = NULL, simplify = TRUE, collapse = "*"
+    ) {
         callist <- list(expression = x)
         callist$snames <- snames
         if (!is.null(noflevels)) callist$noflevels <- noflevels
@@ -96,31 +107,62 @@
         }
         snoflevels <- lapply(noflevels, function(x) seq(x) - 1)
         sr <- nrow(trexp) == 1 
-        negated <- paste(apply(trexp, 1, function(x) {
-            wx <- which(x != -1) 
-            x <- x[wx]
-            nms <- names(x)
-            x <- sapply(seq_along(x), function(i) {
-                paste(setdiff(snoflevels[wx][[i]], splitstr(x[i])), collapse = ",")
-            })
-            if (multivalue) {
-                return(paste("(", paste(nms, "[", x, "]", sep = "", collapse = " + "), ")", sep = ""))
-            }
-            else {
-                nms[x == 0] <- paste0("~", nms[x == 0])
-                return(paste(ifelse(sr, "", "("), paste(nms, collapse = " + ", sep = ""), ifelse(sr, "", ")"), sep = ""))
-            }
-        }), collapse = "")
-        negated <- expandBrackets(negated, snames = snames, noflevels = noflevels)
-        callist$expression <- negated
-        callist$scollapse <- identical(collapse, "*")
-        callist$snames <- snames
+        negated <- paste(
+            apply(trexp, 1, function(x) {
+                wx <- which(x != -1) 
+                x <- x[wx]
+                nms <- names(x)
+                x <- sapply(seq_along(x), function(i) {
+                    paste(
+                        setdiff(snoflevels[wx][[i]], splitstr(x[i])),
+                        collapse = ","
+                    )
+                })
+                if (multivalue) {
+                    return(paste(
+                        ifelse(sr | length(wx) == 1, "", "("),
+                        paste(
+                            nms, "[", x, "]",
+                            sep = "",
+                            collapse = " + "
+                        ),
+                        ifelse(sr | length(wx) == 1, "", ")"),
+                        sep = ""
+                    ))
+                }
+                else {
+                    nms[x == 0] <- paste0("~", nms[x == 0])
+                    return(paste(
+                        ifelse(sr | length(wx) == 1, "", "("),
+                        paste(nms, collapse = " + ", sep = ""),
+                        ifelse(sr | length(wx) == 1, "", ")"),
+                        sep = ""))
+                }
+            }),
+            collapse = ""
+        )
+        negated <- expandBrackets(
+            negated,
+            snames = snames,
+            noflevels = noflevels,
+            scollapse = scollapse
+        )
         if (simplify) {
+            callist$expression <- negated
+            callist$scollapse <- identical(collapse, "*")
+            callist$snames <- snames
             return(unclass(do.call("simplify", callist)))
         }
         return(negated)
     }
-    result <- lapply(input, negateit, snames = snames, noflevels = noflevels, simplify = simplify, collapse = collapse)
+    result <- lapply(
+        input,
+        negateit,
+        snames = snames,
+        noflevels = noflevels,
+        simplify = simplify,
+        collapse = collapse
+    )
     if (any(unlist(lapply(result, length)) == 0)) {
         return(invisible(character(0)))
     }

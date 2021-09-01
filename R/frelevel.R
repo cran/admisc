@@ -25,12 +25,10 @@
 
 `frelevel` <- function(variable, levels) {
     if (!is.factor(variable)) {
-        cat("\n")
-        stop("The input variable is not a factor.\n\n", call. = FALSE)
+        stopError("The input variable is not a factor.")
     }
     if (any(!(levels %in% levels(variable)))) {
-        cat("\n")
-        stop("One or more levels do not exist in the input variable.\n\n", call. = FALSE)
+        stopError("One or more levels do not exist in the input variable.")
     }
     for (i in seq_len(length(levels))) {
         variable <- relevel(variable, ref = rev(levels)[i])

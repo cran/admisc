@@ -1,7 +1,7 @@
-44b8f0b66a6d4b84eba57ee5697239e3 *DESCRIPTION
+df9988a6ed28d7eceff514be1f2a2eb0 *DESCRIPTION
 063eee9ccab796041a59a8716758d116 *NAMESPACE
-36760174f2479fee47bc3184054172ec *R/asNumeric.R
-846a3477df5215e9951ae21b72da7ee3 *R/brackets.R
+4aaa006df79abfb98937888311050642 *R/asNumeric.R
+3abea08ef52192258236b25e2d8a0c00 *R/brackets.R
 9ac1d96936a090c957a8d8ee36e0f792 *R/checkMV.R
 e4b9a194b1f5c77eaa276ca865f1afaf *R/checkSubset.R
 9737e36028738e1777cf82b2f572c90b *R/classify.R
@@ -12,8 +12,8 @@ c025d37cbef1a4d1e1145f734f2d6733 *R/dashes.R
 bc057abdf7e77d7b183ce82c9948d56c *R/expand.R
 a8fc0a20c3937ffd3fb94f21dbbc4281 *R/export.R
 ae56ced7055f803c4737d06c35e6f5c5 *R/factorize.R
-d9a61f4fd8df233fd37c19a04b744e91 *R/finvert.R
-ffd0d6dad070b6f560bc45a39a78d62a *R/frelevel.R
+7c3780273d5b63d1bbb9f27d46142248 *R/finvert.R
+052ebd09feb44778e89c1e37c8a2c7ea *R/frelevel.R
 664dd47fd5ddfc15dd17f84d75b284ea *R/getInfo.R
 524d7046a85f4ede594e59284f8ed9c6 *R/getLevels.R
 9cbe2d862ca9f8d7198a693dc70f3853 *R/getMatrix.R
@@ -21,7 +21,7 @@ ffd0d6dad070b6f560bc45a39a78d62a *R/frelevel.R
 10a8ed3b540f7af25393213d3dbed1e2 *R/intersection.R
 c3dbe0461569a088399aa8721fd35ba8 *R/invert.R
 dc982537bc7036b3a4384358c51cc807 *R/list.rda.R
-b424e4cd7ee89e8e2216152028e7f8b2 *R/negate.R
+9658e5d6d338cd54a508bc3afc134808 *R/negate.R
 54f67155843b8f8c229aa9bf3aabb6e2 *R/obj.rda.R
 fbc385c77a3d399599615001b53f0cfb *R/onLoad.R
 5552ff7dcb7263a615271ddfec3f38aa *R/permutations.R
@@ -35,8 +35,8 @@ f140029cd5bd88faf81758b990c981f5 *R/prettyTable.R
 d4afa7ee9d1e81dd62d93232161e5d22 *R/replaceText.R
 d6f6b628c0109860cb98caaff5794e66 *R/simplify.R
 baf576ba45072e6f0f9f427303760069 *R/sortExpressions.R
-86201509441880440d5e18a4d80d9e73 *R/stopError.R
-2f87322caccb33163b202b8387a217a1 *R/string.R
+8452d45b3109dce8280b928934a2c770 *R/stopError.R
+52dd0412e8f6fe3d38e28390624a0d96 *R/string.R
 01d9af0c2f25448a187d650a125ebba4 *R/tildae.R
 eeb3c3345985c8b5f30fd442d54893d0 *R/translate.R
 5528111762e7cd4320e474eba797e1b7 *R/tryCatchWEM.R
@@ -47,11 +47,11 @@ f4b0c2f64b918b2262e93b0d45ead7d0 *R/unlockEnvironment.R
 35424de737610b86fe5b34a7c1814b98 *R/verify.R
 31e164d8c2438eff69b3018e6b866375 *R/wholeNumeric.R
 514284e6dd99be3c2b15263ecb9cc17b *R/writePrimeimp.R
-3fdc14fd10519db365155483a0993069 *build/partial.rdb
-f92eb91bb2aa07e42dd073d9c9925a0c *inst/ChangeLog
+a32d0989e9dc0657fd943f25195ff0df *build/partial.rdb
+3690b2a1572425d8f7797ba09655c6f5 *inst/ChangeLog
 0ecae15da1b2a4ab84f3eed726162e05 *man/SOPexpression.Rd
 880d4c8a8c2d8c063af8b117eec1dcaf *man/admisc-internal.Rd
-ac4a9d275af0512d6c0dafcefd73da08 *man/admisc.package.Rd
+0c6ec2d6722b9f73c3479b1da3b2cdf4 *man/admisc.package.Rd
 f6f380be8942c4f369d3239971458c16 *man/brackets.Rd
 6d29a4eb6fd2b09b29ea90ddf24ab41e *man/combnk.Rd
 c072d42222df5d4e233ddaf24d8f13bd *man/equality.Rd
