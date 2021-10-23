@@ -23,37 +23,38 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getLevels` <- function(data) {
-    data <- as.data.frame(data)
-    colnames <- paste("V", ncol(data), sep = ".")
-    pN <- unlist(lapply(data, possibleNumeric))
-    noflevels <- rep(NA, ncol(data))
-    ulevels <- rep(NA, ncol(data))
-    noflevels[pN] <- apply(
-        data[, pN, drop = FALSE],
-        2,
-        max
-    ) + 1
-    ulevels <- apply(
-        data,
-        2,
-        function(x) {
-            return(length(unique(x)))
-        }
-    )
-    noflevels[is.na(noflevels)] <- ulevels[is.na(noflevels)]
-    factor <- unlist(lapply(data, is.factor))
-    declared <- unlist(lapply(data, function(x) inherits(x, "declared")))
-    noflevels[pN][
-        apply(
-            data[, pN, drop = FALSE],
-            2,
-            function(x) any(x %% 1 > 0)
-        )
-    ] <- 2
-    if (any(factor | declared)) {
-        noflevels[factor | declared] <- pmin(noflevels[factor | declared], ulevels[factor | declared])
+`checkValid` <- function(
+    expression = "", snames = "", data = NULL, categories = list()
+) {
+    if (identical(snames, "")) {
+        stopError("The expression cannot be verified without <snames>.")
     }
-    noflevels[noflevels == 1] <- 2
-    return(noflevels)
+    allnames <- splitstr(snames)
+    if (!is.null(data)) {
+        allnames <- colnames(data)
+        infodata <- getInfo(data)
+        if (any(infodata$factor)) {
+            allnames <- c(allnames, names(unlist(infodata$categories)))
+        }
+    }
+    else if (length(categories) > 0) {
+        allnames <- c(allnames, names(unlist(categories)))
+    }
+    expression <- replaceText(
+        expression,
+        allnames,
+        rep("", length(allnames))
+    )
+    if (grepl(":alpha:", expression)) {
+        stopError(
+            sprintf(
+                "Part(s) of the expression not found in the %s.",
+                ifelse(
+                    is.null(data),
+                    "<snames> argument",
+                    "data"
+                )
+            )
+        )
+    }
 }

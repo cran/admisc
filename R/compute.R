@@ -52,16 +52,21 @@ function(expression = "", data = NULL, separate = FALSE) {
             data <- as.data.frame(data)
         }
     }
-    ppm <- translate(expression, data = data, retlist = TRUE)
+    multivalue <- grepl("\\{|\\}|\\[|\\]", expression)
+    if (!multivalue) {
+        ppm <- translate(mvSOP(expression, data = data), data = data, retlist = TRUE)
+        rownames(ppm) <- trimstr(unlist(strsplit(expression, split = "\\+")))
+    }
+    else {
+        ppm <- translate(expression, data = data, retlist = TRUE)
+    }
     pp <- attr(ppm, "retlist")
     retain <- apply(ppm, 2, function(x) any(x >= 0))
     pp <- lapply(pp, function(x) x[retain])
     ppm <- ppm[, retain, drop = FALSE]
     data <- data[, retain, drop = FALSE]
     infodata <- getInfo(data)
-    if (any(infodata$hastime)) {
-        data <- infodata$data[, colnames(data), drop = FALSE]
-    }
+    data <- infodata$data
     verify(data)
     tempList <- vector("list", length(pp))
     for (i in seq(length(pp))) {

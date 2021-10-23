@@ -23,27 +23,53 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`writePrimeimp` <-
-function(mymat, mv = FALSE, collapse = "*", snames = "", ...) {
-    if (any(mymat > 2)) {
+`writePrimeimp` <- function(
+    impmat, mv = FALSE, collapse = "*", snames = "", curly = FALSE,
+    use.categories = FALSE, categories = list(), ...
+) {
+    if (any(impmat > 2)) {
         mv <- TRUE
     }
     dots <- list(...)
     if (identical(snames, "")) {
-        snames <- colnames(mymat)
+        snames <- colnames(impmat)
     }
     else {
-        mymat <- t(mymat)
+        impmat <- t(impmat)
     }
-    chars <- snames[col(mymat)]
-    curly <- dots$curly
-    if (is.null(curly)) curly <- FALSE
+    chars <- matrix(snames[col(impmat)], nrow = nrow(impmat))
     if (mv) {
-        chars <- matrix(paste(chars, ifelse(curly, "{", "["), mymat - 1, ifelse(curly, "}", "]"), sep = ""), nrow = nrow(mymat))
+        chars <- matrix(
+            paste(
+                chars,
+                ifelse(curly, "{", "["),
+                impmat - 1,
+                ifelse(curly, "}", "]"),
+                sep = ""
+            ),
+            nrow = nrow(impmat)
+        )
     }
     else {
-        chars <- ifelse(mymat == 1L, paste0("~", chars), chars)
+        chars <- ifelse(impmat == 1L, paste0("~", chars), chars)
+        if (use.categories && length(categories) > 0) {
+            fnames <- names(categories)
+            for (i in seq(length(categories))) {
+                values <- impmat[, fnames[i]]
+                chars[values > 0, fnames[i]] <- names(categories[[i]])[values[values > 0]]
+            }
+        }
     }
-    keep <- mymat > 0L
-    as.vector(unlist(lapply(split(chars[keep], row(chars)[keep]), paste, collapse = collapse)))
+    keep <- impmat > 0L
+    return(
+        as.vector(
+            unlist(
+                lapply(
+                    split(chars[keep], row(chars)[keep]),
+                    paste,
+                    collapse = collapse
+                )
+            )
+        )
+    )
 }

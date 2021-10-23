@@ -23,11 +23,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`checkMV` <- function(expression, snames = "", noflevels = NULL, data = NULL, ...) {
+`checkMV` <- function(
+    expression, snames = "", noflevels = NULL, data = NULL, categories = list(), ...
+) {
     curly <- any(grepl("[{]", expression))
     if (length(unlist(gregexpr(ifelse(curly, "[{]+", "\\[+"), expression))) != length(unlist(gregexpr(ifelse(curly, "[}]+", "\\]+"), expression)))) {
         stopError("Incorrect expression, opened and closed brackets don't match.")
     }
+    dots <- list(...)
     tempexpr <- gsub("[*|,|;|(|)]", "", expression)
     pp <- trimstr(unlist(strsplit(tempexpr, split = "[+]")))
     if (curly) {
@@ -64,6 +67,9 @@
             if (is.character(noflevels)) {
                 noflevels <- splitstr(noflevels)
             }
+            if (length(noflevels) == 1 && is.numeric(noflevels) && length(snames) > 1) {
+                noflevels <- rep(noflevels, length(snames))
+            }
             if (length(snames) != length(noflevels)) {
                 stopError("Length of the set names differs from the length of the number of levels.")
             }
@@ -77,14 +83,12 @@
             }
         }
     }
-    else { 
-            if (length(setdiff(conds, colnames(data))) > 0) {
-                stopError("Parts of the expression don't match the column names from \"data\" argument.")
-            }
-    }
-    if (!identical(snames, "")) {
-        if (length(setdiff(conds, splitstr(snames))) > 0) {
-            stopError("Parts of the expression don't match the set names from \"snames\" argument.")
-        }
+    for (i in seq(length(expression))) {
+        checkValid(
+            expression = expression[i],
+            snames = "something", 
+            data = data,
+            categories = categories
+        )
     }
 }

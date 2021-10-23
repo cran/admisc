@@ -107,7 +107,12 @@
             }
             x <- xexp
         }
-        return(paste(unlist(lapply(x, negateit, snames = snames, noflevels = noflevels)), collapse = " + "))
+        return(
+            paste(
+                unlist(lapply(x, negateit, snames = snames, noflevels = noflevels)),
+                collapse = " + "
+            )
+        )
     })
     names(result) <- unname(input)
     if (!minimized) {

@@ -27,8 +27,8 @@ being listed in the Imports field (due to circular dependency issues).
     \tabular{ll}{
     Package: \tab admisc\cr
     Type:    \tab Package\cr
-    Version: \tab 0.18\cr
-    Date:    \tab 2021-09-01\cr
+    Version: \tab 0.19\cr
+    Date:    \tab 2021-10-23\cr
     License: \tab GPL (>= 2)\cr
     }
 }

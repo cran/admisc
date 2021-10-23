@@ -23,14 +23,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-    replaceText <- function(expression, target = "", replacement = "", boolean = FALSE, ...) {
+    replaceText <- function(
+        expression, target = "", replacement = "", boolean = FALSE, ...
+    ) {
         dots <- list(...)
-        enter <- ifelse (is.element("enter", names(dots)), "",  "\n")
         if (!is.character(target)) {
-            stopError("The \"target\" argument should be character.")
+            stopError("The <target> argument should be character.")
         }
         if (!is.character(replacement)) {
-            stopError("The \"replacement\" argument should be character.")
+            stopError("The <replacement> argument should be character.")
         }
         if (length(target) == 1) target <- splitstr(target)
         if (length(replacement) == 1) replacement <- splitstr(replacement)
@@ -40,7 +41,11 @@
         torder <- order(nchar(target), decreasing = TRUE)
         tuplow <- target[torder]
         ruplow <- replacement[torder]
-        if (all(target == toupper(target)) & all(expression != toupper(expression)) & !any(grepl("~", expression))) {
+        if (
+            all(target == toupper(target)) &
+            all(expression != toupper(expression)) &
+            !any(grepl("~", expression))
+        ) {
             boolean <- TRUE
         }
         if (boolean) {
@@ -52,7 +57,11 @@
         positions <- vector(mode = "list", length = 0)
         pos <- 0
         for (i in order(nchar(tuplow), decreasing = TRUE)) {
-            locations <- gregexpr(tuplow[i], expression)[[1]]
+            etuplow <- gsub("\\[", "\\\\[", tuplow[i])
+            etuplow <- gsub("\\]", "\\\\]", etuplow)
+            etuplow <- gsub("\\{", "\\\\{", etuplow)
+            etuplow <- gsub("\\}", "\\\\}", etuplow)
+            locations <- gregexpr(etuplow, expression)[[1]]
             if (any(locations > 0)) {
                 diffs <- c()
                 for (l in seq(length(locations))) {
