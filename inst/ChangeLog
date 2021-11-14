@@ -1,7 +1,10 @@
+Version 0.20
+    o New argument "each" in functions possibleNumeric() and wholeNumeric()
+    
 Version 0.19
-    o New function asSOP(), to coerce (POS) expressions to a standard SOP format
+    o New function asSOP(), to coerce a POS expression to a standard SOP format
     o New function mvSOP(), to coerce an expression from crisp set notation to
-      multivalue notation
+      multi-value notation
     
 Version 0.18
     o Fixed bug affecting the function negate() when the SOP expression contains

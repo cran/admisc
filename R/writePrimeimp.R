@@ -25,7 +25,7 @@
 
 `writePrimeimp` <- function(
     impmat, mv = FALSE, collapse = "*", snames = "", curly = FALSE,
-    use.categories = FALSE, categories = list(), ...
+    categorical = FALSE, categories = list(), ...
 ) {
     if (any(impmat > 2)) {
         mv <- TRUE
@@ -52,7 +52,7 @@
     }
     else {
         chars <- ifelse(impmat == 1L, paste0("~", chars), chars)
-        if (use.categories && length(categories) > 0) {
+        if (categorical && length(categories) > 0) {
             fnames <- names(categories)
             for (i in seq(length(categories))) {
                 values <- impmat[, fnames[i]]
