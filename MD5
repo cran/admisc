@@ -1,4 +1,4 @@
-4242f815fbfc6daf3563511aafbf2d5a *DESCRIPTION
+f0800c3c5da9370c8bd0e4ef5acc8e15 *DESCRIPTION
 a44e179d318de828b6d6301edd5b89f2 *NAMESPACE
 4aaa006df79abfb98937888311050642 *R/asNumeric.R
 cce6d330b53eff5da4af7a9d834a51f1 *R/asSOP.R
@@ -24,7 +24,7 @@ dc9059d40222f0a3f09c29cb871e40a8 *R/getInfo.R
 006582c30fdee76e3a4e1eed0c2fbef2 *R/invert.R
 dc982537bc7036b3a4384358c51cc807 *R/list.rda.R
 b056cb73c15f71ee7a95f6bc96b8f8a4 *R/mvSOP.R
-9658e5d6d338cd54a508bc3afc134808 *R/negate.R
+7af278a9c733c1f23ad2e3ef35172890 *R/negate.R
 54f67155843b8f8c229aa9bf3aabb6e2 *R/obj.rda.R
 fbc385c77a3d399599615001b53f0cfb *R/onLoad.R
 5552ff7dcb7263a615271ddfec3f38aa *R/permutations.R
@@ -50,11 +50,11 @@ f4b0c2f64b918b2262e93b0d45ead7d0 *R/unlockEnvironment.R
 23d961d44a013ea3116af2f74f1b3d87 *R/verify.R
 32a9226460ff593a901e4648a8e742a0 *R/wholeNumeric.R
 2b2a6a34bff337a145232bd2b5b0bb78 *R/writePrimeimp.R
-49de351bd9fcfef6e643e18e3d551042 *build/partial.rdb
-5d1863ae2c278ae127f106bb34ac0420 *inst/ChangeLog
+4e78b9887a79e8fa11d1dbd95dc8eb69 *build/partial.rdb
+3ecd00cc79553ca0832912b827b8e5fe *inst/ChangeLog
 006770ba809cfb1223624a39a2815159 *man/SOPexpression.Rd
 56fba0282aa4e6a5b7dbb9d02a6bcfb5 *man/admisc-internal.Rd
-2b33d777f88a4e6b674e9ae4a4d677cb *man/admisc.package.Rd
+a8689e3b9d3e6752cee8e3ac40dd8d04 *man/admisc.package.Rd
 f6f380be8942c4f369d3239971458c16 *man/brackets.Rd
 6d29a4eb6fd2b09b29ea90ddf24ab41e *man/combnk.Rd
 c072d42222df5d4e233ddaf24d8f13bd *man/equality.Rd
@@ -73,5 +73,5 @@ b20e04561d6e27574a8365f5fb5ade14 *man/recreate.Rd
 33fa0b7c403bb825c9241d73a54d40b5 *man/replaceText.Rd
 b06f4effa03d817ac784ffcf4e04f0a7 *man/tildae.Rd
 98cd7dcd7d0294db9fdce960076fe640 *man/tryCatchWEM.Rd
-27fb3c9bfefbf43db184ff28dd64bca9 *src/admisc.c
+b56c329a05b2673dc750194ee5f71c31 *src/admisc.c
 a465e0a34bee356620d28124a58ca43e *src/registerDynamicSymbol.c

@@ -1,3 +1,7 @@
+Version 0.21
+    o Bug fix in function negate(), expressions were not properly concatenated
+      (thanks to Alessandra Costa for the report)
+    
 Version 0.20
     o New argument "each" in functions possibleNumeric() and wholeNumeric()
     

@@ -139,7 +139,7 @@
                         sep = ""))
                 }
             }),
-            collapse = ""
+            collapse = collapse
         )
         negated <- expandBrackets(
             negated,
