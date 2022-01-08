@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -76,13 +76,10 @@
     if (any(factor | declared)) {
         for (i in which(factor | declared)) {
             if (factor[i]) {
-                values <- seq(noflevels[i]) - 1
-                names(values) <- levels(data[, i])
+                categories[[columns[i]]] <- levels(data[, i])
                 data[, i] <- as.numeric(data[, i]) - 1
-                categories[[columns[i]]] <- values
             }
             else {
-                values <- seq(noflevels[i]) - 1
                 x <- data[, i]
                 labels <- attr(x, "labels")
                 if (is.null(labels)) {
@@ -94,9 +91,8 @@
                     }
                 }
                 attributes(x) <- NULL
-                data[, i] <- recode(x, paste(sort(labels), values, sep = "=", collapse = ";"))
-                names(values) <- names(labels)
-                categories[[columns[i]]] <- values
+                data[, i] <- recode(x, paste(sort(labels), seq(noflevels[i]) - 1, sep = "=", collapse = ";"))
+                categories[[columns[i]]] <- names(sort(labels))
                 attr(categories, "labels") <- labels
             }
         }

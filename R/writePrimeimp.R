@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,15 @@
             ),
             nrow = nrow(impmat)
         )
+        if (categorical && length(categories) > 0) {
+            fnames <- names(categories)
+            for (i in seq(length(categories))) {
+                values <- impmat[, fnames[i]]
+                pos <- nrow(impmat) * (which(snames == fnames[i]) - 1) + 1
+                pos <- seq(pos, pos + length(values) - 1)[values > 0]
+                chars[pos] <- categories[[i]][values[values > 0]]
+            }
+        }
     }
     else {
         chars <- ifelse(impmat == 1L, paste0("~", chars), chars)
@@ -56,7 +65,7 @@
             fnames <- names(categories)
             for (i in seq(length(categories))) {
                 values <- impmat[, fnames[i]]
-                chars[values > 0, fnames[i]] <- names(categories[[i]])[values[values > 0]]
+                chars[values > 0, fnames[i]] <- categories[[i]][values[values > 0]]
             }
         }
     }

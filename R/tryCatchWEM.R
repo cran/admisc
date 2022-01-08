@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,24 +24,25 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `tryCatchWEM` <- function(expr, capture = FALSE) {
-    comment <- 'modified version of http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function'
+    # modified version of http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function
     toreturn <- list()
     output <- withVisible(withCallingHandlers(
         tryCatch(expr, error = function(e) {
             toreturn$error <<- e$message
             NULL
-        }), warning = function(w) {
+        }),
+        warning = function(w) {
             toreturn$warning <<- c(toreturn$warning, w$message)
             invokeRestart("muffleWarning")
-        }, message = function(m) {
+        },
+        message = function(m) {
             toreturn$message <<- paste(toreturn$message, m$message, sep = "")
             invokeRestart("muffleMessage")
         }
     ))
-    if (capture & output$visible) {
-        if (!is.null(output$value)) {
-            toreturn$output <- capture.output(output$value)
-        }
+    if (capture && output$visible && !is.null(output$value)) {
+        toreturn$output <- capture.output(output$value)
+        toreturn$value <- output$value
     }
     if (length(toreturn) > 0) {
         return(toreturn)

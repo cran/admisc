@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -174,4 +174,52 @@
     rownames(y) <- paste(rownames(x), " ")
     print(prettyTable(y))
     cat("\n")
+}
+`print.admisc_using` <- function(x, ...) {
+    if (is.list(x)) {
+        nms <- apply(attr(x, "split", exact = TRUE), 1, function(x) {
+            paste(x, collapse = ", ")
+        })
+        for (i in seq(length(x))) {
+            cat(nms[i], "\n")
+            cat(paste(c(rep("-", nchar(nms[i])), "\n"), collapse = ""))
+            if (is.null(x[[i]])) {
+                cat("No data.\n")
+            }
+            else {
+                print(x[[i]])
+            }
+            if (i < length(x)) {
+                cat("\n")
+            }
+        }
+    }
+    else if (is.matrix(x)) {
+        class(x) <- setdiff(class(x), "usage")
+        if (ncol(x) == 1) {
+            x[] <- prettyNum(round(x, 3))
+        }
+        else if (ncol(x) > 1) {
+            x[] <- gsub("NA", "", prettyNum(round(x, 3)))
+        }
+        for (i in seq(ncol(x))) {
+            splitcol <- strsplit(x[, i], split = "[.]")
+            nchars <- unlist(lapply(lapply(splitcol, "[", 2), nchar))
+            if (!all(is.na(nchars))) {
+                maxnchar <- max(nchars, na.rm = TRUE)
+                x[, i] <- unlist(lapply(splitcol, function(x) {
+                    if (length(x) == 1) {
+                        x <- c(x, paste(c(rep("0", maxnchar)), collapse = ""))
+                    }
+                    else if (length(x) == 2) {
+                        x[2] <- paste(x[2], paste(rep("0", maxnchar - nchar(x[2])), collapse = ""), sep = "")
+                    }
+                    return(paste(x, collapse = "."))
+                }))
+            }
+        }
+        maxwidth <- max(nchar(c(colnames(x), x)))
+        colnames(x) <- format(colnames(x), justify = "right", width = maxwidth)
+        print(noquote(format(x, justify = "right", width = maxwidth)))
+    }
 }

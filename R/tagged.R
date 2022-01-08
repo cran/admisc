@@ -23,12 +23,33 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`checkSubset` <- function(mat, implicants = TRUE) {
-    for (i in 1:2) {
-        eqz <- mat[i, ] == ifelse(implicants, 0, -1)
-        if (nrow(unique(mat[, !eqz, drop = FALSE])) == 1) {
-            return(3 - i)
-        }
+`makeTag` <- function(...) {
+    x <- as.character(c(...))
+    x <- .Call("_tag", x, PACKAGE = "admisc")
+    class(x) <- "double"
+    return(x)
+}
+`hasTag` <- function(x, tag = NULL) {
+    if (!is.double(x)) {
+        return(logical(length(x)))
     }
-    return(NULL)
+    if (!is.null(tag) && !is.atomic(tag) && (length(tag) > 1 || is.na(tag))) {
+        stopError("`tag` should be a vector of length 1.")
+    }
+    if (!is.null(tag)) {
+        tag <- as.character(tag)
+    }
+    return(.Call("_has_tag", x, tag, PACKAGE = "admisc"))
+}
+`getTag` <- function(x) {
+    if (is.double(x)) {
+        x <- .Call("_get_tag", x, PACKAGE = "admisc")
+        if (!any(is.na(suppressWarnings(as.numeric(na.omit(x)))))) {
+            x <- as.numeric(x)
+        }
+        return(x)
+    }
+    else {
+        return(rep(NA, length(x)))
+    }
 }

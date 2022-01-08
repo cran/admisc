@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
         allnames,
         rep("", length(allnames))
     )
-    if (grepl(":alpha:", expression)) {
+    if (any(grepl(":alpha:", expression))) { 
         stopError(
             sprintf(
                 "Part(s) of the expression not found in the %s.",

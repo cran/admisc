@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -28,4 +28,7 @@
     do.call("attach", list(what = .filename, name = attached_filename))
     on.exit(eval(substitute(detach(name), list(name = attached_filename))))
     return(ls(envir = as.environment(attached_filename)))
+}
+`obj.rdata` <- function(...) {
+    obj.rda(...)
 }

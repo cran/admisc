@@ -1,3 +1,14 @@
+Version 0.22
+    o Improved function tryCatchWEM(), now also returning the actual output value
+      (thanks to John Fox for the suggestion)
+    o New argument "regexp" to all brackets functions, extending functionality
+      for any general purpose (thanks to Brice Richard for the suggestion)
+    o New function using(), allowing to evaluate an expression in every subset
+      of a split file
+    o New function hclr(), to produce colors from the HCL spectrum
+    o New function coerceMode(), to coerce objects to numeric or interger, if at
+      all possible
+    
 Version 0.21
     o Bug fix in function negate(), expressions were not properly concatenated
       (thanks to Alessandra Costa for the report)

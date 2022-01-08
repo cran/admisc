@@ -16,18 +16,19 @@ brackets.
 }
 
 \usage{
-insideBrackets(x, type = "[", invert = FALSE)
-outsideBrackets(x, type = "[")
-curlyBrackets(x, outside = FALSE)
-squareBrackets(x, outside = FALSE)
-roundBrackets(x, outside = FALSE)
+insideBrackets(x, type = "[", invert = FALSE, regexp = NULL)
+outsideBrackets(x, type = "[", regexp = NULL)
+curlyBrackets(x, outside = FALSE, regexp = NULL)
+squareBrackets(x, outside = FALSE, regexp = NULL)
+roundBrackets(x, outside = FALSE, regexp = NULL)
 }
 
 \arguments{
   \item{x}{A DNF/SOP expression.}
-  \item{type}{Brackets type: curly, round or square}
-  \item{invert}{Logical, if activated returns whatever is not within the brackets}
-  \item{outside}{Logical, if activated returns the conditions' names outside the brackets}
+  \item{type}{Brackets type: curly, round or square.}
+  \item{invert}{Logical, if activated returns whatever is not within the brackets.}
+  \item{outside}{Logical, if activated returns the conditions' names outside the brackets.}
+  \item{regexp}{Optional regular expression to extract information with.}
 }
 
 \details{

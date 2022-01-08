@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2021, Adrian Dusa
+# Copyright (c) 2019 - 2022, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`insideBrackets` <- function(x, type = "[", invert = FALSE) {
+`insideBrackets` <- function(x, type = "[", invert = FALSE, regexp = NULL) {
     x <- recreate(substitute(x))
     typematrix <- matrix(c("{", "[", "(", "}", "]", ")", "{}", "[]", "()"), nrow = 3)
     tml <- which(typematrix == type, arr.ind = TRUE)[1]
@@ -31,12 +31,15 @@
         tml <- 1
     }
     tml <- typematrix[tml, 1:2]
+    if (is.null(regexp)) {
+        regexp <- "[[:alnum:]|,]*"
+    }
     result <- gsub(paste("\\", tml, sep = "", collapse = "|"), "",
-        regmatches(x, gregexpr(paste("\\", tml, sep = "", collapse = "[[:alnum:]|,]*"), x), invert = invert)[[1]])
+        regmatches(x, gregexpr(paste("\\", tml, sep = "", collapse = regexp), x), invert = invert)[[1]])
     result <- gsub("\\*|\\+", "", unlist(strsplit(gsub("\\s+", " ", result), split = " ")))
     return(result[result != ""])
 }
-`outsideBrackets` <- function(x, type = "[") {
+`outsideBrackets` <- function(x, type = "[", regexp = NULL) {
     x <- recreate(substitute(x))
     typematrix <- matrix(c("{", "[", "(", "}", "]", ")", "{}", "[]", "()"), nrow = 3)
     tml <- which(typematrix == type, arr.ind = TRUE)[1]
@@ -44,7 +47,10 @@
         tml <- 1
     }
     tml <- typematrix[tml, 1:2]
-    pattern <- paste("\\", tml, sep = "", collapse = "[[:alnum:]|,]*")
+    if (is.null(regexp)) {
+        regexp <- "[[:alnum:]|,]*"
+    }
+    pattern <- paste("\\", tml, sep = "", collapse = regexp)
     result <- gsub(
         "\\*|\\+",
         "",
@@ -61,10 +67,12 @@
     )
     return(result[result != ""])
 }
-`curlyBrackets` <- function(x, outside = FALSE) {
+`curlyBrackets` <- function(x, outside = FALSE, regexp = NULL) {
     x <- recreate(substitute(x))
     x <- paste(x, collapse = "+")
-    regexp <- "\\{[[:alnum:]|,|;]+\\}"
+    if (is.null(regexp)) {
+        regexp <- "\\{[[:alnum:]|,|;]+\\}"
+    }
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
     if (outside) {
@@ -79,10 +87,12 @@
         return(gsub("\\{|\\}|\\*", "", res))
     }
 }
-`squareBrackets` <- function(x, outside = FALSE) {
+`squareBrackets` <- function(x, outside = FALSE, regexp = NULL) {
     x <- recreate(substitute(x))
     x <- paste(x, collapse = "+")
-    regexp <- "\\[[[:alnum:]|,|;]+\\]"
+    if (is.null(regexp)) {
+        regexp <- "\\[[[:alnum:]|,|;]+\\]"
+    }
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
     if (outside) {
@@ -97,9 +107,11 @@
         return(gsub("\\[|\\]|\\*", "", res))
     }
 }
-`roundBrackets` <- function(x, outside = FALSE) {
+`roundBrackets` <- function(x, outside = FALSE, regexp = NULL) {
     x <- recreate(substitute(x))
-    regexp <- "\\(([^)]+)\\)"
+    if (is.null(regexp)) {
+        regexp <- "\\(([^)]+)\\)"
+    }
     x <- gsub("[[:space:]]", "", x)
     res <- regmatches(x, gregexpr(regexp, x), invert = outside)[[1]]
     if (outside) {

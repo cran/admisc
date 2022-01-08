@@ -23,12 +23,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`checkSubset` <- function(mat, implicants = TRUE) {
-    for (i in 1:2) {
-        eqz <- mat[i, ] == ifelse(implicants, 0, -1)
-        if (nrow(unique(mat[, !eqz, drop = FALSE])) == 1) {
-            return(3 - i)
-        }
+`hclr` <-
+function(x, starth = 25, c = 50, l = 75, alpha = 1, fixup = TRUE) {
+    if (length(x) > 1) {
+        x <- length(table(x))
     }
-    return(NULL)
+    return(
+        hcl(
+            h = seq(starth, starth + 360, length = x + 1)%%360,
+            c = c,
+            l = l,
+            alpha = alpha,
+            fixup = fixup
+        )[1:x]
+    )
 }
