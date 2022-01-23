@@ -54,7 +54,8 @@ function(expression = "", data = NULL, separate = FALSE) {
     }
     multivalue <- grepl("\\{|\\}|\\[|\\]", expression)
     if (!multivalue) {
-        ppm <- translate(mvSOP(expression, data = data), data = data, retlist = TRUE)
+        mvsop <- mvSOP(expression, data = data)
+        ppm <- translate(mvsop, data = data, retlist = TRUE)
         rownames(ppm) <- trimstr(unlist(strsplit(expression, split = "\\+")))
     }
     else {

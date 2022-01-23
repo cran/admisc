@@ -32,6 +32,14 @@
         }
         return(FALSE)
     }
+    if (is.logical(x)) {
+        if (each) {
+            result <- logical(length(x))
+            result[isna] <- NA
+            return(result)
+        }
+        return(FALSE)
+    }
     if (inherits(x, "haven_labelled") || inherits(x, "declared")) {
         num <- Recall(unclass(x), each = each)
         labels <- attr(x, "labels", exact = TRUE)
