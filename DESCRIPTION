@@ -1,6 +1,6 @@
 Package: admisc
-Version: 0.23
-Date: 2022-01-23
+Version: 0.24
+Date: 2022-02-11
 Title: Adrian Dusa's Miscellaneous
 Authors@R: person(given = "Adrian", family = "Dusa",
                   role = c("aut", "cre", "cph"),
@@ -25,8 +25,8 @@ License: GPL (>= 3)
 URL: https://github.com/dusadrian/admisc
 BugReports: https://github.com/dusadrian/admisc/issues
 NeedsCompilation: yes
-Packaged: 2022-01-23 10:32:09 UTC; dusadrian
+Packaged: 2022-02-11 09:11:04 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2022-01-23 12:32:41 UTC
+Date/Publication: 2022-02-11 09:40:02 UTC

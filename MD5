@@ -1,4 +1,4 @@
-baca38026fc3165e41c74fc8cc2023d2 *DESCRIPTION
+78ffe1727fa21366036a242d15ee5b55 *DESCRIPTION
 84ca88775a8cd01dad35270e8b6b2a31 *NAMESPACE
 69a0c3cc67075a1b3c2ede6b2d011414 *R/asNumeric.R
 3763c0d42a5b405725e657d087d64746 *R/asSOP.R
@@ -7,7 +7,7 @@ baca38026fc3165e41c74fc8cc2023d2 *DESCRIPTION
 381c620d6f881aee5e962bd89a065245 *R/checkSubset.R
 b6fb430f90e9ca6d8633a1dc8bd1ff9b *R/checkValid.R
 7ea3ae4d3af5430ed2e2e696d2b9111d *R/classify.R
-9d1692566848c2440ecc92f7bd9a587c *R/coerceMode.R
+3b194580ccfa5d46795684106e62df35 *R/coerceMode.R
 7a783a6f454a1e927cbf92fcf8ef29ee *R/combnk.R
 e426f99ad28ad76487a16664f78748ab *R/compute.R
 b9be513c3d3fe59a608d5aa967a4ff79 *R/dashes.R
@@ -26,7 +26,7 @@ f4b3863e3cb405983899bc499a26a99e *R/getMatrix.R
 f35af148d097c6183c2bc9ef514a7813 *R/invert.R
 b715dcb2dcd06dd1f4731ea6868b4a4c *R/list.rda.R
 0df83f4a35079d23f2f1e4a5f8023d44 *R/mvSOP.R
-1d62b874abfd04c7317d2f98e63be50f *R/negate.R
+f0b92ac54e2dce9b91d947ba55f91690 *R/negate.R
 5f6df0a9a1c575a7ec152337c55e405d *R/obj.rda.R
 7bcfd44d1c0c56b24107308b255925e4 *R/onLoad.R
 062d9dadb8b500d2ff98c190ba2e822c *R/permutations.R
@@ -52,13 +52,13 @@ e19f9f224a6b3a368776a5345476cfe2 *R/unlockEnvironment.R
 56bcd09aa5da6a637f5e90e093790108 *R/using.R
 3625698af634b1fcb9c65a087f8b58ec *R/validateNames.R
 ba4935bc0287d02cc0b361f75b721f50 *R/verify.R
-ad94d169ee71d9631e6b6712528122f9 *R/wholeNumeric.R
+c0e963bb6635bfbba36a7f64bda5cfe3 *R/wholeNumeric.R
 b57d8e60205c98bcd279a666e2138300 *R/writePrimeimp.R
-0dd09fa3093ecbe66b58a2ccea1802a6 *build/partial.rdb
-2c2469e1c0f96f9fb89b07bfd934ed5b *inst/ChangeLog
+899d93b903b3d20cee17f93b507ca094 *build/partial.rdb
+5184bdc3b44d7f54af702399e3135f82 *inst/ChangeLog
 006770ba809cfb1223624a39a2815159 *man/SOPexpression.Rd
 4887110f5de255b060c54474426564c1 *man/admisc-internal.Rd
-1a13b4de87a22deb5f839204ac296663 *man/admisc.package.Rd
+9868951d5b1aef16c4f38a190694e90e *man/admisc.package.Rd
 9f627319f85a2c1b9cef397ea4cf4dfc *man/brackets.Rd
 e1dc81ec1f3e307e9a2ba4cb424767b7 *man/coerceMode.Rd
 6d29a4eb6fd2b09b29ea90ddf24ab41e *man/combnk.Rd

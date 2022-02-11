@@ -27,13 +27,18 @@
     if (!is.atomic(x)) {
         stopError("The input is not atomic.")
     }
-    if (possibleNumeric(x) || all(is.na(x))) {
-        if (wholeNumeric(x)) {
-            x <- as.integer(x)
-        }
-        else {
-            x <- asNumeric(x)
-        }
+    if (
+        !is.numeric(x) && 
+        (possibleNumeric(x) || all(is.na(x)))
+    ) {
+        x <- asNumeric(x)
+    }
+    if (
+        !is.integer(x) &&
+        wholeNumeric(x) &&
+        is.null(tryCatchWEM(as.integer(x)))
+    ) {
+        x <- as.integer(x)
     }
     return(x)
 }

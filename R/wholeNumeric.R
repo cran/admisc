@@ -27,6 +27,9 @@
     if (inherits(x, "haven_labelled") || inherits(x, "declared")) {
         return(Recall(unclass(x), each = each))
     }
+    if (!possibleNumeric(x) & !each) {
+        return(FALSE)
+    }
     result <- logical(length(x))
     isna <- is.na(x)
     result[isna] <- NA
@@ -36,7 +39,11 @@
         }
         return(FALSE)
     }
-    x <- asNumeric(x[!isna])
+    x <- asNumeric(x)
+    isnax <- is.na(x)
+    result[!isna & isnax] <- FALSE
+    isna <- isna | isnax
+    x <- x[!isna]
     result[!isna] <- floor(x) == x
     if (each) {
         return(result)

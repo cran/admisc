@@ -107,6 +107,7 @@
         }
         snoflevels <- lapply(noflevels, function(x) seq(x) - 1)
         sr <- nrow(trexp) == 1 
+        trcols <- apply(trexp, 2, function(x) any(x != "-1"))
         negated <- paste(
             apply(trexp, 1, function(x) {
                 wx <- which(x != -1) 
@@ -150,7 +151,10 @@
         if (simplify) {
             callist$expression <- negated
             callist$scollapse <- identical(collapse, "*")
-            callist$snames <- snames
+            callist$snames <- snames[trcols]
+            if (!is.null(noflevels)) {
+                callist$noflevels <- noflevels[trcols]
+            }
             return(unclass(do.call("simplify", callist)))
         }
         return(negated)
