@@ -23,10 +23,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`list.rda` <- function(.filename) {
-    load(.filename)
-    return(as.list(environment()))
+`padLeft` <- function(x, n) {
+    paste(c(rep(" ", n), x), collapse = "", sep = "")
 }
-`list.rdata` <- function(...) {
-    list.rda(...)
+`padRight` <- function(x, n) {
+    paste(c(x, rep(" ", n)), collapse = "", sep = "")
+}
+`padBoth` <- function(x, n) {
+    n1 <- ceiling(n/2)
+    n2 <- floor(n/2)
+    paste(c(rep(" ", n1), x, rep(" ", n2)), collapse = "", sep = "")
 }

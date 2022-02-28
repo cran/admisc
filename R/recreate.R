@@ -25,7 +25,7 @@
 
 `recreate` <- function(x, snames = NULL) {
     if (is.null(x) | is.logical(x) | is.character(x)) return(x)
-    within <- function(x) {
+    withinobj <- function(x) {
         x <- gsub("\"|[[:space:]]", "", x)
         for (i in seq(length(x))) {
             if (!grepl("<=|<-|->|=>", x[i])) {
@@ -79,7 +79,7 @@
         for (i in seq(length(result))) {
             dxlist[[i]] <- dx <- deparse(x[[i + 1]])
             result[[i]] <- tryCatch(eval(x[[i + 1]], envir = parent.frame(n = 2)), error = function(e) {
-                within(dx)
+                withinobj(dx)
             })
             if (length(snames) > 0) {
                 if (all(is.element(dx, snames))) {
@@ -91,10 +91,10 @@
         if (length(unique(classes)) > 1) {
             for (i in seq(length(result))) {
                 if (identical(classes[i], "formula") | (identical(classes[i], "function") & typev)) {
-                    result[[i]] <- within(dxlist[[i]])
+                    result[[i]] <- withinobj(dxlist[[i]])
                 }
                 if (identical(classes[i], "logical") & typev & nchar(dxlist[[i]] == 1)) {
-                    result[[i]] <- within(dxlist[[i]])
+                    result[[i]] <- withinobj(dxlist[[i]])
                 }
                 if (identical(classes[i], "list")) {
                     if (is.element("function", unlist(lapply(result[[i]], class)))) {
@@ -117,11 +117,11 @@
         }
     }
     if (identical(class(x), "<-")) {
-        return(within(dx))
+        return(withinobj(dx))
     }
-    x <- tryCatch(eval(x, envir = parent.frame(n = 2)), error = function(e) within(dx))
+    x <- tryCatch(eval(x, envir = parent.frame(n = 2)), error = function(e) withinobj(dx))
     if (identical(class(x), "formula")) {
-        return(within(dx))
+        return(withinobj(dx))
     }
     return(x)
 }

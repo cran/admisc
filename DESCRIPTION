@@ -1,6 +1,6 @@
 Package: admisc
-Version: 0.24
-Date: 2022-02-11
+Version: 0.25
+Date: 2022-02-26
 Title: Adrian Dusa's Miscellaneous
 Authors@R: person(given = "Adrian", family = "Dusa",
                   role = c("aut", "cre", "cph"),
@@ -15,7 +15,7 @@ Description: Contains functions used across packages 'declared', 'DDIwR', 'mixed
     extracts information (set names, set values) from those expressions. Other
     functions perform various other checks if possibly numeric (even if all
     numbers reside in a character vector) and coerce to numeric, or check if the
-    numbers are whole. It also offers, among many others, a highly flexible
+    numbers are whole. It also offers, among many others, a highly versatile
     recoding routine and a more flexible alternative to the base function
     'with()'.
     Some of the functions in this package use related functions from package
@@ -25,8 +25,8 @@ License: GPL (>= 3)
 URL: https://github.com/dusadrian/admisc
 BugReports: https://github.com/dusadrian/admisc/issues
 NeedsCompilation: yes
-Packaged: 2022-02-11 09:11:04 UTC; dusadrian
+Packaged: 2022-02-26 11:30:49 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (<https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2022-02-11 09:40:02 UTC
+Date/Publication: 2022-02-28 09:40:10 UTC

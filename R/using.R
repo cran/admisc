@@ -32,6 +32,7 @@
     }
     expr <- substitute(expr)
     vexpr <- all.vars(expr)
+    vexpr <- vexpr[is.element(vexpr, names(data))]
     if (any(vexpr == ".")) {
         vexpr <- colnames(data)
     }

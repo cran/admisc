@@ -23,12 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`obj.rda` <- function(.filename) {
+`objRDA` <- function(.filename) {
     attached_filename <- paste0("file:", .filename, "")
-    do.call("attach", list(what = .filename, name = attached_filename))
+    suppressMessages(do.call("attach", list(what = .filename, name = attached_filename)))
     on.exit(eval(substitute(detach(name), list(name = attached_filename))))
     return(ls(envir = as.environment(attached_filename)))
-}
-`obj.rdata` <- function(...) {
-    obj.rda(...)
 }
