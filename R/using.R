@@ -27,24 +27,36 @@
     split.by <- substitute(split.by)
     sby <- all.vars(split.by)
     nsby <- all.names(split.by)
-    if (length(setdiff(nsby, c("c", "+", "&", colnames(data)))) > 0) {
-        stopError("Incorrect specification of the argument <split.by>.")
-    }
     expr <- substitute(expr)
     vexpr <- all.vars(expr)
     vexpr <- vexpr[is.element(vexpr, names(data))]
     if (any(vexpr == ".")) {
         vexpr <- colnames(data)
     }
-    data <- data[, unique(c(vexpr, sby)), drop = FALSE]
     if (length(sby) == 0) {
         return(eval(expr = expr, envir = data, enclos = parent.frame()))
     }
-    if (!all(is.element(sby, colnames(data)))) {
-        stopError("One or more split variables not found in the data.")
+    csby <- setdiff(as.character(split.by), c("c", "+", "&"))
+    test <- unlist(lapply(seq(length(csby)), function(i) {
+        tryCatchWEM(eval(parse(text = csby[i]), envir = data, enclos = parent.frame()))
+    }))
+    if (length(test) > 0) {
+        stopError(test[1])
     }
-    sl <- lapply(sby, function(sb) {
-        x <- data[[sb]]
+    sbylist <- lapply(csby, function(x) {
+        eval(parse(text = x), envir = data, enclos = parent.frame())
+    })
+    test <- unlist(lapply(sbylist, function(x) {
+        is.factor(x) | inherits(x, "declared") | inherits(x, "haven_labelled_spss")
+    }))
+    if (sum(test) < length(test)) {
+        stopError("Split variables should be factors or a declared / labelled objects.")
+    }
+    test <- table(unlist(lapply(sbylist, length)))
+    if (length(test) > 1 || nrow(data) != as.numeric(names(test))) {
+        stopError("Split variables do not match the number of rows in the data.")
+    }
+    sl <- lapply(sbylist, function(x) {
         if (inherits(x, "declared") | inherits(x, "haven_labelled_spss")) {
             na_values <- attr(x, "na_values", exact = TRUE)
             labels <- attr(x, "labels", exact = TRUE)
@@ -57,17 +69,7 @@
             }
             return(as.character(x))
         }
-        if (is.factor(x)) {
             return(levels(x))
-        }
-        else {
-            stopError(
-                sprintf(
-                    "The split variable %s should be a factor or a declared / labelled variable.",
-                    sb
-                )
-            )
-        }
     })
     names(sl) <- sby
     noflevels <- unlist(lapply(sl, length))
@@ -90,12 +92,13 @@
     for (i in seq(length(sl))) {
         slexp[, i] <- sl[[i]][retmat[, i]]
     }
+    data <- data[, vexpr, drop = FALSE]
     res <- vector(mode = "list", length = nrow(slexp))
     for (r in seq(nrow(slexp))) {
         selection <- rep(TRUE, nrow(data))
         for (c in seq(ncol(slexp))) {
             val <- slexp[r, c]
-            x <- data[[sby[c]]] 
+            x <- sbylist[[c]] 
             attrx <- attributes(x)
             if (inherits(x, "declared") | inherits(x, "haven_labelled_spss")) {
                 attributes(x) <- NULL
@@ -112,7 +115,7 @@
             }
             selection <- selection & (x == val)
         }
-        if (sum(selection) > 0) {
+        if (sum(selection, na.rm = TRUE) > 0) {
             res[[r]] <- eval(
                 expr = expr,
                 envir = subset(data, selection),
@@ -120,7 +123,10 @@
             )
         }
     }
-    if (all(unlist(lapply(res, is.atomic)))) {
+    wt <- any(unlist(lapply(res, function(x) class(x)[1] == "w_table")))
+    if (all(unlist(lapply(res, is.atomic))) & !wt) {
+        classes <- unique(unlist(lapply(res, class)))
+        classes <- setdiff(classes, c("integer", "double", "character", "numeric", "complex"))
         lengths <- unlist(lapply(res, length))
         result <- matrix(NA, nrow = length(res), ncol = max(lengths))
         for (i in seq(length(res))) {
@@ -128,9 +134,7 @@
                 result[i, seq(length(res[[i]]))] <- res[[i]]
             }
         }
-        for (i in seq(ncol(slexp))) {
-            slexp[, i] <- format(slexp[, i], justify = "right")
-        }
+        result[] <- coerceMode(round(result, 3))
         rownames(result) <- apply(slexp, 1, function(x) paste(x, collapse = ", "))
         if (max(lengths) == 1) {
             colnames(result) <- as.character(as.list(expr)[[1]])
@@ -139,10 +143,11 @@
             colnames(result) <- names(res[[which.max(lengths)]])
         }
         res <- result
+        class(res) <- c("admisc_fobject", "matrix")
     }
     else {
         attr(res, "split") <- slexp
+        class(res) <- c("admisc_fobject", class(res))
     }
-    class(res) <- "admisc_using"
     return(res)
 }

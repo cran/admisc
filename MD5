@@ -1,5 +1,5 @@
-7a437ce56477c5a341313433cd9c8c85 *DESCRIPTION
-604f15fd075fe4e039dc1ce2b8988531 *NAMESPACE
+d3d140a5a9aec4d5bd798d77d8d5e0c5 *DESCRIPTION
+bfefba9e87b59c26906fb75c61c3893d *NAMESPACE
 69a0c3cc67075a1b3c2ede6b2d011414 *R/asNumeric.R
 3763c0d42a5b405725e657d087d64746 *R/asSOP.R
 45c8dfa65b897233f366ba48666e38eb *R/brackets.R
@@ -27,6 +27,7 @@ f35af148d097c6183c2bc9ef514a7813 *R/invert.R
 85bdd73c71a25e7d299df38dc0cb23c4 *R/listRDA.R
 0df83f4a35079d23f2f1e4a5f8023d44 *R/mvSOP.R
 f0b92ac54e2dce9b91d947ba55f91690 *R/negate.R
+94ccbed7689fcb8fd5388c65525bafb0 *R/numdec.R
 68c85b59288611dc0dac14539e590244 *R/objRDA.R
 7bcfd44d1c0c56b24107308b255925e4 *R/onLoad.R
 f16977bed8ac676c27cb5de2098f09b1 *R/pad.R
@@ -34,7 +35,7 @@ f16977bed8ac676c27cb5de2098f09b1 *R/pad.R
 454b8b4a85816db43eb264c3ec7309bc *R/possibleNumeric.R
 42f6df9d9e2ff23ca6508931169077df *R/prettyString.R
 677fb023d716bd417bb341a584fad04e *R/prettyTable.R
-a82f70e41c920820ec8ee4a5d0aea200 *R/print.R
+fc1ff5837473f57330b7b16f8b2063d5 *R/print.R
 fbfc0cbce0122e52656b9df99fa1dce3 *R/recode.R
 e0b8bb5007091c6d6d3be1910bf8efc9 *R/recreate.R
 1dbc29706d5727169fccda2ce90402e8 *R/reload.R
@@ -50,16 +51,16 @@ dcc846bdb5d1c272226b6f7f27a6b1ff *R/string.R
 ee6deaaff379bc25bca52dca591e4269 *R/uninstall.R
 8a9eb6a0a37e5ae117eb60ab41cad4ec *R/unload.R
 e19f9f224a6b3a368776a5345476cfe2 *R/unlockEnvironment.R
-c93a6b18a4a93018719076e117bdbe51 *R/using.R
+fe639e5bf00525399aa479869d565da9 *R/using.R
 3625698af634b1fcb9c65a087f8b58ec *R/validateNames.R
 ba4935bc0287d02cc0b361f75b721f50 *R/verify.R
 c0e963bb6635bfbba36a7f64bda5cfe3 *R/wholeNumeric.R
 b57d8e60205c98bcd279a666e2138300 *R/writePrimeimp.R
-caada1e4e43ec62d0b330bfbdceaf23a *build/partial.rdb
-d36fed0fe64000e363df9bfd662757a8 *inst/ChangeLog
+0051f4b74e4391ebefdb4884dbdab8bc *build/partial.rdb
+ff4075d7ba374db4f415d266f6251a31 *inst/ChangeLog
 006770ba809cfb1223624a39a2815159 *man/SOPexpression.Rd
 69b7dea8822533fb914c3b52174473c4 *man/admisc-internal.Rd
-134766f966d9ac8942836f69080200b3 *man/admisc.package.Rd
+49cc68dc6b0d7551f2e4787763daf17c *man/admisc.package.Rd
 9f627319f85a2c1b9cef397ea4cf4dfc *man/brackets.Rd
 e1dc81ec1f3e307e9a2ba4cb424767b7 *man/coerceMode.Rd
 6d29a4eb6fd2b09b29ea90ddf24ab41e *man/combnk.Rd
@@ -72,6 +73,7 @@ aa29f9722645a38b9cdc2ed88cfbe0a9 *man/frelevel.Rd
 5e9d411c2b8392f00b025c0b66356b93 *man/hclr.Rd
 a518151e751acbb73712e0c6f3b397e8 *man/intersection.Rd
 626eafe7997b2facf89289c602fb6c8a *man/negate.Rd
+f530a4a5e9198e45db9b440de2bd77b3 *man/numdec.Rd
 67ad921674cf4d73732876a0dd6c747a *man/numerics.Rd
 427bb8c7134df056ec054e7469ae9547 *man/permutations.Rd
 c6d08db7c59e5f02461c5883742e643c *man/rdaFunctions.Rd
