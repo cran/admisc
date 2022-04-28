@@ -42,7 +42,7 @@
                 cat(paste("N", prettyNumsFact[j], ": ", sep = ""))
                 flength <- nchar(prettyNumsFact[j]) + 1
                 strvctr <- unlist(strsplit(fx[j], split = " + "))
-                cat(admisc::prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
+                cat(prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
             }
             cat("\n")
         }
@@ -60,7 +60,7 @@
                     cat(paste("  N", prettyNumsFact[j], ": ", sep = ""))
                     flength <- nchar(prettyNumsFact[j]) + 3
                     strvctr <- unlist(strsplit(fx[j], split = " + "))
-                    cat(admisc::prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
+                    cat(prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
                 }
                 cat("\n")
             }
@@ -81,9 +81,9 @@
     ncharSI <- max(nchar(pI))
     for (i in seq(length(x))) {
         cat("\n", pI[i], sep = "")
-        cat(admisc::prettyString(expressions[i], getOption("width") - ncharSI, ncharSI, "+"))
+        cat(prettyString(expressions[i], getOption("width") - ncharSI, ncharSI, "+"))
         cat("\n", pO[i], sep = "")
-        cat(admisc::prettyString(x[i], getOption("width") - ncharSI, ncharSI, "+"))
+        cat(prettyString(x[i], getOption("width") - ncharSI, ncharSI, "+"))
         cat("\n")
     }
     cat("\n")
@@ -123,7 +123,7 @@
                 cat(paste("F", prettyNumsFact[j], ": ", sep = ""))
                 flength <- nchar(prettyNumsFact[j]) + 1
                 strvctr <- unlist(strsplit(fx[j], split = " + "))
-                cat(admisc::prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
+                cat(prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
             }
             cat("\n")
         }
@@ -141,7 +141,7 @@
                     cat(paste("  F", prettyNumsFact[j], ": ", sep = ""))
                     flength <- nchar(prettyNumsFact[j]) + 3
                     strvctr <- unlist(strsplit(fx[j], split = " + "))
-                    cat(admisc::prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
+                    cat(prettyString(strvctr, getOption("width") - flength, flength, "+"), "\n", sep = "")
                 }
                 cat("\n")
             }
@@ -207,7 +207,7 @@
             max.nchar.rnms <- max(nchar(encodeString(rnms)), na.rm = TRUE)
             for (i in seq(length(rnms))) {
                 if (nchar(rnms[i]) < max.nchar.rnms) {
-                    rnms[i] <- admisc::padLeft(rnms[i], max.nchar.rnms - nchar(rnms[i]))
+                    rnms[i] <- padLeft(rnms[i], max.nchar.rnms - nchar(rnms[i]))
                 }
             }
             rownames(x) <- rnms
@@ -252,12 +252,12 @@
         max.nchars <- max(nchar(c(encodeString(nms), x)), na.rm = TRUE)
         for (i in seq(length(nms))) {
             if (nchar(nms[i]) < max.nchars) {
-                nms[i] <- admisc::padBoth(nms[i], max.nchars - nchar(nms[i]))
+                nms[i] <- padBoth(nms[i], max.nchars - nchar(nms[i]))
             }
         }
         for (i in seq(length(x))) {
             if (nchar(x[i]) < max.nchars) {
-                x[i] <- admisc::padBoth(x[i], max.nchars - nchar(x[i]))
+                x[i] <- padBoth(x[i], max.nchars - nchar(x[i]))
             }
         }
         colnames(x) <- nms

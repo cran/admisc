@@ -23,7 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`stopError` <- function(message, enter = "\n") {
+`stopError` <- function(message, enter = "\n", ...) {
+    dots <- list(...)
+    prenter <- ifelse(is.element("prenter", names(dots)), dots$prenter, TRUE)
     message <- paste0(
         "Error: ",
         unlist(
@@ -40,7 +42,9 @@
             )
         )
     }
-    cat(enter)
+    if (prenter) {
+        cat(enter)
+    }
     stop(
         simpleError(
             paste0(

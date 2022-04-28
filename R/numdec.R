@@ -23,42 +23,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`numdec` <- function(x, each = FALSE, na.rm = TRUE) {
-    pN <- possibleNumeric(x, each = each)
-    if (sum(pN) == 0) {
-        stopError("'x' values should be numeric.")
+`numdec` <- function(x, each = FALSE, na.rm = TRUE, maxdec = 15) {
+    pN <- possibleNumeric(x, each = TRUE)
+    if (sum(na.omit(pN)) == 0) {
+        stopError("'x' should contain at least one (possibly) numeric value.")
     }
-    result <- rep(NA, length(x))
+    result <- rep(0, length(x))
     x <- asNumeric(x)
+    result[is.na(x)] <- NA
     hasdec <- agtb(x %% 1, 0)
     if (any(hasdec, na.rm = TRUE)) {
-        if (each) {
-            for (i in seq(length(x))) {
-                if (pN[i]) {
-                    result[i] <- 0
-                    if (hasdec[i]) {
-                        xi <- format(x[i], scientific = FALSE)
-                        result[i] <- nchar(unlist(strsplit(xi, split = "[.]"))[2])
-                    }
-                }
-            }
-            return(result)
-        }
-        if (na.rm) {
-            x <- na.omit(x)
-        }
-        if (any(is.na(x))) {
-            return(NA)
-        }
-        x <- format(x, scientific = FALSE)
-        return(nchar(unlist(strsplit(x, split = "[.]"))[2]))
+        wdec <- which(hasdec)
+        x[wdec] <- abs(x[wdec])
+        x[wdec] <- trimstr(formatC(x[wdec] - floor(x[wdec]), digits = maxdec))
+        result[wdec] <- nchar(asNumeric(gsub("^0.", "", x[wdec])))
     }
     if (each) {
-        result[pN] <- 0
         return(result)
     }
-    if ((each & sum(pN) == length(x)) || sum(pN) > 0) {
-        return(0)
-    }
-    return(NA)
+    return(max(result, na.rm = na.rm))
 }

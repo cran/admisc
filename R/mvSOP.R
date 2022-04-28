@@ -30,7 +30,7 @@
     snames <- recreate(substitute(snames))
     dots <- list(...)
     if (any(grepl("\\[|\\]|\\{|\\}", expression))) {
-        stopError("The expression is already in multi-value notation.")
+        stopError("The expression is already in multi-value notation.", ... = ...)
     }
     if (identical(snames, "")) {
         if (!is.null(data)) {
@@ -86,7 +86,7 @@
     newc <- c(newc, paste0(snames, "[0]"), paste0(snames, "[1]"))
     expression <- replaceText(expression, oldc, newc)
     if (any(!is.element(squareBrackets(expression, outside = TRUE), snames))) {
-        stopError("Unkown condition(s) in the expression.")
+        stopError("Unkown condition(s) in the expression.", ... = ...)
     }
     if (!is.null(noflevels)) {
         if (any(infodata$hastime)) {
@@ -95,7 +95,7 @@
         rnames <- colnames(validateNames(expression, snames = snames, data = data))
         noflevels <- noflevels[match(rnames, colnames(data))]
         if (any(noflevels > 2)) {
-            stopError("Part(s) of the expression refer to multi-value data.")
+            stopError("Part(s) of the expression refer to multi-value data.", ... = ...)
         }
     }
     if (!is.null(dots$translate)) {

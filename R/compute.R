@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `compute` <-
-function(expression = "", data = NULL, separate = FALSE) { 
+function(expression = "", data = NULL, separate = FALSE, ...) { 
     expression <- recreate(substitute(expression))
     enchar <- nchar(expression)
     if (identical(substring(expression, 1, 2), "~(") & identical(substring(expression, enchar, enchar), ")")) {
@@ -54,7 +54,7 @@ function(expression = "", data = NULL, separate = FALSE) {
     }
     multivalue <- grepl("\\{|\\}|\\[|\\]", expression)
     if (!multivalue) {
-        mvsop <- mvSOP(expression, data = data)
+        mvsop <- mvSOP(expression, data = data, ... = ...)
         ppm <- translate(mvsop, data = data, retlist = TRUE)
         rownames(ppm) <- trimstr(unlist(strsplit(expression, split = "\\+")))
     }
