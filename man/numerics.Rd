@@ -11,13 +11,15 @@ Coerces objects to class "numeric", and checks if an object is numeric.
 }
 
 \usage{
-asNumeric(x)
+asNumeric(x, levels = TRUE, na_values = TRUE)
 possibleNumeric(x, each = FALSE)
 wholeNumeric(x, each = FALSE)
 }
 
 \arguments{
   \item{x}{A vector of values}
+  \item{levels}{Logical, coerce its levels when x is a factor}
+  \item{na_values}{Logical, coerce non-empty NA values in objects of class "declared"}
   \item{each}{Logical, return the result for each value in the vector}
 }
 

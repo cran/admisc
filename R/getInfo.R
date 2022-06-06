@@ -52,9 +52,9 @@
     }
     fuzzy.cc <- logical(ncol(data))
     hastime <- logical(ncol(data))
-    factor <- unlist(lapply(data, is.factor))
-    declared <- unlist(lapply(data, function(x) inherits(x, "declared")))
-    pN <- unlist(lapply(data, possibleNumeric))
+    factor <- sapply(data, is.factor)
+    declared <- sapply(data, function(x) inherits(x, "declared"))
+    pN <- sapply(data, possibleNumeric)
     for (i in seq(ncol(data))) {
         if (pN[i]) {
             copy.cc <- asNumeric(data[, i])

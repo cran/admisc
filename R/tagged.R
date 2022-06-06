@@ -53,3 +53,18 @@
         return(rep(NA, length(x)))
     }
 }
+`anyTagged` <- function(x) {
+    if (is.data.frame(x)) {
+        i <- 1
+        tagged <- FALSE
+        while(!tagged & i <= ncol(x)) {
+            tagged <- Recall(x[[i]])
+            i <- i + 1
+        }
+        return(tagged)
+    }
+    if (is.double(x)) {
+        return(.Call("_any_tagged", x, PACKAGE = "admisc"))
+    }
+    return(FALSE)
+}

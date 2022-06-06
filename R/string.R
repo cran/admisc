@@ -24,12 +24,20 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `trimstr` <- function(x, what = " ", side = "both") {
-    if (is.element(what, c("*", "+"))) what <- paste("\\", what, sep = "")
-    what <- ifelse(what == " ", "[[:space:]]", what)
+    irv <- c(194, 160)
+    multibyte_space <- rawToChar(as.raw(irv))
+    if (is.element(what, c("*", "+"))) {
+        what <- paste("\\", what, sep = "")
+    }
+    what <- ifelse(
+        identical(what, " "),
+        paste0("[[:space:]|", multibyte_space, "]"),
+        what
+    )
     pattern <- switch(side,
-    both = paste("^", what, "+|", what, "+$", sep = ""),
-    left = paste("^", what, "+", sep = ""),
-    right = paste(what, "+$", sep = "")
+        both = paste("^", what, "+|", what, "+$", sep = ""),
+        left = paste("^", what, "+", sep = ""),
+        right = paste(what, "+$", sep = "")
     )
     gsub(pattern, "", x)
 }
