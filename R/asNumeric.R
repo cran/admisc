@@ -23,26 +23,32 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`asNumeric` <- function(x, levels = TRUE, na_values = TRUE) {
-    if (isTRUE(na_values) & inherits(x, "declared")) {
-        na_index <- attr(x, "na_index")
-        attributes(x) <- NULL
+`asNumeric` <- function(x, ...) {
+    UseMethod("asNumeric")
+}
+`asNumeric.declared` <- function(x, ..., na_values = TRUE) {
+    na_index <- attr(x, "na_index")
+    attributes(x) <- NULL
+    if (isTRUE(na_values)) {
         if (!is.null(na_index)) {
-            x[na_index] <- suppressWarnings(as.numeric(names(na_index)))
+            x[na_index] <- as.numeric(names(na_index))
         }
     }
+    NextMethod()
+}
+`asNumeric.factor` <- function(x, ..., levels = TRUE) {
+    if (isTRUE(levels)) {
+        return(suppressWarnings(as.numeric(levels(x)))[x])
+    }
+    return(as.numeric(x))
+}
+`asNumeric.default` <- function(x, ...) {
+    attributes(x) <- NULL
     if (is.numeric(x)) {
         return(x)
     }
-    if (is.factor(x)) {
-        if (isTRUE(levels)) {
-            return(suppressWarnings(as.numeric(levels(x)))[x])
-        }
-        return(as.numeric(x))
-    }
     result <- rep(NA, length(x))
     multibyte <- grepl("[^!-~ ]", x)
-    attributes(x) <- NULL
     result[!multibyte] <- suppressWarnings(as.numeric(x[!multibyte]))
     return(result)
 }

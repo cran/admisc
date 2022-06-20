@@ -98,7 +98,7 @@
             stopError("Part(s) of the expression refer to multi-value data.", ... = ...)
         }
     }
-    if (!is.null(dots$translate)) {
+    if (isTRUE(dots$translate)) {
         return(
             list(
                 expression = expression,

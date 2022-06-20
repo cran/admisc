@@ -41,10 +41,12 @@
     if (length(dc.code) > 0) {
         colnms <- colnames(data)
         data[] <- lapply(data, function(x) {
-            x <- as.character(x)
-            x[x == dc.code] <- -1
-            if (possibleNumeric(x)) {
-                x <- asNumeric(x)
+            if (!inherits(x, "declared")) {
+                x <- as.character(x)
+                x[x == dc.code] <- -1
+                if (possibleNumeric(x)) {
+                    x <- asNumeric(x)
+                }                
             }
             return(x)
         })
@@ -56,7 +58,7 @@
     declared <- sapply(data, function(x) inherits(x, "declared"))
     pN <- sapply(data, possibleNumeric)
     for (i in seq(ncol(data))) {
-        if (pN[i]) {
+        if (pN[i] & !declared[i]) {
             copy.cc <- asNumeric(data[, i])
             fuzzy.cc[i] <- any(na.omit(copy.cc) %% 1 > 0)
             if (!fuzzy.cc[i] & !any(is.na(copy.cc))) {
@@ -81,7 +83,7 @@
             }
             else {
                 x <- data[, i]
-                labels <- attr(x, "labels")
+                labels <- attr(x, "labels", exact = TRUE)
                 if (is.null(labels)) {
                     stopError("Declared columns should have labels for all values.")
                 }

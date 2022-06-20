@@ -23,70 +23,86 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getName` <- function(x) {
+`getName` <- function(x, object = FALSE) {
     result <- rep("", length(x))
     x <- as.vector(gsub("1-", "", gsub("[[:space:]]", "", x)))
-    for (i in seq(length(x))) {
-        condsplit <- unlist(strsplit(x[i], split=""))
-        startpos <- 0
-        keycode <- ""
-        if (any(condsplit == "]")) {
-            startpos <- max(which(condsplit == "]"))
-            keycode <- "]"
+    condsplit <- unlist(strsplit(x, split = ""))
+    startpos <- 0
+    keycode <- ""
+    if (any(condsplit == "]")) {
+        startpos <- max(which(condsplit == "]"))
+        keycode <- "]"
+    }
+    if (any(condsplit == "$")) {
+        sp <- max(which(condsplit == "$"))
+        if (sp > startpos) {
+            startpos <- sp
+            keycode <- "$"
         }
-        if (any(condsplit == "$")) {
-            sp <- max(which(condsplit == "$"))
-            if (sp > startpos) {
-                startpos <- sp
-                keycode <- "$"
-            }
+    }
+    if (identical(keycode, "$")) {
+        if (object) {
+            return(substring(x, 1, min(which(condsplit == "$")) - 1))
         }
-        if (identical(keycode, "$")) {
-            result[i] <- substring(x[i], startpos + 1)
+        result <- substring(x, startpos + 1)
+    }
+    else if (identical(keycode, "]")) {
+        objname <- substring(x, 1, min(which(condsplit == "[")) - 1)
+        if (object) {
+            return(objname)
         }
-        else if (identical(keycode, "]")) {
-            stindex <- max(which(condsplit == "["))
-            filename <- paste(condsplit[seq(ifelse(any(condsplit == "("), which(condsplit == "("), 0) + 1, min(which(condsplit == "[")) - 1)], collapse="")
-            ptn <- substr(x, stindex + 1, startpos)
-            postring <- grepl("\"", ptn)
-            ptn <- gsub("\"|]|,|\ ", "", ptn)
-            stopindex <- ifelse(identical(condsplit[stindex - 1], "["), stindex - 2, stindex - 1)
-            if (possibleNumeric(ptn)) {
-                cols <- eval.parent(parse(text = paste("colnames(", filename, ")", sep = "")))
-                if (!is.null(cols)) {
-                    result[i] <- cols[as.numeric(ptn)]
-                }
-            }
-            else {
-                if (!grepl(":", ptn)) {
-                    result <- ptn
-                }
-                if (!postring) { 
-                    ptnfound <- FALSE
-                    n <- 1
-                    if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 1)) {
-                        ptn <- eval.parent(parse(text = paste("get(", ptn, ")", sep = "")), n = 1)
-                        ptnfound <- TRUE
-                    }
-                    else if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 2)) {
-                        ptn <- eval.parent(parse(text = paste("get(\"", ptn, "\")", sep = "")), n = 2)
-                        ptnfound <- TRUE
-                        n <- 2
-                    }
-                    if (ptnfound) {
-                        if (possibleNumeric(ptn)) {
-                            result <- eval.parent(parse(text = paste("colnames(", filename, ")[", ptn, "]", sep = "")), n = n)
-                        }
-                        else {
-                            result <- ptn
-                        }
-                    }
-                }
+        stindex <- max(which(condsplit == "["))
+        stopindex <- ifelse(
+            identical(condsplit[stindex - 1], "["),
+            stindex - 2,
+            stindex - 1
+        )
+        ptn <- gsub("]", "", substr(x, stindex + 1, startpos)) 
+        if (substring(ptn, 1, 1) == ",") {
+            ptn <- substring(ptn, 2)
+        }
+        if (substring(ptn, 1, 2) == "c(") {
+            ptn <- substring(ptn, 3, nchar(ptn) - 1) 
+        }
+        postring <- grepl("\"", ptn)
+        ptn <- gsub("\"|]|\ ", "", ptn)
+        ptn <- unlist(strsplit(ptn, split = ","))
+        if (length(ptn) == 1) {
+            ptn <- unlist(strsplit(ptn, split = ":"))
+        }
+        if (possibleNumeric(ptn)) {
+            cols <- eval.parent(parse(text = paste("colnames(", objname, ")", sep = "")))
+            if (!is.null(cols)) {
+                result <- cols[as.numeric(ptn)]
             }
         }
         else {
-            result <- x
+            if (postring) {
+                return(ptn)
+            }
+            ptnfound <- FALSE
+            n <- 1
+            if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 1)) {
+                ptn <- eval.parent(parse(text = paste("get(", ptn, ")", sep = "")), n = 1)
+                ptnfound <- TRUE
+            }
+            else if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 2)) {
+                ptn <- eval.parent(parse(text = paste("get(\"", ptn, "\")", sep = "")), n = 2)
+                ptnfound <- TRUE
+                n <- 2
+            }
+            if (ptnfound) {
+                if (possibleNumeric(ptn)) {
+                    result <- eval.parent(parse(text = paste("colnames(", objname, ")[", ptn, "]", sep = "")), n = n)
+                }
+                else {
+                    result <- ptn
+                }
+            }
         }
+    }
+    else {
+        result <- x
     }
     return(gsub(",|\ ", "", result))
 }

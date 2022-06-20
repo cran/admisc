@@ -26,41 +26,35 @@
 `recode` <- function(x, rules, cut, values, ...) {
     UseMethod("recode")
 }
-`recode.declared` <- function(x, rules, cut, values, ...) {
+`recode.declared` <- function(x, rules, cut, values, ..., na_values = TRUE) {
     na_index <- attr(x, "na_index")
-    if (!is.null(na_index)) {
+    attributes(x) <- NULL
+    if (!is.null(na_index) & isTRUE(na_values)) {
         nms <- names(na_index)
-        if (possibleNumeric(nms) || all(is.na(nms))) {
+        if (possibleNumeric(nms)) {
             nms <- asNumeric(nms)
-            if (wholeNumeric(nms)) {
-                nms <- as.integer(nms)
-            }
         }
-        x <- unclass(x)
         x[na_index] <- nms
     }
-    recode(unclass(x), rules, cut, values, ...)
+    NextMethod()
 }
 `recode.default` <- function(x, rules, cut, values, ...) {
-    declared <- inherits(x, "declared")
-    if (declared) {
-        x <- unclass(x)
-    }
     if (missing(x)) {
-        stopError("Argument \"x\" is missing.")
+        stopError("Argument 'x' is missing.")
     }
     if (!is.atomic(x))   {
-        stopError("The input \"x\" should be an atomic vector / factor.")
+        stopError("The input 'x' should be an atomic vector / factor.")
     }
     if (all(is.na(x))) {
-        stopError("All values are missing in x.")
+        stopError("Nothing to recode, all values are missing.")
     }
     dots <- recreate(list(...))
-    as.factor.result  <- if (is.element("as.factor.result",  names(dots))) dots$as.factor.result  else FALSE
-    as.numeric.result <- if (is.element("as.numeric.result", names(dots))) dots$as.numeric.result else TRUE
-    factor.levels     <- if (is.element("levels",            names(dots))) splitstr(dots$levels)  else c()
-    factor.labels     <- if (is.element("labels",            names(dots))) splitstr(dots$labels)  else c()
+    as.factor.result  <- isTRUE(dots$as.factor.result)
+    as.numeric.result <- !isFALSE(dots$as.numeric.result)
+    factor.levels     <- if (is.element("levels", names(dots))) splitstr(dots$levels)  else c()
+    factor.labels     <- if (is.element("labels", names(dots))) splitstr(dots$labels)  else c()
     factor.ordered    <- FALSE
+    declared <- inherits(x, "declared")
     if (is.element("ordered", names(dots))) {
         factor.ordered <- dots$ordered
     }
@@ -109,9 +103,14 @@
             )
         )
         if (length(rules) == 1) {
-             rules <- unlist(strsplit(rules, split=";"))
+            semicolons <- gsub("[^;]", "", rules)
+            equals <- gsub("[^=]", "", rules)
+            if (nchar(equals) != nchar(semicolons) + 1) {
+                stopError("The rules should be separated by a semicolon.")
+            }
+            rules <- unlist(strsplit(rules, split = ";"))
         }
-        rulsplit <- strsplit(rules, split="=")
+        rulsplit <- strsplit(rules, split = "=")
         oldval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 1))
         newval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 2))
         temp <- rep(NA, length(x))

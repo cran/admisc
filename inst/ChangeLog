@@ -1,3 +1,10 @@
+Version 0.29
+    o Functions asNumeric() and recode() are now generic, with class methods for
+      factors and objects of class "declared"
+    o New arguments "na_values" (for declared objects) in function recode()
+    o Improved function getName() for more than one variable
+    o New argument "object" in function getName()
+
 Version 0.28
     o Bug fix in asNumeric() preserving classes for some types of objects
     o New arguments "levels" and "na_values" in function asNumeric()
@@ -71,7 +78,7 @@ Version 0.18
 Version 0.17
     o More robust support for multi-byte locales when detecting tilde and
       dash operators
-    o Fixed bug in possibleNumeric() for objects of class declared'
+    o Fixed bug in possibleNumeric() for objects of class declared
     
 Version 0.16
     o New functions agtb(), altb() and aneqb() to test (in)equality of floats
