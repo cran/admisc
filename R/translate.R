@@ -53,9 +53,12 @@
     }
     if (is.null(data) & (identical(snames, "") | is.null(noflevels))) {
         syscalls <- as.character(sys.calls())
-        if (length(withdata <- grep("with\\(", syscalls)) > 0) {
-            withdata <- withdata[length(withdata)]
-            data <- get(unlist(strsplit(gsub("with\\(", "", syscalls[withdata]), split = ","))[1], envir = length(syscalls) - withdata)
+        usingwith <- "admisc::using\\(|using\\(|with\\("
+        if (any(usingdata <- grepl(usingwith, syscalls))) {
+            data <- get(
+                unlist(strsplit(gsub(usingwith, "", syscalls), split = ","))[1],
+                envir = length(syscalls) - tail(which(usingdata), 1)
+            )
         }
     }
     if (!is.element("data.frame", class(data))) {

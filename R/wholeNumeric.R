@@ -34,10 +34,7 @@
     isna <- is.na(x)
     result[isna] <- NA
     if (all(isna) || is.logical(x)) {
-        if (each) {
-            return(result)
-        }
-        return(FALSE)
+        return(result)
     }
     x <- asNumeric(x)
     isnax <- is.na(x)

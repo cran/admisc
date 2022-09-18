@@ -343,5 +343,5 @@
         z[[i]] <- strsplit(gsub("[[:alnum:]]", "", x[i]), "+")[[1]]
     }
     z <- notilde(unique(unlist(z)))
-    return(z[-which(z == "")])
+    return(z[nzchar(z)])
 }

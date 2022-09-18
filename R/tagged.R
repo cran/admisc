@@ -33,7 +33,7 @@
     if (!is.double(x)) {
         return(logical(length(x)))
     }
-    if (!is.null(tag) && !is.atomic(tag) && (length(tag) > 1 || is.na(tag))) {
+    if (!is.null(tag) && (!is.atomic(tag) || length(tag) > 1 || is.na(tag))) {
         stopError("`tag` should be a vector of length 1.")
     }
     if (!is.null(tag)) {

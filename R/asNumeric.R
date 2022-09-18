@@ -47,6 +47,9 @@
     if (is.numeric(x)) {
         return(x)
     }
+    irv <- c(194, 160)
+    multibyte_space <- rawToChar(as.raw(irv))
+    x <- gsub(multibyte_space, " ", x)
     result <- rep(NA, length(x))
     multibyte <- grepl("[^!-~ ]", x)
     result[!multibyte] <- suppressWarnings(as.numeric(x[!multibyte]))

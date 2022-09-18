@@ -28,10 +28,10 @@
     ) {
         dots <- list(...)
         if (!is.character(target)) {
-            stopError("The <target> argument should be character.")
+            stopError("The argument <target> should be character.")
         }
         if (!is.character(replacement)) {
-            stopError("The <replacement> argument should be character.")
+            stopError("The argument <replacement> should be character.")
         }
         if (length(target) == 1) target <- splitstr(target)
         if (length(replacement) == 1) replacement <- splitstr(replacement)
