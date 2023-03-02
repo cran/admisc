@@ -23,8 +23,35 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`dashes` <- function() {
-    irv <- c(45, 226, 128, 147)
-    chrs <- rawToChar(as.raw(irv))
-    return(unlist(strsplit(chrs, split = "")))
+`inside` <- function(data, expr, ...) {
+    UseMethod("inside")
+}
+`inside.data.frame` <- function(data, expr, ...) {
+    dataname <- deparse(substitute(data))
+    parent <- parent.frame()
+    e <- evalq(environment(), data, parent)
+    eval(substitute(expr), e)
+    l <- as.list(e, all.names = TRUE)
+    l <- l[!vapply(l, is.null, NA, USE.NAMES = FALSE)]
+    nl <- names(l)
+    del <- setdiff(names(data), nl)
+    data[nl] <- l
+    data[del] <- NULL
+    parent[[dataname]] <- data
+}
+`inside.list` <- function(data, expr, keepAttrs = TRUE, ...) {
+    parent <- parent.frame()
+    dataname <- deparse(substitute(data))
+    e <- evalq(environment(), data, parent)
+    eval(substitute(expr), e)
+    if (keepAttrs) { 
+        l <- as.list(e, all.names=TRUE)
+        nl <- names(l)
+        del <- setdiff(names(data), nl) 
+        data[nl] <- l
+        data[del] <- NULL
+        parent[[dataname]] <- data
+    } else { 
+	    parent[[dataname]] <- as.list(e, all.names=TRUE)
+    }
 }

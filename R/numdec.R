@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2022, Adrian Dusa
+# Copyright (c) 2019 - 2023, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,22 +24,35 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `numdec` <- function(x, each = FALSE, na.rm = TRUE, maxdec = 15) {
+    maxdec <- min(15, maxdec)
     pN <- possibleNumeric(x, each = TRUE)
     if (sum(na.omit(pN)) == 0) {
         stopError("'x' should contain at least one (possibly) numeric value.")
     }
-    result <- rep(0, length(x))
-    x <- asNumeric(x)
-    result[is.na(x)] <- NA
-    hasdec <- agtb(x %% 1, 0)
-    if (any(hasdec, na.rm = TRUE)) {
-        wdec <- which(hasdec)
-        x[wdec] <- abs(x[wdec])
-        x[wdec] <- trimstr(formatC(x[wdec] - floor(x[wdec]), digits = maxdec))
-        result[wdec] <- nchar(asNumeric(gsub("^0.", "", x[wdec])))
+    if (is.character(x)) {
+        x <- asNumeric(x)
     }
+    result <- rep(NA, length(x))
+    wpN <- which(pN)
+    x <- abs(x[wpN])
+    x <- x - floor(x) 
+    x <- sub("0\\.", "",
+        sub("0+$", "", 
+            format(x, scientific = FALSE, digits = max(7, maxdec))
+        )
+    )
+    if (any(w9 <- grepl("999999", x))) {
+        x[w9] <- sub(
+            "0+", "1", 
+            sub("(*)999999.*", "\\1", x[w9]) 
+        )
+    }
+    if (any(w0 <- grepl("000000", x))) {
+        x[w0] <- sub("(*)000000.*", "\\1", x[w0])
+    }
+    result[wpN] <- nchar(x)
     if (each) {
-        return(result)
+        return(pmin(result, maxdec))
     }
-    return(max(result, na.rm = na.rm))
+    return(min(maxdec, max(result, na.rm = na.rm)))
 }

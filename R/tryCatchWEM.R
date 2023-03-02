@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2022, Adrian Dusa
+# Copyright (c) 2019 - 2023, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `tryCatchWEM` <- function(expr, capture = FALSE) {
-    # modified version of http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function
+    #' modified version of http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function
     toreturn <- list()
     output <- withVisible(withCallingHandlers(
         tryCatch(expr, error = function(e) {

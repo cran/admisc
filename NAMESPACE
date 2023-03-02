@@ -40,6 +40,7 @@ export(
     hasTag,
     hclr,
     intersection,
+    inside,
     invert,
     listRDA,
     makeTag,
@@ -63,6 +64,7 @@ export(
     recreate,
     reload,
     replaceText,
+    scan.clipboard,
     simplify,
     sop,
     splitstr,
@@ -106,3 +108,5 @@ S3method(recode, declared)
 S3method(asNumeric, default)
 S3method(asNumeric, factor)
 S3method(asNumeric, declared)
+S3method(inside, data.frame)
+S3method(using, data.frame)

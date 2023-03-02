@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2022, Adrian Dusa
+# Copyright (c) 2019 - 2023, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `using` <- function(data, expr, split.by = NULL, ...) {
+    UseMethod("using")
+}
+`using.default` <- function(data, expr, ...) {
+    eval(substitute(expr), data, enclos = parent.frame())
+}
+`using.data.frame` <- function(data, expr, split.by = NULL, ...) {
     split.by <- substitute(split.by)
     sby <- all.vars(split.by)
     nsby <- all.names(split.by)
@@ -43,24 +49,27 @@
     if (length(test) > 0) {
         stopError(test[1])
     }
-    sbylist <- lapply(lapply(csby, function(x) {
-        eval(parse(text = x), envir = data, enclos = parent.frame())
-    }), function(x) {
-        if (inherits(x, "declared") || inherits(x, "haven_labelled")) {
-            na_values <- attr(x, "na_values")
-            if (inherits(x, "haven_labelled")) {
-                x[is.element(x), na_values] <- NA
+    sbylist <- lapply(
+        lapply(csby, function(x) {
+            eval(parse(text = x), envir = data, enclos = parent.frame())
+        }),
+        function(x) {
+            if (inherits(x, "declared") || inherits(x, "haven_labelled")) {
+                na_values <- attr(x, "na_values")
+                if (inherits(x, "haven_labelled")) {
+                    x[is.element(x), na_values] <- NA
+                }
+                labels <- attr(x, "labels", exact = TRUE)
+                labels <- labels[!is.element(labels, na_values)]
+                uniques <- sort(unique(c(x, labels)))
+                names(uniques) <- uniques
+                names(uniques)[match(labels, uniques)] <- names(labels)
+                attributes(x) <- NULL
+                return(factor(x, levels = uniques, labels = names(uniques)))
             }
-            labels <- attr(x, "labels", exact = TRUE)
-            labels <- labels[!is.element(labels, na_values)]
-            uniques <- sort(unique(c(x, labels)))
-            names(uniques) <- uniques
-            names(uniques)[match(labels, uniques)] <- names(labels)
-            attributes(x) <- NULL
-            return(factor(x, levels = uniques, labels = names(uniques)))
+            return(as.factor(x))
         }
-        return(as.factor(x))
-    })
+    )
     names(sbylist) <- csby
     test <- table(sapply(sbylist, length))
     if (length(test) > 1 || nrow(data) != as.numeric(names(test))) {
