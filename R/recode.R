@@ -23,10 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`recode` <- function(x, rules, cut, values, ...) {
+`recode` <- function(x, rules, cut, values = NULL, ...) {
     UseMethod("recode")
 }
-`recode.declared` <- function(x, rules, cut, values, ..., na_values = TRUE) {
+`recode.declared` <- function(x, rules, cut, values = NULL, ..., na_values = TRUE) {
     na_index <- attr(x, "na_index")
     attributes(x) <- NULL
     if (!is.null(na_index) & isTRUE(na_values)) {
@@ -38,7 +38,7 @@
     }
     NextMethod()
 }
-`recode.default` <- function(x, rules, cut, values, ...) {
+`recode.default` <- function(x, rules, cut, values = NULL, ...) {
     if (missing(x)) {
         stopError("Argument 'x' is missing.")
     }
@@ -51,8 +51,8 @@
     dots <- recreate(list(...))
     as.factor.result  <- isTRUE(dots$as.factor.result)
     as.numeric.result <- !isFALSE(dots$as.numeric.result)
-    factor.levels     <- if (is.element("levels", names(dots))) splitstr(dots$levels)  else c()
-    factor.labels     <- if (is.element("labels", names(dots))) splitstr(dots$labels)  else c()
+    factor.levels     <- splitstr(dots$levels)
+    factor.labels     <- splitstr(dots$labels)
     factor.ordered    <- FALSE
     declared <- inherits(x, "declared")
     if (is.element("ordered", names(dots))) {
@@ -67,7 +67,7 @@
     if (is.logical(factor.labels)) {
         factor.labels <- c()
     }
-    if (!identical(factor.levels, c()) || !identical(factor.labels, c())) {
+    if (is.null(values) && (!is.null(factor.levels) || !is.null(factor.labels))) {
         as.factor.result  <- TRUE
     }
     `getFromRange` <- function(a, b, uniques, xisnumeric) {
@@ -204,7 +204,7 @@
         if (any(duplicated(cut))) {
             stopError("Cut values should be unique.")
         }
-        if (missing(values)) {
+        if (is.null(values)) {
             values <- seq(length(cut) + 1)
         }
         else {
@@ -225,6 +225,9 @@
             }
             if (length(values) == length(cut) + 1) {
                 as.numeric.result <- possibleNumeric(values)
+                if (as.numeric.result) {
+                    values <- asNumeric(values)
+                }
             }
             else {
                 stopError(
@@ -304,6 +307,10 @@
     else if (as.numeric.result) {
         if (possibleNumeric(temp)) {
             temp <- asNumeric(temp)
+        }
+        if (!is.null(factor.labels)) {
+            names(values) <- factor.labels
+            attr(temp, "labels") <- values
         }
     }
     return(temp)

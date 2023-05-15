@@ -42,7 +42,7 @@
     gsub(pattern, "", x)
 }
 `splitstr` <- function(x) {
-    if (identical(x, "")) return(x)
+    if (identical(x, "") || is.null(x)) return(x)
     x <- gsub("\\n", "", x)
     oldv <- newv <- NULL
     if (any(grepl(",", x) & grepl("\\{|\\[", x))) {

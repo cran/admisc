@@ -23,20 +23,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-scan.clipboard <- function (...) {
-    dots <- list(...)
-    if (Sys.info()[['sysname']] == "Darwin") {
-        clipboard <- readLines(textConnection(system("pbpaste", intern = TRUE)))
-        sep <- ifelse(is.null(dots$sep), "\t", dots$sep)
-        clipboard <- unlist(strsplit(clipboard, split = sep))
-    } else if (Sys.info()[['sysname']] == "Windows") {
-        dots$file <- "clipboard"
-        clipboard <- do.call("scan", dots)
-    }
-    clipboard <- clipboard[clipboard != ""]
-    if (possibleNumeric(clipboard)) {
-        return(asNumeric(clipboard))
-    } else {
-        return(clipboard)
-    }
+`setColnames` <- function(matrix, colnames) {
+    invisible(.Call("C_setColnames", matrix, colnames))
+}
+`setRownames` <- function(matrix, rownames) {
+    invisible(.Call("C_setRownames", matrix, rownames))
+}
+`setDimnames` <- function(matrix, nameslist) {
+    invisible(.Call("C_setDimnames", matrix, nameslist))
 }

@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`undeclareit` <- function(x, ...) {
+`undeclareit` <- function(x, drop = FALSE, ...) {
     na_index <- attr(x, "na_index")
     attrx <- attributes(x)
     attributes(x) <- NULL 
@@ -34,7 +34,9 @@
     attrx$na_index <- NULL
     attrx$na_values <- NULL
     attrx$na_range <- NULL
-    attributes(x) <- attrx
+    if (isFALSE(drop)) {
+        attributes (x) <- attrx
+    }
     return(x)
 }
 `agtb` <- function(a, b, bincat) {

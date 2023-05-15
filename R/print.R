@@ -203,6 +203,9 @@
     }
     else {
         if (is.matrix(x)) {
+            if (!all(dim(x) > 0)) {
+                stopError("Incorrect _fobject_ to print, in package admisc.")
+            }
             rnms <- rownames(x)
             max.nchar.rnms <- max(nchar(encodeString(rnms)), na.rm = TRUE)
             for (i in seq(length(rnms))) {

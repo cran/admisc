@@ -55,13 +55,23 @@
         }),
         function(x) {
             if (inherits(x, "declared") || inherits(x, "haven_labelled")) {
+                labels <- attr(x, "labels", exact = TRUE)
                 na_values <- attr(x, "na_values")
+                na_range <- attr(x, "na_range")
+                if (!is.null(na_range)) {
+                    if (length(na_range) > 2) {
+                        stopError("Split by variable has a missing range with more than two values.")
+                    }
+                    na_values <- sort(union(
+                        na_values,
+                        seq(na_range[1], na_range[2])
+                    ))
+                }
                 if (inherits(x, "haven_labelled")) {
                     x[is.element(x), na_values] <- NA
                 }
-                labels <- attr(x, "labels", exact = TRUE)
                 labels <- labels[!is.element(labels, na_values)]
-                uniques <- sort(unique(c(x, labels)))
+                uniques <- sort(unique(c(undeclareit(x, drop = TRUE), labels)))
                 names(uniques) <- uniques
                 names(uniques)[match(labels, uniques)] <- names(labels)
                 attributes(x) <- NULL

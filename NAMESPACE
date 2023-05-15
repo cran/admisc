@@ -65,6 +65,9 @@ export(
     reload,
     replaceText,
     scan.clipboard,
+    setColnames,
+    setDimnames,
+    setRownames,
     simplify,
     sop,
     splitstr,
@@ -79,6 +82,7 @@ export(
     validateNames,
     verify,
     wholeNumeric,
+    write.clipboard,
     writePrimeimp,
     unlockEnvironment,
     
@@ -109,4 +113,6 @@ S3method(asNumeric, default)
 S3method(asNumeric, factor)
 S3method(asNumeric, declared)
 S3method(inside, data.frame)
+S3method(inside, list)
+S3method(using, default)
 S3method(using, data.frame)
