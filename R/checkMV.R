@@ -24,13 +24,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `checkMV` <- function(
-    expression, snames = "", noflevels = NULL, data = NULL, categorical = FALSE, categories = list(), ...
+    expression, snames = "", noflevels = NULL, data = NULL, use.labels = FALSE, categories = list(), ...
 ) {
     curly <- any(grepl("[{]", expression))
     if (length(unlist(gregexpr(ifelse(curly, "[{]+", "\\[+"), expression))) != length(unlist(gregexpr(ifelse(curly, "[}]+", "\\]+"), expression)))) {
         stopError("Incorrect expression, opened and closed brackets don't match.")
     }
     dots <- list(...)
+    if (is.element("categorical", names(dots))) {
+        use.labels <- dots$categorical
+        dots$categorical <- NULL
+    }
     tempexpr <- gsub("[*|,|;|(|)]", "", expression)
     pp <- trimstr(unlist(strsplit(tempexpr, split = "[+]")))
     if (curly) {
@@ -43,7 +47,7 @@
     }
     if (length(insb) != length(tempexpr)) {
         error <- TRUE
-        if (categorical) {
+        if (use.labels) {
             tempexpr2 <- tempexpr[!is.element(tempexpr, names(unlist(unname(categories))))]
             error <- length(insb) != length(tempexpr2)
         }

@@ -51,6 +51,21 @@
         if (object) {
             return(objname)
         }
+        nms <- character(0)
+        for (target in c("names", "colnames")) {
+            for (n in 1:2) {
+                if (length(nms) == 0) {
+                    testnms <- tryCatchWEM(
+                        nms <- eval.parent(
+                            parse(
+                                text = paste(target, "(", objname, ")", sep = "")
+                            ),
+                            n = n
+                        )
+                    )
+                }
+            }
+        }
         stindex <- max(which(condsplit == "["))
         stopindex <- ifelse(
             identical(condsplit[stindex - 1], "["),
@@ -64,39 +79,24 @@
         if (substring(ptn, 1, 2) == "c(") {
             ptn <- substring(ptn, 3, nchar(ptn) - 1) 
         }
-        postring <- grepl("\"", ptn)
-        ptn <- gsub("\"|]|\ ", "", ptn)
+        postring <- grepl("'|\"", ptn)
+        ptn <- gsub("'|\"|]|\ ", "", ptn)
         ptn <- unlist(strsplit(ptn, split = ","))
         if (length(ptn) == 1) {
             ptn <- unlist(strsplit(ptn, split = ":"))
         }
         if (possibleNumeric(ptn)) {
-            cols <- eval.parent(parse(text = paste("colnames(", objname, ")", sep = "")))
-            if (!is.null(cols)) {
-                result <- cols[as.numeric(ptn)]
+            if (length(nms) > 0) {
+                result <- nms[as.numeric(ptn)]
             }
         }
         else {
             if (postring) {
                 return(ptn)
             }
-            ptnfound <- FALSE
-            n <- 1
-            if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 1)) {
-                ptn <- eval.parent(parse(text = paste("get(", ptn, ")", sep = "")), n = 1)
-                ptnfound <- TRUE
-            }
-            else if (eval.parent(parse(text = paste0("\"", ptn, "\" %in% ls()")), n = 2)) {
-                ptn <- eval.parent(parse(text = paste("get(\"", ptn, "\")", sep = "")), n = 2)
-                ptnfound <- TRUE
-                n <- 2
-            }
-            if (ptnfound) {
-                if (possibleNumeric(ptn)) {
-                    result <- eval.parent(parse(text = paste("colnames(", objname, ")[", ptn, "]", sep = "")), n = n)
-                }
-                else {
-                    result <- ptn
+            if (length(nms) > 0) {
+                if (all(is.element(ptn, nms))) {
+                    return(ptn)
                 }
             }
         }

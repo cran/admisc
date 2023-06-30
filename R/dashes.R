@@ -24,7 +24,5 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `dashes` <- function() {
-    irv <- c(45, 226, 128, 147)
-    chrs <- rawToChar(as.raw(irv))
-    return(unlist(strsplit(chrs, split = "")))
+    return(c("\u002d", "\u2013"))
 }

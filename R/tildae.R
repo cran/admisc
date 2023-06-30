@@ -24,17 +24,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `tildae` <- function() {
-    irv <- c(126, 226, 136, 188, 194, 172, 226, 136, 189)
-    chrs <- rawToChar(as.raw(irv))
-    unlist(strsplit(chrs, split = ""))
+    return(c("\u007e", "\u223c", "\u00ac", "\u223d"))
 }
-irv <- c(194, 160)
-multibyte_space <- rawToChar(as.raw(irv))
 `tilde1st` <- function(x) {
     is.element(
         substring(
             gsub(
-                paste0("[[:space:]|", multibyte_space, "]"),
+                paste0("[[:space:]|", "\u00a0", "]"), 
                 "",
                 x
             ),
@@ -51,7 +47,7 @@ multibyte_space <- rawToChar(as.raw(irv))
         paste(tildae(), collapse = "|"),
         "",
         gsub(
-            paste0("[[:space:]|", multibyte_space, "]"),
+            paste0("[[:space:]|", "\u00a0", "]"), 
             "",
             x
         )

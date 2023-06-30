@@ -30,6 +30,9 @@
     eval(substitute(expr), data, enclos = parent.frame())
 }
 `using.data.frame` <- function(data, expr, split.by = NULL, ...) {
+    if (nrow(data) == 0) {
+        stopError("There are no rows in the data.")
+    }
     split.by <- substitute(split.by)
     sby <- all.vars(split.by)
     nsby <- all.names(split.by)
@@ -152,8 +155,10 @@
             )
         }
     }
-    wt <- any(unlist(lapply(res, function(x) class(x)[1] == "w_table")))
-    if (all(unlist(lapply(res, is.atomic))) & !wt) {
+    any_w_table <- any(
+        sapply(res, function(x) class(x)[1] == "w_table")
+    )
+    if (all(unlist(lapply(res, is.atomic))) & !any_w_table) {
         classes <- unique(unlist(lapply(res, class)))
         classes <- setdiff(classes, c("integer", "double", "character", "numeric", "complex"))
         lengths <- unlist(lapply(res, length))

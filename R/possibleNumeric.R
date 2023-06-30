@@ -58,9 +58,7 @@
     if (is.factor(x)) {
         x <- as.character(x)
     }
-    irv <- c(194, 160)
-    multibyte_space <- rawToChar(as.raw(irv))
-    x <- gsub(multibyte_space, " ", x)
+    x <- gsub("\u00a0", " ", x) 
     multibyte <- grepl("[^!-~ ]", x)
     if (any(multibyte)) {
         isna[multibyte] <- TRUE

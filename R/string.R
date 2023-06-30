@@ -24,14 +24,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `trimstr` <- function(x, what = " ", side = "both") {
-    irv <- c(194, 160)
-    multibyte_space <- rawToChar(as.raw(irv))
     if (is.element(what, c("*", "+"))) {
         what <- paste("\\", what, sep = "")
     }
     what <- ifelse(
         identical(what, " "),
-        paste0("[[:space:]|", multibyte_space, "]"),
+        paste0("[[:space:]|", "\u00a0", "]"), 
         what
     )
     pattern <- switch(side,
