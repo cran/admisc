@@ -28,7 +28,6 @@
     expression <- recreate(substitute(expression))
     snames <- recreate(substitute(snames))
     dots <- list(...)
-    enter <- ifelse(is.element("enter", names(dots)), "",  "\n") 
     multivalue <- FALSE
     scollapse <- ifelse(is.element("scollapse", names(dots)), dots$scollapse, FALSE) 
     scollapse <- scollapse | grepl("[*]", expression)

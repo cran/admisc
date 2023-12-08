@@ -1,10 +1,10 @@
-\name{Tildae operations}
+\name{Tilde operations}
 
 \alias{hastilde}
 \alias{notilde}
 \alias{tilde1st}
 
-\title{Tildae operations}
+\title{Tilde operations}
 
 \description{
 Checks and changes expressions containing set negations using a tilde.

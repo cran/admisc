@@ -23,7 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`translate` <- function(expression = "", snames = "", noflevels = NULL, data = NULL, ...
+`translate` <- function(
+    expression = "", snames = "", noflevels = NULL, data = NULL, ...
 ) {
     expression <- recreate(substitute(expression))
     snames <- recreate(substitute(snames))
@@ -43,7 +44,7 @@
     if (any(grepl("<=>|<->|=>|->|<=|<-", expression))) {
         stopError("Incorrect expression, contains outcome and relation.")
     }
-    if (!is.vector(snames)) {
+    if (!is.vector(drop(snames))) {
         stopError("Set names should be a single string or a vector of names.")
     }
     if (!is.null(data)) {
@@ -128,7 +129,7 @@
     }
     if (is.null(noflevels)) {
         if (!is.null(data)) {
-            infodata <- getInfo(data)
+            infodata <- getInfo(data, no_column_info = TRUE)
             noflevels <- infodata$noflevels
         }
     }
@@ -176,10 +177,10 @@
         )
         pp <- unlist(strsplit(expression, split = "[+]"))
         if (curly) {
-            conds <- sort(unique(notilde(curlyBrackets(pp, outside=TRUE))))
+            conds <- sort(unique(notilde(curlyBrackets(pp, outside = TRUE))))
         }
         else {
-            conds <- sort(unique(notilde(squareBrackets(pp, outside=TRUE))))
+            conds <- sort(unique(notilde(squareBrackets(pp, outside = TRUE))))
         }
         if (identical(snames, "")) {
             if (!is.null(data)) {
@@ -289,7 +290,7 @@
         if (!identical(snames, "")) {
             if (!is.null(data)) {
                 if (
-                    all(is.element(conds, snames)) & 
+                    all(is.element(conds, snames)) &
                     all(is.element(conds, colnames(data)))
                 ) {
                     infodata <- getInfo(data[, conds, drop = FALSE])

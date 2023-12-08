@@ -23,20 +23,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getInfo` <- function(data) {
+`getInfo` <- function(data, ...) {
+    dots <- list(...)
     if (is.matrix(data)) {
         data <- as.data.frame(data)
     }
     dc.code <- unique(unlist(lapply(data, function(x) {
-        if (is.numeric(x)) {
+        if (is.numeric(x) && wholeNumeric(x)) {
             return(x[x < 0])
         }
         else {
             return(as.character(x[is.element(x, c("-", "dc"))]))
         }
     })))
-    if (length(dc.code) > 1) {
-        stopError("Multiple \"don't care\" codes found.")
+    if (!isTRUE(dots$no_column_info)) {
+        if (length(dc.code) > 1) {
+            stopError("Multiple \"don't care\" codes found.")
+        }
     }
     fuzzy.cc <- logical(ncol(data))
     hastime <- logical(ncol(data))
@@ -51,7 +54,7 @@
         if (is.factor(cc)) {
             cc <- as.character(cc)
         }
-        if (length(dc.code) > 0 && is.element(dc.code, cc)) {
+        if (length(dc.code) > 0 && any(is.element(cc, dc.code))) {
             cc[is.element(cc, dc.code)] <- -1
         }
         if (possibleNumeric(cc)) {

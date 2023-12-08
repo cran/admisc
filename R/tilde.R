@@ -23,9 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`tildae` <- function() {
-    return(c("\u007e", "\u223c", "\u00ac", "\u223d"))
-}
 `tilde1st` <- function(x) {
     is.element(
         substring(

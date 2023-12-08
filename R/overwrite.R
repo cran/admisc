@@ -23,37 +23,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`getLevels` <- function(data) {
-    data <- as.data.frame(data)
-    colnames <- paste("V", ncol(data), sep = ".")
-    pN <- sapply(data, possibleNumeric)
-    noflevels <- rep(NA, ncol(data))
-    ulevels <- rep(NA, ncol(data))
-    noflevels[pN] <- apply(
-        data[, pN, drop = FALSE],
-        2,
-        function(x) max(as.numeric(x))
-    ) + 1
-    ulevels <- apply(
-        data,
-        2,
-        function(x) {
-            return(length(unique(x)))
-        }
-    )
-    noflevels[is.na(noflevels)] <- ulevels[is.na(noflevels)]
-    factor <- unlist(lapply(data, is.factor))
-    declared <- unlist(lapply(data, function(x) inherits(x, "declared")))
-    noflevels[pN][
-        apply(
-            data[, pN, drop = FALSE],
-            2,
-            function(x) any(as.numeric(x) %% 1 > 0)
-        )
-    ] <- 2
-    if (any(factor | declared)) {
-        noflevels[factor | declared] <- pmin(noflevels[factor | declared], ulevels[factor | declared])
+`overwrite` <- function(objname, content, environment) {
+    objname <- gsub("'|\"|[[:space:]]", "", objname)
+    if (exists(objname, environment)) {
+        environment[[objname]] <- content
     }
-    noflevels[noflevels == 1] <- 2
-    return(noflevels)
+    else {
+        structure_string <- paste(capture.output(dput(content)), collapse = " ")
+        eval(
+            parse(text = sprintf(paste(objname, "<- %s"), structure_string)),
+            envir = environment
+        )
+    }
 }

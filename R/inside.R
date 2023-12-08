@@ -37,7 +37,16 @@
     del <- setdiff(names(data), nl)
     data[nl] <- l
     data[del] <- NULL
-    parent[[dataname]] <- data
+    if (exists(dataname, parent)) {
+        parent[[dataname]] <- data
+    }
+    else {
+        structure_string <- paste(capture.output(dput(data)), collapse = " ")
+        eval(
+            parse(text = sprintf(paste(dataname, "<- %s"), structure_string)),
+            envir = parent
+        )
+    }
 }
 `inside.list` <- function(data, expr, keepAttrs = TRUE, ...) {
     parent <- parent.frame()
@@ -50,8 +59,17 @@
         del <- setdiff(names(data), nl) 
         data[nl] <- l
         data[del] <- NULL
-        parent[[dataname]] <- data
     } else { 
-	    parent[[dataname]] <- as.list(e, all.names=TRUE)
+        data <- as.list(e, all.names=TRUE)
+    }
+    if (exists(dataname, parent)) {
+        parent[[dataname]] <- data
+    }
+    else {
+        structure_string <- paste(capture.output(dput(data)), collapse = " ")
+        eval(
+            parse(text = sprintf(paste(dataname, "<- %s"), structure_string)),
+            envir = parent
+        )
     }
 }

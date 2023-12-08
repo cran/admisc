@@ -1,6 +1,6 @@
 \name{About the admisc package}
 
-\alias{admisc}
+\alias{admisc-package}
 
 \docType{package}
 
@@ -27,8 +27,8 @@ listed in the Imports field, due to circular dependency issues.
     \tabular{ll}{
     Package: \tab admisc\cr
     Type:    \tab Package\cr
-    Version: \tab 0.33\cr
-    Date:    \tab 2023-06-30\cr
+    Version: \tab 0.34\cr
+    Date:    \tab 2023-12-08\cr
     License: \tab GPL (>= 2)\cr
     }
 }

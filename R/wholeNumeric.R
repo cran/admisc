@@ -41,7 +41,7 @@
     result[!isna & isnax] <- FALSE
     isna <- isna | isnax
     x <- x[!isna]
-    result[!isna] <- floor(x) == x
+    result[!isna] <- abs(x - round(x)) < .Machine$double.eps^0.5
     if (each) {
         return(result)
     }

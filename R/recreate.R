@@ -99,7 +99,7 @@
                 if (identical(classes[i], "list")) {
                     if (is.element("function", unlist(lapply(result[[i]], class)))) {
                         result[[i]] <- dxlist[[i]]
-                    } 
+                    }
                 }
             }
         }
@@ -119,7 +119,13 @@
     if (identical(class(x), "<-")) {
         return(withinobj(dx))
     }
-    x <- tryCatch(eval(x, envir = parent.frame(n = 2)), error = function(e) withinobj(dx))
+    x <- tryCatch(
+        eval(
+            x,
+            envir = parent.frame(n = 2)
+        ),
+        error = function(e) withinobj(dx)
+    )
     if (identical(class(x), "formula")) {
         return(withinobj(dx))
     }

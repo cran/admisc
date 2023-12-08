@@ -28,7 +28,7 @@
     snames <- recreate(substitute(snames))
     dots <- list(...)
     mvregexp <- "\\[|\\]|\\{|\\}"
-    enter     <- if (is.element("enter",     names(dots))) ""                   else "\n" 
+    enter     <- if (is.element("enter",   names(dots)))   dots$enter     else "\n"
     all.sol   <- if (is.element("all.sol",   names(dots))) dots$all.sol   else FALSE
     scollapse <- if (is.element("scollapse", names(dots))) dots$scollapse else FALSE 
     if (identical(snames, "")) {
@@ -53,7 +53,7 @@
         }
     }
     implicants <- expand(expression, snames = snames, noflevels = noflevels,
-                        enter = enter, implicants = TRUE)
+                         implicants = TRUE)
     if (identical(unclass(implicants), "")) {
         return(implicants)
     }

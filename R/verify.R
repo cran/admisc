@@ -23,8 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`verify` <-
-function(data) {
+`verify` <- function(data) {
     if (is.data.frame(data)) {
         if (is.null(colnames(data))) {
             stopError("The dataset doesn't have any columns names.")
@@ -77,7 +76,7 @@ function(data) {
             stopError(paste(strwrap(errmessage, exdent = 7), collapse = "\n", sep = ""))
         }
     }
-    else if (is.vector(data)) {
+    else if (is.vector(drop(data))) {
         if (!possibleNumeric(data)) {
             stopError("Non numeric input.")
         }
