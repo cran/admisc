@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2023, Adrian Dusa
+# Copyright (c) 2019 - 2024, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -9,13 +9,14 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
 # 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -23,32 +24,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`recreate` <- function(x, snames = NULL) {
+`recreate` <- function(x, snames = NULL, ...) {
     if (is.null(x) | is.logical(x) | is.character(x)) return(x)
     withinobj <- function(x) {
         x <- gsub("\"|[[:space:]]", "", x)
         for (i in seq(length(x))) {
-            if (!grepl("<=|<-|->|=>", x[i])) {
-                x[i] <- gsub(">", "->", gsub("<", "<-", x[i]))
+            if (!grepl("<-|->", x[i])) {
+                x[i] <- gsub(">|=>|-\\.>", "->", gsub("<|<=|<\\.-", "<-", x[i]))
             }
-            arrows <- c("<=", "<-", "=>", "->")
-            for (j in seq(length(arrows))) {
-                xs <- unlist(strsplit(x, split = arrows[j]))
+            arrows <- c("<-", "->")
+            found <- sapply(arrows, grepl, x[i])
+            if (sum(found) > 0) {
+                if (sum(found) > 1) {
+                    stopError("Ambiguous expression, more than one relation sign.")
+                }
+                xs <- unlist(strsplit(x[i], split = arrows[found]))
                 if (length(xs) == 2) {
                     if (all(grepl("\\*|\\+", xs))) {
                         stopError("The outcome should be a single condition.")
                     }
-                    if (j < 3) { 
-                        if (grepl("\\*|\\+", xs[2])) {
-                            x[i] <- paste(xs[2], arrows[j + 2], xs[1], sep = "")
-                            break
-                        }
-                    }
-                    else { 
-                        if (grepl("\\*|\\+", xs[1])) {
-                            x[i] <- paste(xs[2], arrows[j - 2], xs[1], sep = "")
-                            break
-                        }
+                    if (grepl("\\*|\\+", xs[2]) & !grepl("\\*|\\+", xs[1]) & which(found) == 1) {
+                        x[i] <- paste(rev(xs), collapse = "->")
                     }
                 }
             }

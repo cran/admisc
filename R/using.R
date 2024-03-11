@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2023, Adrian Dusa
+# Copyright (c) 2019 - 2024, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -9,13 +9,14 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
 # 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -27,6 +28,14 @@
     UseMethod("using")
 }
 `using.default` <- function(data, expr, ...) {
+    if (missing(expr)) {
+        args <- unlist(lapply(match.call(), deparse)[-1])
+        args <- args[setdiff(names(args), c("data", "expr"))]
+        if (length(args) > 1) {
+            stopError("Missing or ambiguous expression")
+        }
+        expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
+    }
     eval(substitute(expr), data, enclos = parent.frame())
 }
 `using.data.frame` <- function(data, expr, split.by = NULL, ...) {
@@ -36,6 +45,14 @@
     split.by <- substitute(split.by)
     sby <- all.vars(split.by)
     nsby <- all.names(split.by)
+    if (missing(expr)) {
+        args <- unlist(lapply(match.call(), deparse)[-1])
+        args <- args[setdiff(names(args), c("data", "expr", "split.by"))]
+        if (length(args) > 1) {
+            stopError("Missing or ambiguous expression")
+        }
+        expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
+    }
     expr <- substitute(expr)
     vexpr <- all.vars(expr)
     vexpr <- vexpr[is.element(vexpr, names(data))]

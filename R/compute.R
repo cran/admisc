@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2023, Adrian Dusa
+# Copyright (c) 2019 - 2024, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -9,13 +9,14 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
 # 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -42,10 +43,8 @@ function(expression = "", data = NULL, separate = FALSE, ...) {
         syscalls <- as.character(sys.calls())
         usingwith <- "admisc::using\\(|using\\(|with\\("
         if (any(usingdata <- grepl(usingwith, syscalls))) {
-            data <- get(
-                unlist(strsplit(gsub(usingwith, "", syscalls), split = ","))[1],
-                envir = length(syscalls) - tail(which(usingdata), 1)
-            )
+            dataname <- unlist(strsplit(gsub(usingwith, "", syscalls), split = ","))[1]
+            data <- eval.parent(parse(text = dataname, n = 1))
         }
         else {
             colnms <- colnames(

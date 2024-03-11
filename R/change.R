@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2023, Adrian Dusa
+# Copyright (c) 2019 - 2024, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -9,13 +9,14 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * The names of its contributors may NOT be used to endorse or promote products
-#       derived from this software without specific prior written permission.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
 # 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -32,9 +33,8 @@
 `change.QCA_tt` <- function(x, ...) {
     metacall <- match.call(expand.dots = TRUE)
     callargs <- as.list(metacall[-1])
-    dots <- list(...)
     if (!requireNamespace("QCA", quietly = TRUE)) {
-        enter <- ifelse(isFALSE(dots$enter), "", "\n") 
+        enter <- ifelse(isFALSE(callargs$enter), "", "\n") 
         message(
             paste(
                 enter,
@@ -53,19 +53,23 @@
     if (length(callargs) == 1 & length(nullnms) == 0) {
         return(x) 
     }
-    calls <- sapply(callargs, is.call)
-    if (any(calls)) {
-        for (i in which(calls)) {
-            callist <- as.list(callargs[[i]])
-            if (as.character(callist[[1]]) == "findRows") {
-                if (is.null(callist$obj)) {
-                    callist$obj <- callargs$x
-                    callargs[[i]] <- as.call(callist)
-                }
+    object <- callargs[["x"]]
+    `modify` <- function(x) {
+        calls <- sapply(x, is.call)
+        if (any(calls)) {
+            for (i in which(calls)) {
+                x[[i]] <- as.call(Recall(as.list(x[[i]])))
             }
         }
+        if (as.character(x[[1]]) == "findRows") {
+            if (is.null(x$obj)) {
+                x$obj <- object
+            }
+        }
+        return(x)
     }
-    callist <- as.list(x$call)
+    callargs <- modify(callargs)
+    callist <- as.list(x$call) 
     ttname <- as.character(callargs[["x"]])
     for (i in seq(2, length(callist))) {
         callist[[i]] <- admisc::recreate(callist[[i]])
