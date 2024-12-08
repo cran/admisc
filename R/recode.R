@@ -1,21 +1,41 @@
+# Copyright (c) 2019 - 2024, Adrian Dusa
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, in whole or in part, are permitted provided that the
+# following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * The names of its contributors may NOT be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 `recode` <- function(x, rules = NULL, cut = NULL, values = NULL, ...) {
     UseMethod("recode")
 }
-
-
 `recode.declared` <- function(x, rules = NULL, cut = NULL, values = NULL, ...) {
-
     dots <- list(...)
     na_index <- attr(x, "na_index")
     na_values <- attr(x, "na_values")
     na_range <- attr(x, "na_range")
     xlabels <- attr(x, "labels", exact = TRUE)
     attributes(x) <- NULL
-
     labels <- dots$labels
-
     x <- recode(x = x, rules = rules, cut = cut, values = values)
-
     if (is.null(names(labels))) {
         values <- sort(unique(x))
         if (length(values) == length(labels)) {
@@ -23,11 +43,9 @@
             labels <- values
         }
     }
-
     attr(x, "na_index") <- na_index
     attr(x, "na_values") <- na_values
     attr(x, "na_range") <- na_range
-
     if (!is.null(xlabels)) {
         if (!is.null(na_values)) {
             xlabels <- xlabels[is.element(labels, na_values)]
@@ -36,90 +54,67 @@
             xlabels <- xlabels[xlabels >= na_range[1] & xlabels <= na_range[2]]
         }
     }
-
     attr(x, "labels") <- c(labels, xlabels)
     class(x) <- c("declared", class(x))
     return(x)
 }
-
-
 `recode.default` <- function(x, rules = NULL, cut = NULL, values = NULL, ...) {
-
     if (missing(x)) {
         stopError("Argument 'x' is missing.")
     }
-
     if (!is.atomic(x))   {
         stopError("The input 'x' should be an atomic vector / factor.")
     }
-
     if (all(is.na(x))) {
         stopError("Nothing to recode, all values are missing.")
     }
-
     dots <- recreate(list(...))
     as.factor.result  <- isTRUE(dots$as.factor.result)
     as.numeric.result <- !isFALSE(dots$as.numeric.result)
     factor.levels     <- splitstr(dots$levels)
     factor.labels     <- splitstr(dots$labels)
     factor.ordered    <- FALSE
-
     if (is.element("ordered", names(dots))) {
         factor.ordered <- dots$ordered
     }
     else if (is.element("ordered_result", names(dots))) {
         factor.ordered <- dots$ordered_result
     }
-
     if (is.element("cuts", names(dots)) & missing(cut)) {
-        # backwards compatibility
         cut <- dots[["cuts"]]
     }
-
-    if (is.logical(factor.labels)) { # something like: factor.labels = TRUE
+    if (is.logical(factor.labels)) { 
         factor.labels <- character(0)
     }
-
     if (is.null(values) && (!is.null(factor.levels) || !is.null(factor.labels))) {
         as.factor.result  <- TRUE
     }
-
     `getFromRange` <- function(a, b, uniques, xisnumeric) {
         copya <- a
         copyb <- b
-
         a <- ifelse(a == "lo", uniques[1], a)
         b <- ifelse(b == "hi", uniques[length(uniques)], b)
-
         if (xisnumeric) {
             a <- asNumeric(a)
             b <- asNumeric(b)
             if (a > b & (copya == "lo" | copyb == "hi")) return(NULL)
         }
-
         seqfrom <- which(uniques == a)
         seqto <- which(uniques == b)
-
         temp2 <- sort(unique(c(uniques, a, b)))
-
         if (length(seqfrom) == 0) {
             seqfrom <- which(uniques == temp2[which(temp2 == a) + 1])
         }
-
         if (length(seqto) == 0) {
             seqto <- which(uniques == temp2[which(temp2 == b) - 1])
         }
-
         if (length(c(seqfrom, seqto)) < 2) return(NULL)
-
         return(seq(seqfrom, seqto))
     }
-
     if (is.null(cut)) {
         if (is.null(rules)) {
             stopError("At least one argument 'rules' or 'cut' should be provided.")
         }
-
         rules <- gsub(
             "\n|\t", "", gsub(
                 "'", "", gsub(
@@ -129,27 +124,19 @@
                 )
             )
         )
-
         if (length(rules) == 1) {
             semicolons <- gsub("[^;]", "", rules)
             equals <- gsub("[^=]", "", rules)
-
             if (nchar(equals) != nchar(semicolons) + 1) {
                 stopError("The rules should be separated by a semicolon.")
             }
-
             rules <- unlist(strsplit(rules, split = ";"))
         }
-
         rulsplit <- strsplit(rules, split = "=")
-
         oldval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 1))
         newval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 2))
-
         temp <- rep(NA, length(x))
-
         elsecopy <- oldval == "else" & newval == "copy"
-
         if (any(elsecopy)) {
             if (is.factor(x)) {
                 temp <- as.character(x)
@@ -157,24 +144,18 @@
             else {
                 temp <- x
             }
-
             newval <- newval[!elsecopy]
             oldval <- oldval[!elsecopy]
         }
-
         newval[newval == "missing" | newval == "NA"] <- NA
-
         if (any(oldval == "else")) {
             if (sum(oldval == "else") > 1) {
                 stopError("Too many \"else\" statements.")
             }
-
-            # place the "else" statement as the last one, very important
             whichelse <- which(oldval == "else")
             oldval <- c(oldval[-whichelse], oldval[whichelse])
             newval <- c(newval[-whichelse], newval[whichelse])
         }
-
         oldval <- lapply(
             lapply(
                 lapply(oldval, strsplit, split = ","),
@@ -187,52 +168,29 @@
                 )
             }
         )
-
         newval <- trimstr(rep(newval, unlist(lapply(oldval, length))))
-
-        # for (i in seq(length(newval))) {
-        #     tc <- tryCatch(eval(parse(text = newval[[i]])), error = function(e) e)
-        #     if (!(is.list(tc) && identical(names(tc), c("message", "call")))) {
-        #         newval[i] <- tc
-        #     }
-        # }
-        #
-        # if (possibleNumeric(newval)) {
-        #     newval <- asNumeric(newval)
-        # }
-
         if (any(unlist(lapply(oldval, function(y) lapply(y, length))) > 2)) {
             stopError("Too many : sequence operators.")
         }
-
-
         from <- unlist(lapply(oldval, function(y) lapply(y, "[", 1)))
         to <- unlist(lapply(oldval, function(y) lapply(y, "[", 2)))
-
         uniques <- if(is.factor(x)) levels(x) else sort(unique(x[!is.na(x)]))
-
         recoded <- NULL
         xisnumeric <- possibleNumeric(uniques)
-
         if (xisnumeric) {
-            x <- asNumeric(x) # to be safe
+            x <- asNumeric(x) 
             uniques <- asNumeric(uniques)
         }
-
-
         for (i in seq(length(from))) {
-            if (!is.na(to[i])) { # a range
+            if (!is.na(to[i])) { 
                 torecode <- getFromRange(from[i], to[i], uniques, xisnumeric)
                 if (!is.null(torecode)) {
                     vals <- uniques[torecode]
                     temp[is.element(x, vals)] <- newval[i]
                     recoded <- c(recoded, vals)
                 }
-
             }
-            else { # a single value
-
-                # "else" should (must?) be the last rule
+            else { 
                 if (from[i] == "else") {
                     temp[!is.element(x, recoded)] <- newval[i]
                 }
@@ -240,19 +198,13 @@
                     temp[is.na(x)] <- newval[i]
                 }
                 else {
-                    # if (!any(x == from[i])) {
-                    #     val <- ifelse(is.na(suppressWarnings(as.numeric(from[i]))), paste("\"", from[i], "\"", sep = ""), from[i])
-                    #     stopError(paste0("The value", val, "was not found."))
-                    # }
                     temp[x == from[i]] <- newval[i]
                 }
-
                 recoded <- c(recoded, from[i])
             }
         }
     }
     else {
-
         if (length(cut) == 1 & is.character(cut)) {
             cut <- gsub(
                 "\n|\t", "", gsub(
@@ -268,15 +220,12 @@
                 cut <- trimstr(unlist(strsplit(cut, split = ";")))
             }
         }
-
         if (possibleNumeric(cut)) {
             cut <- asNumeric(cut)
         }
-
         if (any(duplicated(cut))) {
             stopError("Cut values should be unique.")
         }
-
         if (is.null(values)) {
             values <- seq(length(cut) + 1)
         }
@@ -291,14 +240,11 @@
                         )
                     )
                 )
-
                 values <- trimstr(unlist(strsplit(values, split = ",")))
-
                 if (length(values) == 1) {
                     values <- trimstr(unlist(strsplit(values, split = ";")))
                 }
             }
-
             if (length(values) == length(cut) + 1) {
                 as.numeric.result <- possibleNumeric(values)
                 if (as.numeric.result) {
@@ -315,12 +261,10 @@
                 )
             }
         }
-
         if (is.factor(x)) {
             lx <- levels(x)
             minx <- lx[1]
             maxx <- lx[length(lx)]
-
             if (is.numeric(cut)) {
                 insidex <- FALSE
             }
@@ -338,12 +282,10 @@
                 insidex <- cut >= min(x, na.rm = TRUE) & cut <= max(x, na.rm = TRUE)
             }
         }
-
         if (!all(insidex)) {
             message <- "Cut value(s) outside the input vector."
             stopError(message)
         }
-
         if (is.factor(x)) {
             nx <- as.numeric(x)
             nlx <- seq(length(lx))
@@ -359,21 +301,17 @@
                 temp[x > cut[i]] = values[i + 1]
             }
         }
-
         if (!is.null(factor.labels) && length(factor.labels) == 0 && is.numeric(cut)) {
             factor.labels <- values
         }
     }
-
     if (as.factor.result) {
         if (length(factor.levels) == 0) {
             factor.levels <- sort(unique(na.omit(temp)))
         }
-
         if (!is.null(factor.labels) && length(factor.labels) == 0) {
             factor.labels <- factor.levels
         }
-
         temp <- factor(
             temp,
             levels = factor.levels,
@@ -385,12 +323,10 @@
         if (possibleNumeric(temp)) {
             temp <- asNumeric(temp)
         }
-
         if (!is.null(factor.labels)) {
             names(values) <- factor.labels
             attr(temp, "labels") <- values
         }
     }
-
     return(temp)
 }
