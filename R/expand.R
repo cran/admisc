@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -185,7 +185,10 @@
         stopError("The input matrix should have column names.")
     }
     scollapse <- scollapse | any(nchar(snames) > 1)
-    expression <- writePrimeimp(expression, multivalue, collapse = ifelse(scollapse, "*", ""))
+    expression <- writePIs(expression, multivalue, collapse = ifelse(scollapse, "*", ""))
     expression <- paste(expression, collapse = " + ")
+    if (!identical(snames, "")) {
+        attr(expression, "snames") <- snames
+    }
     return(classify(expression, "admisc_simplify"))
 }

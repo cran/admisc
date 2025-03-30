@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
     expression = "", snames = "", noflevels = NULL, data = NULL, ...
 ) {
     expression <- recreate(substitute(expression))
+    attrs <- attributes(expression)
     snames <- recreate(substitute(snames))
     dots <- list(...)
     enter <- ifelse (is.element("enter", names(dots)), "",  "\n") 
@@ -69,6 +70,8 @@
     if (identical(snames, "")) {
         if (!is.null(data)) {
             snames <- colnames(data)
+        } else if (!is.null(attrs$snames)) {
+            snames <- attrs$snames
         }
     }
     else {

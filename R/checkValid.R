@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,10 @@
     else if (length(categories) > 0) {
         allnames <- c(allnames, names(unlist(categories)))
     }
-    expression <- replaceText(
-        expression,
-        allnames,
-        rep("", length(allnames))
-    )
+    allnames <- allnames[order(nchar(allnames), decreasing = TRUE)]
+    for (n in allnames) {
+        expression <- gsub(n, "", expression)
+    }
     if (any(grepl(":alpha:", expression))) { 
         stopError(
             sprintf(

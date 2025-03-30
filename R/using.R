@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -63,16 +63,15 @@
     if (length(sby) == 0) {
         return(eval(expr = expr, envir = data, enclos = parent.frame()))
     }
-    cexpr <- as.character(expr)
-    csby <- setdiff(as.character(split.by), c("c", "+", "&"))
-    test <- unlist(lapply(seq(length(csby)), function(i) {
-        tryCatchWEM(eval(parse(text = csby[i]), envir = data, enclos = parent.frame()))
-    }))
-    if (length(test) > 0) {
-        stopError(test[1])
+    nms <- names(data)
+    existing <- sapply(sby, function(x) {
+        is.element(x, nms) || exists(x, envir = parent.frame(), inherits = TRUE)
+    })
+    if (any(!existing)) {
+        stopError("Split by variables do not exist in the data.")
     }
     sbylist <- lapply(
-        lapply(csby, function(x) {
+        lapply(sby, function(x) {
             eval(parse(text = x), envir = data, enclos = parent.frame())
         }),
         function(x) {
@@ -92,9 +91,14 @@
                 if (inherits(x, "haven_labelled")) {
                     x[is.element(x), na_values] <- NA
                 }
-                labels <- labels[!is.element(labels, na_values)]
-                uniques <- sort(unique(c(undeclareit(x, drop = TRUE), labels)))
+                uniques <- sort(
+                    setdiff(
+                        c(undeclareit(x, drop = TRUE), labels),
+                        na_values
+                    )
+                )
                 names(uniques) <- uniques
+                labels <- labels[is.element(labels, uniques)]
                 names(uniques)[match(labels, uniques)] <- names(labels)
                 attributes(x) <- NULL
                 return(factor(x, levels = uniques, labels = names(uniques)))
@@ -102,26 +106,12 @@
             return(as.factor(x))
         }
     )
-    names(sbylist) <- csby
+    names(sbylist) <- sby
     test <- table(sapply(sbylist, length))
     if (length(test) > 1 || nrow(data) != as.numeric(names(test))) {
         stopError("Split variables do not match the number of rows in the data.")
     }
-    sl <- lapply(sbylist, function(x) {
-        if (inherits(x, "declared") | inherits(x, "haven_labelled_spss")) {
-            na_values <- attr(x, "na_values", exact = TRUE)
-            labels <- attr(x, "labels", exact = TRUE)
-            attributes(x) <- NULL
-            x <- sort(unique(x)) 
-            x <- x[!is.element(x, na_values)]
-            if (!is.null(labels)) {
-                havelabels <- is.element(x, labels)
-                x[havelabels] <- names(labels)[match(x[havelabels], labels)]
-            }
-            return(as.character(x))
-        }
-            return(levels(x))
-    })
+    sl <- lapply(sbylist, function(x) levels(x))
     names(sl) <- sby
     noflevels <- unlist(lapply(sl, length))
     mbase <- c(rev(cumprod(rev(noflevels))), 1)[-1]
@@ -174,9 +164,12 @@
             )
         }
     }
+    empty <- sapply(res, is.null)
+    res <- res[!empty]
     any_w_table <- any(
         sapply(res, function(x) class(x)[1] == "w_table")
     )
+    slexp <- slexp[!empty, ]
     if (all(sapply(res, is.atomic)) & !any_w_table) {
         classes <- unique(unlist(lapply(res, class)))
         classes <- setdiff(classes, c("integer", "double", "character", "numeric", "complex"))
@@ -188,29 +181,45 @@
             }
         }
         result[] <- coerceMode(round(result, 3))
-        rownames(result) <- apply(slexp, 1, function(x) paste(x, collapse = ", "))
+        if (is.matrix(slexp)) {
+            rownames(result) <- apply(slexp, 1, function(x) paste(x, collapse = ","))
+        } else {
+            rownames(result) <- slexp
+        }
         expr <- as.list(expr)
         if (max(lengths) == 1) {
             colnames(result) <- as.character(expr[[1]])
         }
         else {
-            expr <- sapply(expr, function(x) as.character(as.list(x))[[1]])
+            if (as.character(expr[1]) == "c") {
+                expr <- expr[-1]
+            }
+            cexpr <- sapply(expr, as.character)
+            if (is.matrix(cexpr) && nrow(cexpr) == 2) {
+                if (length(unique(cexpr[1, ])) == 1) {
+                    cexpr <- cexpr[2, ]
+                } else if (length(unique(cexpr[2, ])) == 1) {
+                    cexpr <- cexpr[1, ]
+                }
+            }
             nms <- names(res[[which.max(lengths)]])
             if (is.null(nms)) {
-                if (as.character(expr) == "c" && max(lengths) == length(expr) - 1) {
-                    nms <- expr[-1]
-                }
-                else {
+                if (max(lengths) == length(expr) && !is.element("table", expr)) {
+                    if (max(lengths) == length(cexpr)) {
+                        nms <- cexpr
+                    } else {
+                        nms <- sapply(expr, deparse)
+                    }
+                } else {
                     nms <- rep(" ", max(lengths))
                 }
             }
             if (
                 any(nms == "") &&
-                expr[1] == "c" &&
-                is.element("summary", expr) &&
-                sum(nms == "") == length(expr) - 2
+                is.element("summary", cexpr) &&
+                sum(nms == "") == length(expr) - 1
             ) {
-                nms[nms == ""] <- setdiff(expr, c("c", "summary"))
+                nms[nms == ""] <- setdiff(cexpr, "summary")
             }
             colnames(result) <- nms
         }

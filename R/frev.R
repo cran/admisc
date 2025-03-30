@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,10 +24,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`finvert` <- function(x, levels = FALSE) {
+`frev` <- function(x, labels = FALSE) {
     if (!is.factor(x)) {
         stopError("The variable is not a factor.")
     }
     flist <- list(levels(x), rev(levels(x)))
-    return(factor(x, levels = flist[[1 + !levels]], labels = flist[[1 + levels]]))
+    return(factor(x, levels = flist[[1 + !labels]], labels = flist[[1 + labels]]))
+}
+`finvert` <- function(...) {
+    .Deprecated(msg = "Function finvert() is deprecated, use frev().\n")
+    frev(...)
 }

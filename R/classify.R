@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `classify` <- function(x, class = "admisc_simplify") {
-    class(x) <- c("character", class)
+    attrx <- attributes(x)
+    attrx$class <- c("character", class)
+    attributes(x) <- attrx
     return(x)
 }

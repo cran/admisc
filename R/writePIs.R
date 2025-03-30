@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-`writePrimeimp` <- function(
+`writePIs` <- function(
     impmat, mv = FALSE, collapse = "*", snames = "", curly = FALSE,
     use.labels = FALSE, categories = list(), ...
 ) {
@@ -86,4 +86,8 @@
             )
         )
     )
+}
+`writePrimeimp` <- function(...) {
+    .Deprecated(msg = "Function writePrimeimp() is deprecated, use writePIs().\n")
+    writePIs(...)
 }

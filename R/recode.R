@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -296,9 +296,13 @@
             }
         }
         else {
+            nax <- which(is.na(x))
             temp <- rep(values[1], length(x))
             for (i in seq(length(cut))) {
                 temp[x > cut[i]] = values[i + 1]
+            }
+            if (length(nax) > 0) {
+                temp[nax] <- NA
             }
         }
         if (!is.null(factor.labels) && length(factor.labels) == 0 && is.numeric(cut)) {

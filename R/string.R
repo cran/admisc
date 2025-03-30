@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2024, Adrian Dusa
+# Copyright (c) 2019 - 2025, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -88,11 +88,9 @@
             names(values) <- gsub("[+|-]", "", y)
         }
         return(values)
-    }
-    else if (metacall == "decreasing") {
+    } else if (metacall == "decreasing") {
         return(as.logical(y))
-    }
-    else if (metacall == "thresholds") {
+    } else if (metacall == "thresholds") {
         if (any(grepl("[=]", y))) {
             y <- t(as.data.frame(strsplit(gsub("[[:space:]]", "", y), split = "=")))
             values <- y[, 2]
@@ -107,8 +105,7 @@
             }
         }
         return(values)
-    }
-    else {
+    } else {
         if (possibleNumeric(y)) {
             y <- asNumeric(y)
         }
