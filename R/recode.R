@@ -34,27 +34,37 @@
     na_range <- attr(x, "na_range")
     xlabels <- attr(x, "labels", exact = TRUE)
     attributes(x) <- NULL
-    labels <- dots$labels
+    labels <- splitstr(dots[["labels"]])
+    label <- dots[["label"]]
     x <- recode(x = x, rules = rules, cut = cut, values = values)
     if (is.null(names(labels))) {
         values <- sort(unique(x))
-        if (length(values) == length(labels)) {
-            names(values) <- labels
-            labels <- values
+        if (!is.null(labels)) {
+            if (length(values) == length(labels)) {
+                names(values) <- labels
+                labels <- values
+            } else {
+                stopError("The number of labels should be equal to the number of recodings.")
+            }
         }
     }
-    attr(x, "na_index") <- na_index
-    attr(x, "na_values") <- na_values
-    attr(x, "na_range") <- na_range
+    if (is.null(na_index)) { 
+        xlabels <- NULL
+    } else {
+        attr(x, "na_index") <- na_index
+        attr(x, "na_values") <- na_values
+        attr(x, "na_range") <- na_range
+    }
     if (!is.null(xlabels)) {
         if (!is.null(na_values)) {
-            xlabels <- xlabels[is.element(labels, na_values)]
+            xlabels <- xlabels[is.element(xlabels, na_values)]
         }
         else if (!is.null(na_range)) {
             xlabels <- xlabels[xlabels >= na_range[1] & xlabels <= na_range[2]]
         }
     }
     attr(x, "labels") <- c(labels, xlabels)
+    attr(x, "label") <- label
     class(x) <- c("declared", class(x))
     return(x)
 }
@@ -72,7 +82,7 @@
     as.factor.result  <- isTRUE(dots$as.factor.result)
     as.numeric.result <- !isFALSE(dots$as.numeric.result)
     factor.levels     <- splitstr(dots$levels)
-    factor.labels     <- splitstr(dots$labels)
+    factor.labels     <- splitstr(dots[["labels"]])
     factor.ordered    <- FALSE
     if (is.element("ordered", names(dots))) {
         factor.ordered <- dots$ordered
@@ -86,7 +96,7 @@
     if (is.logical(factor.labels)) { 
         factor.labels <- character(0)
     }
-    if (is.null(values) && (!is.null(factor.levels) || !is.null(factor.labels))) {
+    if (!is.null(factor.levels) || !is.null(factor.labels)) {
         as.factor.result  <- TRUE
     }
     `getFromRange` <- function(a, b, uniques, xisnumeric) {
@@ -133,8 +143,13 @@
             rules <- unlist(strsplit(rules, split = ";"))
         }
         rulsplit <- strsplit(rules, split = "=")
-        oldval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 1))
-        newval <- unlist(lapply(lapply(rulsplit, trimstr), "[", 2))
+        oldval <- trimws(sapply(rulsplit, "[", 1))
+        newval <- trimws(sapply(rulsplit, "[", 2))
+        if (!is.null(factor.labels)) {
+            if (length(factor.labels) != length(newval)) {
+                stopError("The number of labels should be equal to the number of recodings.")
+            }
+        }
         temp <- rep(NA, length(x))
         elsecopy <- oldval == "else" & newval == "copy"
         if (any(elsecopy)) {
@@ -259,6 +274,11 @@
                         ifelse(length(cut) == 1, "", "s"), "."
                     )
                 )
+            }
+        }
+        if (!is.null(factor.labels)) {
+            if (length(factor.labels) != length(values)) {
+                stopError("The number of labels should be equal to the number of recodings.")
             }
         }
         if (is.factor(x)) {

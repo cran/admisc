@@ -133,7 +133,7 @@
     }
     if (is.null(noflevels)) {
         if (!is.null(data)) {
-            infodata <- getInfo(data, no_column_info = TRUE)
+            infodata <- getInfo(data)
             noflevels <- infodata$noflevels
         }
     }

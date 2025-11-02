@@ -27,6 +27,27 @@
 `compute` <-
 function(expression = "", data = NULL, separate = FALSE, ...) { 
     expression <- recreate(substitute(expression))
+    syscalls <- as.character(sys.calls())
+    usingwith <- "admisc::using\\(|using\\(|with\\("
+    if (is.null(data)) {
+        if (any(usingdata <- grepl(usingwith, syscalls))) {
+            dataname <- unlist(strsplit(gsub(usingwith, "", syscalls), split = ","))[1]
+            data <- eval.parent(parse(text = dataname, n = 1))
+        }
+    }
+    if (!is.element(expression, colnames(data))) { 
+        if (exists(expression, envir = parent.frame())) {
+            temp <- eval.parent(parse(text = expression, n = 1))
+            if (!is.function(temp)) {
+                expression <- temp
+            }
+        } else if (grepl("\\$", expression)) {
+            expression <- eval(parse(text = expression), envir = parent.frame())
+        }
+        if (!is.atomic(expression) || length(expression) > 1 || !is.character(expression)) {
+            stopError("The function compute() expects a single character string for an expression.")
+        }
+    }
     if (grepl("<-|<=|=>|->", expression)) {
         stopError("This function is not intended to calculate parameters of fit.")
     }
@@ -40,31 +61,23 @@ function(expression = "", data = NULL, separate = FALSE, ...) {
     negated <- identical(unname(substring(expression, 1, 2)), "1-")
     expression <- gsub("1-", "", expression)
     if (is.null(data)) {
-        syscalls <- as.character(sys.calls())
-        usingwith <- "admisc::using\\(|using\\(|with\\("
-        if (any(usingdata <- grepl(usingwith, syscalls))) {
-            dataname <- unlist(strsplit(gsub(usingwith, "", syscalls), split = ","))[1]
-            data <- eval.parent(parse(text = dataname, n = 1))
-        }
-        else {
-            colnms <- colnames(
-                validateNames(
-                    notilde(expression),
-                    sort(eval.parent(parse(text = "ls()", n = 1)))
-                )
+        colnms <- colnames(
+            validateNames(
+                notilde(expression),
+                sort(eval.parent(parse(text = "ls()", n = 1)))
             )
-            data <- vector(mode = "list", length = length(colnms))
-            for (i in seq(length(data))) {
-                data[[i]] <- eval.parent(
-                    parse(text = sprintf("get(\"%s\")", colnms[i]), n = 1)
-                )
-            }
-            if (length(unique(unlist(lapply(data, length)))) > 1) {
-                stopError("Objects should be vectors of the same length.")
-            }
-            names(data) <- colnms
-            data <- as.data.frame(data)
+        )
+        data <- vector(mode = "list", length = length(colnms))
+        for (i in seq(length(data))) {
+            data[[i]] <- eval.parent(
+                parse(text = sprintf("get(\"%s\")", colnms[i]), n = 1)
+            )
         }
+        if (length(unique(sapply(data, length))) > 1) {
+            stopError("Objects should be vectors of the same length.")
+        }
+        names(data) <- colnms
+        data <- as.data.frame(data)
     }
     multivalue <- grepl("\\{|\\}|\\[|\\]", expression)
     if (!multivalue) {

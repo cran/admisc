@@ -36,13 +36,37 @@
         }
         expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
     }
-    eval(substitute(expr), data, enclos = parent.frame())
+    test <- tryCatchWEM(
+        result <- eval(substitute(expr), envir = data, enclos = parent.frame())
+    )
+    if (is.null(test$error)) {
+        return(result)
+    }
+    stopError(test$error)
 }
-`using.data.frame` <- function(data, expr, split.by = NULL, ...) {
+`using.matrix` <- function(data, expr, split.by = NULL, ...) {
+    if (missing(expr)) {
+        args <- unlist(lapply(match.call(), deparse)[-1])
+        args <- args[setdiff(names(args), c("data", "expr"))]
+        if (length(args) > 1) {
+            stopError("Missing or ambiguous expression")
+        }
+        expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
+    }
+    expr <- substitute(expr)
+    return( 
+        using(as.data.frame(data), expr, split.by = split.by, ... = ...)
+    )
+}
+`using.data.frame` <- function(data, expr = expr, split.by = NULL, ...) {
     if (nrow(data) == 0) {
         stopError("There are no rows in the data.")
     }
-    split.by <- substitute(split.by)
+    test <- substitute(split.by) 
+    split.by <- NULL
+    if (!identical(as.character(test), "split.by")) {
+        split.by <- test
+    }
     sby <- all.vars(split.by)
     nsby <- all.names(split.by)
     if (missing(expr)) {
@@ -53,7 +77,10 @@
         }
         expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
     }
-    expr <- substitute(expr)
+    test <- substitute(expr) 
+    if (!identical(as.character(test), "expr")) {
+        expr <- test
+    }
     vexpr <- all.vars(expr)
     if (any(vexpr == ".")) {
         vexpr <- colnames(data)
@@ -61,7 +88,13 @@
         vexpr <- vexpr[is.element(vexpr, colnames(data))]
     }
     if (length(sby) == 0) {
-        return(eval(expr = expr, envir = data, enclos = parent.frame()))
+        test <- tryCatchWEM(
+            result <- eval(expr, envir = data, enclos = parent.frame())
+        )
+        if (is.null(test$error)) {
+            return(result)
+        }
+        stopError(gsub("object", "column", test$error))
     }
     nms <- names(data)
     existing <- sapply(sby, function(x) {
@@ -166,11 +199,11 @@
     }
     empty <- sapply(res, is.null)
     res <- res[!empty]
-    any_w_table <- any(
-        sapply(res, function(x) class(x)[1] == "w_table")
+    any_wtable <- any(
+        sapply(res, function(x) class(x)[1] == "wtable" | class(x)[1] == "w_table")
     )
     slexp <- slexp[!empty, ]
-    if (all(sapply(res, is.atomic)) & !any_w_table) {
+    if (all(sapply(res, is.atomic)) & !any_wtable) {
         classes <- unique(unlist(lapply(res, class)))
         classes <- setdiff(classes, c("integer", "double", "character", "numeric", "complex"))
         lengths <- sapply(res, length)

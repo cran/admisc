@@ -30,6 +30,6 @@ write.clipboard <- function (x) {
         write.table(x, file = clipboard)
         close(clipboard)
     } else if (Sys.info()[['sysname']] == "Windows") {
-        write.table(x, "clipboard", sep = "\t") 
+        write.table(x, "clipboard", sep = "\t")
     }
 }

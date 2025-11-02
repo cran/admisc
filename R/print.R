@@ -179,9 +179,14 @@
 `print.admisc_fobject` <- function(x, startend = TRUE, ...) {
     class(x) <- setdiff(class(x), "admisc_fobject")
     if (is.list(x)) {
-        nms <- apply(attr(x, "split", exact = TRUE), 1, function(x) {
-            paste(x, collapse = ", ")
-        })
+        split <- attr(x, "split")
+        if (is.matrix(split)) {
+            nms <- apply(attr(x, "split", exact = TRUE), 1, function(x) {
+                paste(x, collapse = ", ")
+            })
+        } else {
+            nms <- split
+        }
         cat(ifelse(startend, "\n", ""))
         for (i in seq(length(x))) {
             cat(nms[i], "\n")

@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `recreate` <- function(x, snames = NULL, ...) {
-    if (is.null(x) | is.logical(x) | is.character(x)) return(x)
+    if (is.null(x) | is.logical(x) | is.character(x) | is.list(x)) return(x)
     withinobj <- function(x) {
         x <- gsub("\"|[[:space:]]", "", x)
         for (i in seq(length(x))) {
@@ -43,7 +43,19 @@
                     if (all(grepl("\\*|\\+", xs))) {
                         stopError("The outcome should be a single condition.")
                     }
-                    if (grepl("\\*|\\+", xs[2]) & !grepl("\\*|\\+", xs[1]) & which(found) == 1) {
+                    if (
+                        (
+                            (
+                                grepl("\\*|\\+", xs[2]) &
+                                !grepl("\\*|\\+", xs[1])
+                            ) |
+                            (
+                                grepl("~", ifelse(tilde1st(xs[2]), substring(xs[2], 2), xs[2])) &
+                                !grepl("~", ifelse(tilde1st(xs[1]), substring(xs[1], 2), xs[1]))
+                            )
+                        ) &
+                        which(found) == 1
+                    ) {
                         x[i] <- paste(rev(xs), collapse = "->")
                     }
                 }
@@ -119,7 +131,7 @@
         return(withinobj(dx))
     }
     ntdx <- dx
-    negated <- tilde1st(dx) & !grepl("\\+|\\*", dx)
+    negated <- all(tilde1st(dx) & !grepl("\\+|\\*", dx))
     if (negated) {
         ntdx <- notilde(dx)
     }

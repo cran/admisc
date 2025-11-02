@@ -88,6 +88,5 @@
     )
 }
 `writePrimeimp` <- function(...) {
-    .Deprecated(msg = "Function writePrimeimp() is deprecated, use writePIs().\n")
     writePIs(...)
 }
