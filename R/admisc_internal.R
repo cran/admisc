@@ -24,28 +24,54 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#' @export
-`getMatrix` <- function(noflevels, depth = 0) {
-    nofconds <- length(noflevels)
-    pwr <- unique(noflevels)
-    if (length(pwr) == 1) {
-        create <- function(idx) {
-            rep.int(c(sapply(seq_len(pwr) - 1, function(x) rep.int(x, pwr^(idx - 1)))),
-                    pwr^nofconds/pwr^idx)
-        }
-        retmat <- sapply(rev(seq_len(nofconds)), create)
-    } else {
-        mbase <- c(rev(cumprod(rev(noflevels))), 1)[-1]
-        orep  <- cumprod(rev(c(rev(noflevels)[-1], 1)))
-        retmat <- sapply(seq_len(nofconds), function(x) {
-           rep.int(rep.int(seq_len(noflevels[x]) - 1, rep.int(mbase[x], noflevels[x])), orep[x])
-        })
-    }
-    if (is.vector(retmat)) {
-        retmat <- matrix(retmat, nrow = 1)
-    }
-    if (depth > 0) {
-        retmat <- retmat[apply(retmat, 1, function(x) sum(x > 0) <= depth ), , drop = FALSE]
-    }
-    return(retmat)
-}
+#' admisc internal functions
+#'
+#' Functions to be used internally in package `admisc`.
+#'
+#' @name admisc_internal
+#' @aliases anyTagged
+#' @aliases checkMV
+#' @aliases checkSubset
+#' @aliases classify
+#' @aliases dashes
+#' @aliases doublequotes
+#' @aliases expandBrackets
+#' @aliases getInfo
+#' @aliases getLevels
+#' @aliases getMatrix
+#' @aliases getNonChars
+#' @aliases getTag
+#' @aliases hasTag
+#' @aliases makeTag
+#' @aliases negateLoop
+#' @aliases padLeft
+#' @aliases padRight
+#' @aliases padBoth
+#' @aliases prettyString
+#' @aliases prettyTable
+#' @aliases reload
+#' @aliases removeSingleStars
+#' @aliases splitMainComponents
+#' @aliases splitstr
+#' @aliases splitBrackets
+#' @aliases splitPluses
+#' @aliases splitProducts
+#' @aliases splitStars
+#' @aliases splitTildas
+#' @aliases solveBrackets
+#' @aliases sortExpressions
+#' @aliases simplifyList
+#' @aliases singlequotes
+#' @aliases spaces
+#' @aliases stopError
+#' @aliases tildae
+#' @aliases trimstr
+#' @aliases uninstall
+#' @aliases unload
+#' @aliases checkValid
+#' @aliases validateNames
+#' @aliases verify
+#' @aliases writePIs
+#' @aliases writePrimeimp
+#' @keywords internal
+NULL

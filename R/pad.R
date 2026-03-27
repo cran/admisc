@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `padLeft` <- function(x, n) {
     paste(c(rep(" ", n), x), collapse = "", sep = "")
 }
+#' @export
 `padRight` <- function(x, n) {
     paste(c(x, rep(" ", n)), collapse = "", sep = "")
 }
+#' @export
 `padBoth` <- function(x, n) {
     n1 <- ceiling(n/2)
     n2 <- floor(n/2)

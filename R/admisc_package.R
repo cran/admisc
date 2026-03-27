@@ -24,51 +24,42 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#' Modified \code{relevel()} function
+#' @keywords internal
+#' "_PACKAGE"
 #'
-#' The base function \code{relevel()} accepts a single argument "ref", which
-#'   can only be a scalar and not a vector of values. \code{frelevel()} accepts
-#'   more (even all) levels and reorders them.
+#' @name admisc_package
+#' @aliases admisc-package
 #'
-#' @name frelevel
-#' @rdname frelevel
-#' @rawRd
-#' \usage{
-#' frelevel(variable, levels)
+#' @title Adrian Dusa's Miscellaneous
+#'
+#' @description Contains functions used across packages 'DDIwR', 'QCA' and 'venn'.
+#' Interprets and translates, factorizes and negates SOP - Sum of Products
+#' expressions, for both binary and multi-value crisp sets, and extracts
+#' information (set names, set values) from those expressions. Other functions
+#' perform various checks if possibly numeric (even if all numbers reside in a
+#' character vector) and coerce to numeric, or check if the numbers are whole. It
+#' also offers, among many others, a highly versatile recoding routine and some
+#' more flexible alternatives to the base functions `with()` and `within()`.
+#' SOP simplification functions in this package use related minimization from
+#' package **QCA**, which is recommended to be installed despite not being listed
+#' in the Imports field, due to circular dependency issues.
+#'
+#' @author Adrian Dusa
+#'
+#' Maintainer: Adrian Dusa (dusa.adrian@unibuc.ro)
+#'
+#' @details
+#' \tabular{ll}{
+#'   Package: \tab admisc\cr
+#'   Type: \tab Package\cr
+#'   Version: \tab 0.40\cr
+#'   Date: \tab 2026-03-26\cr
+#'   License: \tab GPL (>= 3)\cr
 #' }
 #'
-#' \arguments{
-#'   \item{variable}{The categorical variable of interest}
-#'   \item{levels}{One or more levels of the factor, in the desired order}
-#' }
-#'
-#' \value{A factor of the same length as the initial one.}
-#'
-#' \author{Adrian Dusa}
-#'
-#' \seealso{\code{\link[stats]{relevel}}}
-#'
-#' \examples{
-#' words <- c("ini", "mini", "miny", "moe")
-#' variable <- factor(words, levels = words)
-#'
-#' # modify the order of the levels, keeping the order of the values
-#' frelevel(variable, c("moe", "ini", "miny", "mini"))
-#'
-#' }
-#'
-#' \keyword{functions}
+#' @importFrom utils read.csv write.csv write.table capture.output installed.packages packageDescription compareVersion remove.packages tail
+#' @importFrom stats na.omit dist relevel
+#' @importFrom methods is
+#' @importFrom grDevices hcl
+#' @useDynLib admisc, .registration = TRUE
 NULL
-#' @export
-`frelevel` <- function(variable, levels) {
-    if (!is.factor(variable)) {
-        stopError("The input variable is not a factor.")
-    }
-    if (any(!(levels %in% levels(variable)))) {
-        stopError("One or more levels do not exist in the input variable.")
-    }
-    for (i in seq_len(length(levels))) {
-        variable <- relevel(variable, ref = rev(levels)[i])
-    }
-    return(variable)
-}

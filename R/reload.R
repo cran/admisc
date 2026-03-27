@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `reload` <- function(package, silent = TRUE) {
     package <- as.character(substitute(package))
     unload(package)

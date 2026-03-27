@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `translate` <- function(
     expression = "", snames = "", noflevels = NULL, data = NULL, ...
 ) {
@@ -140,9 +141,6 @@
     else {
         if (is.character(noflevels)) {
             noflevels <- splitstr(noflevels)
-        }
-        if (length(noflevels) == 1 && is.numeric(noflevels) && length(snames) > 1) {
-            noflevels <- rep(noflevels, length(snames))
         }
     }
     expression <- gsub("[[:space:]]|[^ -~]+", "", expression)

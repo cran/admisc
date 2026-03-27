@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,35 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' Calculates the permutations of a vector
+#'
+#' Generates all possible permutations of elements from a vector.
+#'
+#' @name permutations
+#' @rdname permutations
+#' @rawRd
+#' \usage{
+#' permutations(x)
+#' }
+#'
+#' \arguments{
+#'     \item{x}{Any kind of vector.}
+#' }
+#'
+#'
+#' \author{
+#' Adrian Dusa
+#' }
+#'
+#' \examples{
+#'
+#' permutations(1:3)
+#'
+#' }
+#'
+#' \keyword{functions}
+NULL
+#' @export
 permutations <- function(x) {
     if (length(x) == 1) {
         return(x)

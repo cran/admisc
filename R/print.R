@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `print.admisc_deMorgan` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pM <- paste("M", prettyNums, sep = "")
@@ -68,6 +69,7 @@
         }
     }
 }
+#' @export
 `print.admisc_intersection` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pI <- paste("E", prettyNums, sep="")
@@ -89,6 +91,7 @@
     }
     cat("\n")
 }
+#' @export
 `print.admisc_simplify` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     cat("\n")
@@ -105,6 +108,7 @@
     }
     cat("\n")
 }
+#' @export
 `print.admisc_factorize` <- function(x, ...) {
     prettyNums <- formatC(seq(length(x)), digits = nchar(length(x)) - 1, flag = 0)
     pM <- paste("M", prettyNums, sep = "")
@@ -149,6 +153,7 @@
         }
     }
 }
+#' @export
 `print.admisc_translate` <- function(x, ...) {
     dots <- list(...)
     cat("\n")
@@ -176,6 +181,7 @@
     print(prettyTable(y))
     cat("\n")
 }
+#' @export
 `print.admisc_fobject` <- function(x, startend = TRUE, ...) {
     class(x) <- setdiff(class(x), "admisc_fobject")
     if (is.list(x)) {

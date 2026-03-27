@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,32 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' Cross platform scan/write clipboard
+#'
+#' Functions to read and write to the system's clipboard, for copy/paste operations.
+#'
+#' @name scan.clipboard
+#' @rdname clipboard
+#' @aliases write.clipboard
+#' @rawRd
+#' \usage{
+#' scan.clipboard(...)
+#' write.clipboard(x)
+#' }
+#'
+#' \arguments{
+#'     \item{x}{Object to be written to the clipboard}
+#'     \item{...}{Same arguments that are used in the base function \bold{\code{scan}}}
+#' }
+#'
+#'
+#' \author{
+#' Adrian Dusa
+#' }
+#'
+#' \keyword{functions}
+NULL
+#' @export
 scan.clipboard <- function (...) {
     dots <- list(...)
     if (Sys.info()[['sysname']] == "Darwin") {

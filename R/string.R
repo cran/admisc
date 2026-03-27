@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `trimstr` <- function(x, what = " ", side = "both") {
     if (is.element(what, c("*", "+"))) {
         what <- paste("\\", what, sep = "")
@@ -40,6 +41,7 @@
     )
     gsub(pattern, "", x)
 }
+#' @export
 `splitstr` <- function(x) {
     if (identical(x, "") || is.null(x)) return(x)
     x <- gsub("\\n", "", x)
@@ -112,6 +114,7 @@
         return(y)
     }
 }
+#' @export
 `splitMainComponents` <- function(expression) {
     expression <- gsub("[[:space:]]", "", expression)
     ind.char <- unlist(strsplit(expression, split = ""))
@@ -226,11 +229,13 @@
     }
     return(big.list)
 }
+#' @export
 `splitBrackets` <- function(big.list) {
     return(lapply(big.list, function(x) {
         as.list(unlist(strsplit(unlist(strsplit(x, split="\\(")), split="\\)")))
     }))
 }
+#' @export
 `removeSingleStars` <- function(big.list) {
     return(lapply(big.list, function(x) {
         single.stars <- unlist(lapply(x, function(y) {
@@ -239,6 +244,7 @@
         return(x[!single.stars])
     }))
 }
+#' @export
 `splitPluses` <- function(big.list) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -247,6 +253,7 @@
         })
     }))
 }
+#' @export
 `splitStars` <- function(big.list, prod.split) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -269,6 +276,7 @@
         })
     }))
 }
+#' @export
 `splitTildas` <- function (big.list) {
     return(lapply(big.list, function(x) {
         lapply(x, function(y) {
@@ -291,6 +299,7 @@
         })
     }))
 }
+#' @export
 `solveBrackets` <- function(big.list) {
     bracket.comps <- which(unlist(lapply(big.list, length)) > 1)
     if (length(bracket.comps) > 0) {
@@ -317,6 +326,7 @@
     }
     return(big.list)
 }
+#' @export
 `simplifyList` <- function(big.list) {
     lengths <- unlist(lapply(big.list, function(x) length(x[[1]])))
     bl <- vector("list", length = sum(lengths))
@@ -341,6 +351,7 @@
     }
     return(unique(bl[!unlist(lapply(bl, function(x) any(duplicated(notilde(x)))))]))
 }
+#' @export
 `getNonChars` <- function(x) {
     x <- gsub("^[[:space:]]+|[[:space:]]+$", "", unlist(strsplit(x, "\\+")))
     z <- vector(mode="list", length=length(x))

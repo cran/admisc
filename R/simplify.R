@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `simplify` <- function(expression = "", snames = "", noflevels = NULL, ...) {
     expression <- recreate(substitute(expression))
     snames <- recreate(substitute(snames))
@@ -61,15 +62,24 @@
     if (is.null(noflevels)) {
         noflevels <- rep(2, ncol(implicants))
     }
-    version <- -1
-    if (requireNamespace("QCA", quietly = TRUE)) {
-        version <- compareVersion(
-            packageDescription("QCA")$Version,
-            "3.7"
+    qca_version <- tryCatch(
+        if (requireNamespace("QCA", quietly = TRUE)) {
+            packageDescription("QCA")$Version
+        }
+        else {
+            NULL
+        },
+        error = function(e) NULL
+    )
+    if (is.null(qca_version) || compareVersion(qca_version, "3.7") < 0) {
+        message(
+            paste(
+                enter,
+                "Package QCA (>= 3.7) is needed to simplify this expression.",
+                enter,
+                sep = ""
+            )
         )
-    }
-    if (version < 0) {
-        message(paste(enter, "Error: Package QCA (>= 3.7) is needed to make this work, please install it.", enter, sep = ""))
         return(invisible(character(0)))
     }
     dataset <- cbind(implicants - 1, 1)
@@ -81,6 +91,15 @@
             if (grepl("All truth table", test$error)) {
                 return("")
             }
+            message(
+                paste(
+                    enter,
+                    "QCA minimization failed.",
+                    enter,
+                    sep = ""
+                )
+            )
+            return(invisible(character(0)))
         }
     }
     scollapse <- scollapse |
@@ -103,6 +122,7 @@
     }
     return(classify(expression, "admisc_simplify"))
 }
+#' @export
 `sop` <- function(...) {
     .Deprecated(msg = "Function sop() is deprecated, and has been renamed to simplify()\n")
     simplify(...)

@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,39 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' Coerce an atomic vector to numeric or integer, if possible
+#'
+#' This function verifies if an R vector is possibly numeric, and further if the
+#' numbers inside are whole numbers.
+#'
+#' @name coerceMode
+#' @rdname coerceMode
+#' @rawRd
+#' \usage{
+#' coerceMode(x)
+#' }
+#'
+#' \arguments{
+#'     \item{x}{An atomic R vector}
+#' }
+#'
+#' \value{
+#'     An R vector of coerced mode.
+#' }
+#'
+#' \author{
+#' Adrian Dusa
+#' }
+#'
+#' \examples{
+#' obj <- c("1.0", 2:5)
+#'
+#' is.integer(coerceMode(obj))
+#' }
+#'
+#' \keyword{functions}
+NULL
+#' @export
 `coerceMode` <- function(x) {
     if (!is.atomic(x)) {
         stopError("The input is not atomic.")

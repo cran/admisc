@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,35 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' Extract information between quotes in a string
+#'
+#' Functions to extract the between the (escaped) quotes, in a string.
+#'
+#' @name betweenQuotes
+#' @rdname betweenQuotes
+#' @rawRd
+#' \usage{
+#' betweenQuotes(x)
+#' }
+#'
+#' \arguments{
+#'   \item{x}{A string.}
+#' }
+#'
+#'
+#' \author{
+#' Adrian Dusa
+#' }
+#'
+#' \examples{
+#' x <- "An example of \"quoted\" text."
+#'
+#' betweenQuotes(x)
+#' }
+#'
+#' \keyword{functions}
+NULL
+#' @export
 `betweenQuotes` <- function(x) {
     pos <- gregexpr("\"", x)
     lpos <- length(pos[[1]])

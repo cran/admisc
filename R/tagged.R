@@ -1,4 +1,4 @@
-# Copyright (c) 2019 - 2025, Adrian Dusa
+# Copyright (c) 2019 - 2026, Adrian Dusa
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#' @export
 `makeTag` <- function(...) {
     x <- as.character(c(...))
     x <- .Call("_tag", x, PACKAGE = "admisc")
     class(x) <- "double"
     return(x)
 }
+#' @export
 `hasTag` <- function(x, tag = NULL) {
     if (!is.double(x)) {
         return(logical(length(x)))
@@ -42,6 +44,7 @@
     }
     return(.Call("_has_tag", x, tag, PACKAGE = "admisc"))
 }
+#' @export
 `getTag` <- function(x) {
     if (is.double(x)) {
         x <- .Call("_get_tag", x, PACKAGE = "admisc")
@@ -54,6 +57,7 @@
         return(rep(NA, length(x)))
     }
 }
+#' @export
 `anyTagged` <- function(x) {
     if (is.data.frame(x)) {
         i <- 1
