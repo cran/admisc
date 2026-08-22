@@ -74,17 +74,22 @@
 NULL
 #' @export
 `combnk` <- function(n, k, ogte = 0, zerobased = FALSE) {
+    
     if (!is.numeric(k)) {
         stopError("Argument k should be numeric.")
     }
+    
     if (length(k) != 1L) {
         stopError("Argument k should be a scalar of length 1.")
     }
+    
     if (k < 0) {
         stopError("Argument k should be positive.")
     }
+
     len <- length(n)
     lngt1 <- len > 1
+
     if (lngt1) {
         if (len < k) {
             stopError("Argument k cannot be greater than the length of n.")
@@ -94,14 +99,17 @@ NULL
         if (!is.numeric(n)) {
             stopError("When scalar, argument n should be numeric.")
         }
+
         if (n < k) {
             stopError("Argument n should be greater than or equal to k.")
         }
     }
+
     copyn <- n
     if (lngt1) {
         n <- len
     }
+    
     resmat <- .Call(
         "C_ombnk",
         list(
@@ -112,8 +120,10 @@ NULL
         ),
         PACKAGE = "admisc"
     )
+
     if (lngt1) {
         resmat <- matrix(copyn[resmat], nrow = nrow(resmat))
     }
+
     return(resmat)
 }

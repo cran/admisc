@@ -76,7 +76,7 @@ NULL
     is.element(
         substring(
             gsub(
-                paste0("[[:space:]|", "\u00a0", "]"), 
+                paste0("[[:space:]|", "\u00a0", "]"), # multibyte space
                 "",
                 x
             ),
@@ -85,17 +85,19 @@ NULL
         tildae()
     )
 }
+
 #' @export
 `hastilde` <- function(x) {
     grepl(paste(tildae(), collapse = "|"), x)
 }
+
 #' @export
 `notilde` <- function(x) {
     gsub(
         paste(tildae(), collapse = "|"),
         "",
         gsub(
-            paste0("[[:space:]|", "\u00a0", "]"), 
+            paste0("[[:space:]|", "\u00a0", "]"), # multibyte space
             "",
             x
         )

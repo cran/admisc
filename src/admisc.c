@@ -1,23 +1,35 @@
+/*
+Copyright (c) 2019 - 2026, Adrian Dusa
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, in whole or in part, are permitted provided that the
+following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * The names of its contributors may NOT be used to endorse or promote
+      products derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL ADRIAN DUSA BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include <R.h>
 #include <stdbool.h>
 #include <R_ext/Rdynload.h>
 #include "admisc.h"
-
-#ifdef _OPENMP
-    /* <Rinternals.h> defines macro match that seems to break <omp.h> on some versions of Clang.
-    See https://github.com/Bioconductor/SparseArray/blob/533a86a5fee60e5bcb2f5cd8c16f2019eca8ac04/src/thread_control.c#L7-L10 */
-    #undef match
-
-    #include <omp.h>
-    // a la package collapse
-    #define OMP_NUM_PROCS omp_get_num_procs()
-    #define OMP_THREAD_LIMIT omp_get_thread_limit()
-    #define OMP_MAX_THREADS omp_get_max_threads()
-#else
-    #define OMP_NUM_PROCS 1
-    #define OMP_THREAD_LIMIT 1
-    #define OMP_MAX_THREADS 1
-#endif
 
 typedef union {
     double value;

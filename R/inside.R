@@ -50,7 +50,7 @@
 #'                 rm(unused1, temp)
 #'             }
 #'         }}
-#'     
+#'
 #'     \item{keepAttrs}{For the \code{\link{list}} method of \code{inside()},
 #'         a \code{\link{logical}} specifying if the resulting list should keep
 #'         the \code{\link{attributes}} from \code{data} and have its
@@ -86,8 +86,10 @@ NULL
 `inside` <- function(data, expr, ...) {
     UseMethod("inside")
 }
+
 #' @export
 `inside.data.frame` <- function(data, expr, ...) {
+    # modified version of within.data.frame
     dataname <- deparse(substitute(data))
     parent <- parent.frame()
     e <- evalq(environment(), data, parent)
@@ -103,22 +105,65 @@ NULL
     l <- as.list(e, all.names = TRUE)
     l <- l[!vapply(l, is.null, NA, USE.NAMES = FALSE)]
     nl <- names(l)
-    del <- setdiff(names(data), nl)
-    data[nl] <- l
-    data[del] <- NULL
+
+    if (anyDuplicated(names(data))) {
+        data_names <- names(data)
+        data_order <- order(data_names, seq_along(data_names))
+        data_names_sorted <- data_names[data_order]
+        used <- logical(length(data))
+        new_items <- list()
+        new_names <- character()
+        j <- 1L
+
+        for (i in seq_along(l)) {
+            name <- nl[i]
+
+            while (j <= length(data_names_sorted) && data_names_sorted[j] < name) {
+                j <- j + 1L
+            }
+
+            if (j <= length(data_names_sorted) && identical(data_names_sorted[j], name)) {
+                pos <- data_order[j]
+                data[[pos]] <- l[[i]]
+                used[pos] <- TRUE
+                j <- j + 1L
+            }
+            else {
+                new_items[[length(new_items) + 1L]] <- l[[i]]
+                new_names <- c(new_names, name)
+            }
+        }
+
+        data <- data[used]
+        if (length(new_items) > 0) {
+            data[new_names] <- new_items
+        }
+    } else {
+        ## del: variables to *del*ete from data[]; keep non-NULL ones
+        del <- setdiff(names(data), nl)
+        data[nl] <- l
+        data[del] <- NULL
+    }
+
     if (exists(dataname, parent)) {
         parent[[dataname]] <- data
-    }
-    else {
+    } else {
+        # for instance inside(obj$DF, dosomething)
+        # where obj$DF is not an "object" to replace
         structure_string <- paste(capture.output(dput(data)), collapse = " ")
+
         eval(
             parse(text = sprintf(paste(dataname, "<- %s"), structure_string)),
             envir = parent
         )
     }
 }
+
+
+
 #' @export
 `inside.list` <- function(data, expr, keepAttrs = TRUE, ...) {
+    # modified version of within.list
     parent <- parent.frame()
     dataname <- deparse(substitute(data))
     e <- evalq(environment(), data, parent)
@@ -131,20 +176,22 @@ NULL
         expr <- str2lang(paste(names(args), args[[1]], sep = "<-"))
     }
     eval(substitute(expr), e)
-    if (keepAttrs) { 
+    if (keepAttrs) { # names() kept in original order; also other attributes
         l <- as.list(e, all.names=TRUE)
         nl <- names(l)
-        del <- setdiff(names(data), nl) 
+        del <- setdiff(names(data), nl) # variables to delete
         data[nl] <- l
         data[del] <- NULL
-    } else { 
+    } else { # (order should not matter in *named* list)
         data <- as.list(e, all.names=TRUE)
     }
+
     if (exists(dataname, parent)) {
         parent[[dataname]] <- data
     }
     else {
         structure_string <- paste(capture.output(dput(data)), collapse = " ")
+
         eval(
             parse(text = sprintf(paste(dataname, "<- %s"), structure_string)),
             envir = parent

@@ -1,6 +1,6 @@
 Package: admisc
-Version: 0.40
-SystemRequirements: OpenMP (optional)
+Version: 0.41
+SystemRequirements: POSIX threads
 Title: Adrian Dusa's Miscellaneous
 Authors@R: person(
     given = "Adrian", family = "Dusa",
@@ -26,11 +26,10 @@ Description: Contains functions used across packages 'DDIwR', 'QCA' and 'venn'.
     in the Imports field, due to circular dependency issues.
 License: GPL (>= 3)
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 NeedsCompilation: yes
-Packaged: 2026-03-26 18:14:59 UTC; dusadrian
+Packaged: 2026-08-22 02:57:21 UTC; dusadrian
 Author: Adrian Dusa [aut, cre, cph] (ORCID:
     <https://orcid.org/0000-0002-3525-9253>)
 Maintainer: Adrian Dusa <dusa.adrian@unibuc.ro>
 Repository: CRAN
-Date/Publication: 2026-03-27 06:10:17 UTC
+Date/Publication: 2026-08-22 03:50:02 UTC

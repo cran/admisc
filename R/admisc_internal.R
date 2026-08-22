@@ -72,6 +72,5 @@
 #' @aliases validateNames
 #' @aliases verify
 #' @aliases writePIs
-#' @aliases writePrimeimp
 #' @keywords internal
 NULL

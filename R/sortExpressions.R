@@ -26,10 +26,13 @@
 
 #' @export
 `sortExpressions` <- function(x) {
+
     if (is.matrix(x)) {
         mat <- x
     } else if (is.character(x)) {
+        # 
     }
+
     for (i in rev(seq(ncol(mat)))) {
         mat <- mat[order(mat[, i], decreasing = TRUE), , drop = FALSE]
         if (length(wx <- which(mat[, i] > 0)) > 0) {
@@ -39,3 +42,4 @@
     }
     return(mat[order(apply(mat, 1, function(x) sum(x > 0))), , drop = FALSE])
 }
+

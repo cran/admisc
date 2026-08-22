@@ -30,10 +30,14 @@
 ) {
     expression <- recreate(substitute(expression))
     snames <- recreate(substitute(snames))
+    # dots <- list(...)
+    
     arglist <- list(snames = snames)
+
     if (!is.null(noflevels)) {
         arglist$noflevels <- noflevels
     }
+
     return(
         unname(sapply(expression, function(x) {
             if (grepl("[(|)]", x)) {

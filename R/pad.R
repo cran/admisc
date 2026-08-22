@@ -24,14 +24,19 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# In principle, such functions are found in packages such as stringr or stringi
+# but it is not worth adding dependencies just for these
+
 #' @export
 `padLeft` <- function(x, n) {
     paste(c(rep(" ", n), x), collapse = "", sep = "")
 }
+
 #' @export
 `padRight` <- function(x, n) {
     paste(c(x, rep(" ", n)), collapse = "", sep = "")
 }
+
 #' @export
 `padBoth` <- function(x, n) {
     n1 <- ceiling(n/2)

@@ -26,37 +26,51 @@
 
 #' @export
 `trimstr` <- function(x, what = " ", side = "both") {
+    # as once identified with grepl("[^!-~ ]", x) on students' emails from the
+    # secretariat, containing a multibyte space
+
     if (is.element(what, c("*", "+"))) {
         what <- paste("\\", what, sep = "")
     }
+
     what <- ifelse(
         identical(what, " "),
-        paste0("[[:space:]|", "\u00a0", "]"), 
+        paste0("[[:space:]|", "\u00a0", "]"), # plus the multibyte space
         what
     )
+
     pattern <- switch(side,
         both = paste("^", what, "+|", what, "+$", sep = ""),
         left = paste("^", what, "+", sep = ""),
         right = paste(what, "+$", sep = "")
     )
+
     gsub(pattern, "", x)
 }
+
+
 #' @export
 `splitstr` <- function(x) {
+
     if (identical(x, "") || is.null(x)) return(x)
     x <- gsub("\\n", "", x)
+    # y <- unlist(strsplit(x, split = ","))
     oldv <- newv <- NULL
     if (any(grepl(",|;", x) & grepl("\\{|\\[", x))) {
         curly <- grepl("\\{", x)
         squared <- grepl("\\[", x)
+
         if (curly & squared) {
             stopError(
                 "Multi-value expressions should not mix curly and squared brackets."
             )
         }
+
         regexp <- ifelse(curly, "\\{[[:alnum:]|,|;]+\\}", "\\[[[:alnum:]|,|;]+\\]")
+
         oldv <- regmatches(x, gregexpr(regexp, x), invert = FALSE)[[1]]
         newv <- paste("XYZW", seq(length(oldv)), sep = "")
+
         x <- replaceText(
             expression = x,
             target = oldv,
@@ -64,10 +78,14 @@
             checktarget = FALSE
         )
     }
+
     y <- trimstr(unlist(strsplit(x, split = ",")))
+
     if (length(y) == 1) {
+        # try again, using a semicolon
         y <- gsub("\\n", "", unlist(strsplit(gsub("[[:space:]]", "", y), split = ";")))
     }
+
     if (!is.null(oldv)) {
         for (i in seq(length(y))) {
             y[i] <- replaceText(
@@ -78,7 +96,10 @@
             )
         }
     }
+
     metacall <- match.call()$x
+
+    # Provides functionality for package QCA
     if (metacall == "sort.by") {
         if (any(grepl("[=]", y))) {
             y <- t(as.data.frame(strsplit(gsub("[[:space:]]", "", y), split = "=")))
@@ -111,32 +132,44 @@
         if (possibleNumeric(y)) {
             y <- asNumeric(y)
         }
+
         return(y)
     }
 }
+
+
 #' @export
 `splitMainComponents` <- function(expression) {
+
     expression <- gsub("[[:space:]]", "", expression)
+
     ind.char <- unlist(strsplit(expression, split = ""))
     openclosed <- grepl("\\(", expression) | grepl("\\)", expression)
     if (openclosed) {
+        # split the string in individual characters
+
         open.brackets <- which(ind.char == "(")
         closed.brackets <- which(ind.char == ")")
+
         invalid <- ifelse(
             openclosed,
             length(open.brackets) != length(closed.brackets),
             TRUE
         )
+
         if (invalid) {
             stopError("Invalid expression, open bracket \"(\" not closed with \")\".")
         }
+
         all.brackets <- sort(c(open.brackets, closed.brackets))
+
         if (length(all.brackets) > 2) {
             for (i in seq(3, length(all.brackets))) {
                 if (all.brackets[i] - all.brackets[i - 1] == 1) {
                     open.brackets <- setdiff(open.brackets, all.brackets[seq(i - 1, i)])
                     closed.brackets <- setdiff(closed.brackets, all.brackets[seq(i - 1, i)])
                 }
+
                 if (
                     all.brackets[i] - all.brackets[i - 1] == 2 &&
                     ind.char[all.brackets[i] - 1] != "+"
@@ -146,6 +179,7 @@
                 }
             }
         }
+
         for (i in seq(length(open.brackets))) {
             plus.signs <- which(ind.char == "+")
             last.plus.sign <- plus.signs[plus.signs < open.brackets[i]]
@@ -153,7 +187,7 @@
                 open.brackets[i] <- max(last.plus.sign) + 1
             }
             else {
-                if (1 == 1) { 
+                if (1 == 1) { # ????
                     open.brackets[i] <- 1
                 }
             }
@@ -165,9 +199,14 @@
                 closed.brackets[i] <- length(ind.char)
             }
         }
+
+        # create an empty list with at least 3 times as many components as number of open brackets (just to make sure I have enough)
         big.list <- vector(mode = "list", length = length(open.brackets) + 2)
+
         if (length(open.brackets) == 1) {
+            # there is only one open bracket
             if (open.brackets > 1) {
+                # there's something before that open bracket
                 big.list[[1]] <- paste(
                     ind.char[seq(1, open.brackets - 2)],
                     collapse = ""
@@ -179,6 +218,7 @@
                 collapse = ""
             )
             if (closed.brackets < length(ind.char)) {
+                # there is something beyond the closed bracket
                 nep <- min(which(unlist(lapply(big.list, is.null))))
                 big.list[[nep]] <- paste(
                     ind.char[seq(closed.brackets + 2, length(ind.char))],
@@ -189,17 +229,24 @@
         else {
             for (i in seq(length(open.brackets))) {
                 if (i == 1) {
+                    # check if there's anything meaningful before the FIRST bracket
+                    # i.e. containing a "+" sign, like "A + B(C + D)"
+                    # before the first bracket is "A + B", but only B should be multiplied with "C + D"
+
                     if (open.brackets[1] > 1) {
+                        # there is something before the first bracket
                         big.list[[1]] <- paste(
                             ind.char[seq(1, open.brackets[1] - 2)],
                             collapse = ""
                         )
                     }
+
                     nep <- min(which(unlist(lapply(big.list, is.null))))
                     big.list[[nep]] <- paste(
                         ind.char[seq(open.brackets[i], closed.brackets[i])],
                         collapse = ""
                     )
+
                 }
                 else {
                     nep <- min(which(unlist(lapply(big.list, is.null))))
@@ -207,34 +254,67 @@
                         ind.char[seq(open.brackets[i], closed.brackets[i])],
                         collapse = ""
                     )
+
                     if (i == length(closed.brackets)) {
                         if (closed.brackets[i] < length(ind.char)) {
+                            # there is something beyond the last closed bracket
                             nep <- min(which(unlist(lapply(big.list, is.null))))
+
                             big.list[[nep]] <- paste(
                                 ind.char[seq(closed.brackets[i] + 2, length(ind.char))],
                                 collapse = ""
                             )
+
                         }
                     }
+
                 }
             }
         }
+
         nulls <- unlist(lapply(big.list, is.null))
+
         if (any(nulls)) {
             big.list <- big.list[-which(nulls)]
         }
+
+
+        #### additional, to make a list containing a vector,
+        #### rather than separate list components
+        # big.list <- list(unlist(big.list))
+
     }
     else {
         big.list <- list(expression)
     }
+
+    # names(big.list) <- expression
+
     return(big.list)
 }
+
+
+
+#####
+# split each main component by separating brackets components
 #' @export
 `splitBrackets` <- function(big.list) {
+    # big.list <- as.vector(unlist(big.list))
+    # result <- vector(mode="list", length = length(big.list))
+    # for (i in seq(length(big.list))) {
+    #     result[[i]] <- unlist(strsplit(unlist(strsplit(big.list[i], split="\\(")), split="\\)"))
+    # }
+    # names(result) <- big.list
+    # return(result)
     return(lapply(big.list, function(x) {
         as.list(unlist(strsplit(unlist(strsplit(x, split="\\(")), split="\\)")))
     }))
 }
+
+
+
+#####
+# remove individual components with single "*" signs
 #' @export
 `removeSingleStars` <- function(big.list) {
     return(lapply(big.list, function(x) {
@@ -244,6 +324,11 @@
         return(x[!single.stars])
     }))
 }
+
+
+
+#####
+# split by "+"
 #' @export
 `splitPluses` <- function(big.list) {
     return(lapply(big.list, function(x) {
@@ -253,6 +338,11 @@
         })
     }))
 }
+
+
+
+#####
+# split by "*"
 #' @export
 `splitStars` <- function(big.list, prod.split) {
     return(lapply(big.list, function(x) {
@@ -271,11 +361,17 @@
                         star.split <- star.split[-tilda.pos]
                     }
                 }
+
                 return(as.list(star.split[star.split != ""]))
             })
         })
     }))
 }
+
+
+
+#####
+# split by "~"
 #' @export
 `splitTildas` <- function (big.list) {
     return(lapply(big.list, function(x) {
@@ -299,38 +395,59 @@
         })
     }))
 }
+
+
+
+######
+# determine if and which main components have brackets, and SOLVE them
 #' @export
 `solveBrackets` <- function(big.list) {
+
+
     bracket.comps <- which(unlist(lapply(big.list, length)) > 1)
+
     if (length(bracket.comps) > 0) {
         for (i in bracket.comps) {
             lengths <- unlist(lapply(big.list[[i]], length))
             indexes <- expand.grid(lapply(lengths - 1, seq, from = 0)) + 1
+
             ncol.ind <- ncol(indexes)
             i.list <- vector("list", length = nrow(indexes))
+
             for (j in seq(length(i.list))) {
                 i.list[[j]] <- vector("list", length = prod(dim(indexes)))
                 start.position <- 1
+
                 for (k in seq(ncol.ind)) {
                     for (l in seq(length(big.list[[i]][[k]][[indexes[j, k]]]))) {
                         i.list[[j]][[start.position]] <- big.list[[i]][[k]][[indexes[j, k]]][[l]]
                         start.position <- start.position + 1
                     }
                 }
+
                 if (start.position <= length(i.list[[j]])) {
                     i.list[[j]] <- i.list[[j]][- seq(start.position, length(i.list[[j]]))]
                 }
             }
+
+
             big.list[[i]] <- list(i.list)
         }
     }
+
     return(big.list)
 }
+
+
+
 #' @export
 `simplifyList` <- function(big.list) {
     lengths <- unlist(lapply(big.list, function(x) length(x[[1]])))
+
     bl <- vector("list", length = sum(lengths))
+
     pos <- 1
+
     for (i in seq(length(big.list))) {
         for (j in seq(lengths[i])) {
             blj <- unlist(big.list[[i]][[1]][[j]])
@@ -349,15 +466,21 @@
             pos <- pos + 1
         }
     }
+
     return(unique(bl[!unlist(lapply(bl, function(x) any(duplicated(notilde(x)))))]))
 }
+
+
+
 #' @export
 `getNonChars` <- function(x) {
+    # split by "+", incluging the trimming of the white space
     x <- gsub("^[[:space:]]+|[[:space:]]+$", "", unlist(strsplit(x, "\\+")))
     z <- vector(mode="list", length=length(x))
     for (i in seq(length(x))) {
         z[[i]] <- strsplit(gsub("[[:alnum:]]", "", x[i]), "+")[[1]]
     }
     z <- notilde(unique(unlist(z)))
+
     return(z[nzchar(z)])
 }

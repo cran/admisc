@@ -8,6 +8,13 @@
 \alias{squareBrackets}
 \alias{roundBrackets}
 \title{Extract information from a multi-value SOP/DNF expression}
+\usage{
+betweenBrackets(x, type = "[", invert = FALSE, regexp = NULL)
+outsideBrackets(x, type = "[", regexp = NULL)
+curlyBrackets(x, outside = FALSE, regexp = NULL)
+squareBrackets(x, outside = FALSE, regexp = NULL)
+roundBrackets(x, outside = FALSE, regexp = NULL)
+}
 \arguments{
 \item{x}{A DNF/SOP expression.}
 
@@ -20,15 +27,6 @@ brackets.}
 brackets.}
 
 \item{regexp}{Optional regular expression to extract information with.}
-
-\item{expression}{A DNF/SOP expression.}
-
-\item{snames}{A string containing the sets' names, separated by commas.}
-
-\item{noflevels}{Numerical vector containing the number of levels for each
-set.}
-
-\item{simplify}{Logical, remove redundant expressions after expansion.}
 }
 \description{
 Functions to extract information from an expression written in SOP, or in the

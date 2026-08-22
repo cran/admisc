@@ -92,19 +92,28 @@ NULL
 `undeclareit` <- function(x, drop = FALSE, ...) {
     na_index <- attr(x, "na_index")
     attrx <- attributes(x)
-    attributes(x) <- NULL 
+    
+    # this is necessary to replace those values
+    # (because of the "[<-.declared" method)
+    attributes(x) <- NULL # or x <- unclass(x), but I find this cleaner
     if (!is.null(na_index)) {
+        # x <- ifelse(!is.na(missingValues), missingValues, x)
         x[na_index] <- names(na_index)
     }
+    
     x <- coerceMode(x)
+    
     attrx$na_index <- NULL
     attrx$na_values <- NULL
     attrx$na_range <- NULL
+
     if (isFALSE(drop)) {
         attributes (x) <- attrx
     }
+
     return(x)
 }
+
 #' @export
 `agtb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)
@@ -123,6 +132,7 @@ NULL
     }
     return(coerceMode(result))
 }
+
 #' @export
 `altb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)
@@ -141,6 +151,7 @@ NULL
     }
     return(coerceMode(result))
 }
+
 #' @export
 `agteb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)
@@ -159,6 +170,7 @@ NULL
     }
     return(coerceMode(result))
 }
+
 #' @export
 `alteb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)
@@ -177,6 +189,7 @@ NULL
     }
     return(coerceMode(result))
 }
+
 #' @export
 `aeqb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)
@@ -195,6 +208,7 @@ NULL
     }
     return(coerceMode(result))
 }
+
 #' @export
 `aneqb` <- function(a, b, bincat) {
     if (inherits(a, "declared")) a <- undeclareit(a)

@@ -25,10 +25,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #' @keywords internal
-#' "_PACKAGE"
-#'
+"_PACKAGE"
 #' @name admisc_package
-#' @aliases admisc-package
 #'
 #' @title Adrian Dusa's Miscellaneous
 #'
@@ -52,8 +50,8 @@
 #' \tabular{ll}{
 #'   Package: \tab admisc\cr
 #'   Type: \tab Package\cr
-#'   Version: \tab 0.40\cr
-#'   Date: \tab 2026-03-26\cr
+#'   Version: \tab 0.41\cr
+#'   Date: \tab 2026-08-22\cr
 #'   License: \tab GPL (>= 3)\cr
 #' }
 #'

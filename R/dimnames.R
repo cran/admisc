@@ -66,10 +66,12 @@ NULL
 `setColnames` <- function(matrix, colnames) {
     invisible(.Call("C_setColnames", matrix, colnames))
 }
+
 #' @export
 `setRownames` <- function(matrix, rownames) {
     invisible(.Call("C_setRownames", matrix, rownames))
 }
+
 #' @export
 `setDimnames` <- function(matrix, nameslist) {
     invisible(.Call("C_setDimnames", matrix, nameslist))

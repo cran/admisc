@@ -45,7 +45,6 @@
 \alias{validateNames}
 \alias{verify}
 \alias{writePIs}
-\alias{writePrimeimp}
 \title{admisc internal functions}
 \description{
 Functions to be used internally in package \code{admisc}.
